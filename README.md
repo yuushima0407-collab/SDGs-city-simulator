@@ -1,1 +1,0 @@
-# SDGs-city-simulator
