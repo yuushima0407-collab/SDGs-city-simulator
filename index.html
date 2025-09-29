@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDGs都市経営シミュレーター</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー部分 -->
+        <div class="header">
+            <h1>🏙️ SDGs都市経営シミュレーター</h1>
+            <p>選択で街を育て、持続可能な未来を創ろう</p>
+            <div class="turn-counter">
+                📅 ターン: <span id="currentTurn">1</span> | 🎯 目標: 持続可能な都市の実現
+            </div>
+        </div>
+
+        <div class="game-grid">
+            <!-- メインゲーム部分 -->
+            <div class="main-game">
+                <div class="resources-grid">
+                    <div class="resource-card">
+                        <div>💰 予算</div>
+                        <div class="resource-value" id="budget">15,000</div>
+                        <div>百万円</div>
+                    </div>
+                    <div class="resource-card">
+                        <div>👥 支持率</div>
+                        <div class="resource-value" id="support">65%</div>
+                        <div>市民の信頼</div>
+                    </div>
+                    <div class="resource-card">
+                        <div>🌿 環境</div>
+                        <div class="resource-value" id="environment">70%</div>
+                        <div>持続可能性</div>
+                    </div>
+                    <div class="resource-card">
+                        <div>💹 経済</div>
+                        <div class="resource-value" id="economy">50%</div>
+                        <div>成長率</div>
+                    </div>
+                    <div class="resource-card">
+                        <div>⚡ エネルギー</div>
+                        <div class="resource-value" id="energy">80%</div>
+                        <div>供給力</div>
+                    </div>
+                    <div class="resource-card">
+                        <div>🏠 人口</div>
+                        <div class="resource-value" id="population">100,000</div>
+                        <div>住民数</div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>SDGs達成度</span>
+                        <span id="sdgsProgress">35%</span>
+                    </div>
+                    <div class="progress-bar" id="progressBar"></div>
+                    <div style="font-size: 12px; text-align: center;">
+                        目標: 環境と経済のバランス取れた都市
+                    </div>
+                </div>
+
+                <h3>🎯 政策選択 - 今の課題: <span id="currentChallenge">エネルギー供給の確保</span></h3>
+                <div class="policy-cards" id="policyCards">
+                    <!-- 政策カードはJavaScriptで動的に生成 -->
+                </div>
+
+                <div class="tech-tree">
+                    <h4>🔬 研究開発ツリー</h4>
+                    <div class="tech-level">
+                        <div>🌱 基礎技術</div>
+                        <div class="tech-items" id="basicTech">
+                            <!-- 技術アイテムはJavaScriptで生成 -->
+                        </div>
+                    </div>
+                    <div class="tech-level">
+                        <div>🚀 先進技術</div>
+                        <div class="tech-items" id="advancedTech">
+                            <!-- 技術アイテムはJavaScriptで生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- サイドバー部分 -->
+            <div class="sidebar">
+                <h3>📊 都市統計</h3>
+                <div style="margin: 15px 0;">
+                    <div>🏙️ 都市レベル: <strong id
