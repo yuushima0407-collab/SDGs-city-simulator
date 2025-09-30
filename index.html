@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SDGs 3D都市開発シミュレーター</title>
+    <title>メガロポリス - 3D都市開発シミュレーター</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <style>
         * {
             margin: 0;
@@ -19,171 +20,271 @@
             color: white;
             min-height: 100vh;
             overflow: hidden;
+            touch-action: none;
         }
-        .container {
+        .game-container {
             display: grid;
-            grid-template-columns: 300px 1fr 350px;
+            grid-template-columns: 280px 1fr 320px;
             height: 100vh;
-            gap: 10px;
-            padding: 10px;
+            gap: 8px;
+            padding: 8px;
         }
-        .sidebar {
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
+        .panel {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
             padding: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            overflow-y: auto;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
         .city-view {
-            background: rgba(0,0,0,0.3);
-            border-radius: 15px;
             position: relative;
+            border-radius: 20px;
             overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
         }
         #city3d {
             width: 100%;
             height: 100%;
         }
-        .controls {
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .resource-card {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .resource-value {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 5px 0;
-        }
-        .building-card {
-            background: rgba(255,255,255,0.08);
-            border: 2px solid transparent;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .building-card:hover {
-            border-color: #4FC3F7;
-            background: rgba(79, 195, 247, 0.1);
-            transform: translateY(-2px);
-        }
-        .building-card:active {
-            transform: scale(0.98);
-        }
-        .building-card.unavailable {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .progress-bar {
-            height: 20px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #FFC107);
-            border-radius: 10px;
-            transition: width 0.5s ease;
-        }
-        .city-stats {
+        .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin: 15px 0;
         }
-        .stat-item {
-            background: rgba(255,255,255,0.05);
-            padding: 10px;
-            border-radius: 8px;
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            padding: 15px;
+            border-radius: 15px;
             text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 5px 0;
+            color: #4FC3F7;
+        }
+        .building-category {
+            margin: 20px 0;
+        }
+        .category-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #FFD700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .building-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .building-card:active {
+            transform: scale(0.95);
+        }
+        .building-card.available:hover {
+            border-color: #4FC3F7;
+            background: rgba(79, 195, 247, 0.15);
+            transform: translateY(-2px);
+        }
+        .building-card.unavailable {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .building-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .building-name {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .building-desc {
+            font-size: 11px;
+            opacity: 0.8;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+        .building-cost {
+            font-size: 12px;
+            color: #FFD700;
+            font-weight: bold;
+        }
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 4px;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #4CAF50, #FFC107, #F44336);
+            border-radius: 4px;
+            transition: width 0.5s ease;
         }
         .floating-notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(76, 175, 80, 0.9);
+            background: linear-gradient(135deg, #4CAF50, #45a049);
             padding: 15px 20px;
-            border-radius: 10px;
+            border-radius: 15px;
             z-index: 1000;
             animation: slideInRight 0.5s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         @keyframes slideInRight {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-        .construction-animation {
+        .construction-effect {
             position: absolute;
-            background: radial-gradient(circle, #FFD700 10%, transparent 70%);
-            animation: construct 2s ease-out;
             pointer-events: none;
+            z-index: 100;
         }
-        @keyframes construct {
-            0% { transform: scale(0); opacity: 1; }
-            100% { transform: scale(3); opacity: 0; }
+        .pulse {
+            animation: pulse 1.5s ease-out;
         }
-        .building-info {
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        .control-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .control-button:active {
+            transform: scale(0.95);
+        }
+        .control-button.secondary {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+        .day-night-toggle {
             position: absolute;
-            background: rgba(0,0,0,0.8);
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 100;
+        }
+        .mini-map {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 120px;
+            height: 120px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.3);
+            z-index: 100;
+        }
+        .achievement-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #FFD700, #FF9800);
+            color: black;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 1000;
+            animation: achievementPop 2s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        @keyframes achievementPop {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        .building-tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.9);
             padding: 10px;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 12px;
             pointer-events: none;
             z-index: 100;
+            border: 1px solid rgba(255,255,255,0.2);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 左サイドバー: リソースと統計 -->
-        <div class="sidebar">
-            <h2>🏙️ 都市統計</h2>
-            <div class="resource-card">
-                <div>💰 予算</div>
-                <div class="resource-value" id="money">1,000,000</div>
-                <div>円</div>
-            </div>
-            <div class="resource-card">
-                <div>📊 収入/ターン</div>
-                <div class="resource-value" id="income">+5,000</div>
-                <div>円</div>
-            </div>
+    <div class="game-container">
+        <!-- 左パネル: 都市統計 -->
+        <div class="panel">
+            <h2 style="text-align: center; margin-bottom: 20px; color: #FFD700;">🏙️ メガロポリス</h2>
             
-            <div class="city-stats">
-                <div class="stat-item">
+            <div class="stat-card">
+                <div>💰 資金</div>
+                <div class="stat-value" id="money">10,000,000</div>
+                <div>収入/ターン: <span id="income">+50,000</span></div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
                     <div>👥 人口</div>
-                    <div id="population">1,000</div>
+                    <div class="stat-value" id="population">5,000</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-card">
                     <div>🌿 環境</div>
-                    <div id="environment">75%</div>
+                    <div class="stat-value" id="environment">85%</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-card">
                     <div>💹 経済</div>
-                    <div id="economy">50%</div>
+                    <div class="stat-value" id="economy">65%</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-card">
                     <div>😊 幸福度</div>
-                    <div id="happiness">60%</div>
+                    <div class="stat-value" id="happiness">78%</div>
                 </div>
             </div>
 
+            <div class="progress-container">
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;">
+                    <span>SDGs達成度</span>
+                    <span id="sdgsProgress">42%</span>
+                </div>
+                <div class="progress-bar" style="width: 42%"></div>
+            </div>
+
             <div style="margin: 20px 0;">
-                <h3>🏆 実績</h3>
-                <div id="achievements">
-                    <div class="achievement">🏠 最初の家を建設</div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>ターン: <strong id="turn">1</strong></span>
+                    <span>都市レベル: <strong id="cityLevel">3</strong></span>
+                </div>
+                <button class="control-button" onclick="nextTurn()">
+                    ⏭️ 次のターンへ
+                </button>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px;">
+                <h4 style="color: #FFD700; margin-bottom: 10px;">🏆 実績</h4>
+                <div id="achievements" style="font-size: 12px; max-height: 120px; overflow-y: auto;">
+                    <div>🌟 最初の一歩</div>
                 </div>
             </div>
         </div>
@@ -191,169 +292,221 @@
         <!-- 中央: 3D都市ビュー -->
         <div class="city-view">
             <div id="city3d"></div>
-            <div id="constructionOverlay"></div>
+            <button class="day-night-toggle" onclick="toggleDayNight()">🌙 夜モード</button>
+            <div class="mini-map" id="miniMap"></div>
+            <div id="constructionEffects"></div>
         </div>
 
-        <!-- 右サイドバー: 建設コントロール -->
-        <div class="sidebar controls">
-            <h2>🏗️ 建設メニュー</h2>
-            <div style="margin: 15px 0;">
-                <div>ターン: <span id="turn">1</span></div>
-                <button onclick="nextTurn()" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-top: 10px; cursor: pointer; width: 100%;">
-                    ⏭️ 次のターンへ
-                </button>
-            </div>
+        <!-- 右パネル: 建設メニュー -->
+        <div class="panel">
+            <h3 style="color: #FFD700; margin-bottom: 20px;">🏗️ 建設メニュー</h3>
 
-            <h3>🏠 住宅</h3>
-            <div class="building-card" onclick="buildBuilding('house')" data-cost="50000">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 24px;">🏠</span>
-                    <div>
-                        <div style="font-weight: bold;">基本住宅</div>
-                        <div style="font-size: 12px; opacity: 0.8;">人口+50, 収入+100/ターン</div>
-                    </div>
+            <div class="building-category">
+                <div class="category-title">🏠 住宅地区</div>
+                <div class="building-card available" onclick="buildBuilding('residential')" data-cost="100000">
+                    <div class="building-icon">🏘️</div>
+                    <div class="building-name">住宅地区</div>
+                    <div class="building-desc">人口+200, 収入+300/ターン</div>
+                    <div class="building-cost">💰 100,000</div>
                 </div>
-                <div style="text-align: right; margin-top: 5px;">💰 50,000円</div>
-            </div>
-
-            <div class="building-card" onclick="buildBuilding('apartment')" data-cost="150000">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 24px;">🏢</span>
-                    <div>
-                        <div style="font-weight: bold;">アパート</div>
-                        <div style="font-size: 12px; opacity: 0.8;">人口+200, 収入+300/ターン</div>
-                    </div>
-                </div>
-                <div style="text-align: right; margin-top: 5px;">💰 150,000円</div>
-            </div>
-
-            <h3 style="margin-top: 20px;">🏭 商業</h3>
-            <div class="building-card" onclick="buildBuilding('shop')" data-cost="80000">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 24px;">🏪</span>
-                    <div>
-                        <div style="font-weight: bold;">商店</div>
-                        <div style="font-size: 12px; opacity: 0.8;">収入+500/ターン, 経済+5%</div>
-                    </div>
-                </div>
-                <div style="text-align: right; margin-top: 5px;">💰 80,000円</div>
-            </div>
-
-            <div class="building-card" onclick="buildBuilding('office')" data-cost="200000">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 24px;">🏛️</span>
-                    <div>
-                        <div style="font-weight: bold;">オフィス</div>
-                        <div style="font-size: 12px; opacity: 0.8;">収入+1000/ターン, 経済+10%</div>
-                    </div>
-                </div>
-                <div style="text-align: right; margin-top: 5px;">💰 200,000円</div>
-            </div>
-
-            <h3 style="margin-top: 20px;">🌿 環境</h3>
-            <div class="building-card" onclick="buildBuilding('park')" data-cost="30000">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 24px;">🌳</span>
-                    <div>
-                        <div style="font-weight: bold;">公園</div>
-                        <div style="font-size: 12px; opacity: 0.8;">環境+10%, 幸福度+5%</div>
-                    </div>
-                </div>
-                <div style="text-align: right; margin-top: 5px;">💰 30,000円</div>
-            </div>
-
-            <div class="building-card" onclick="buildBuilding('solar')" data-cost="120000">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 24px;">☀️</span>
-                    <div>
-                        <div style="font-weight: bold;">太陽光発電</div>
-                        <div style="font-size: 12px; opacity: 0.8;">環境+15%, 収入+200/ターン</div>
-                    </div>
-                </div>
-                <div style="text-align: right; margin-top: 5px;">💰 120,000円</div>
-            </div>
-
-            <div style="margin-top: 20px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
-                <h4>💡 戦略ヒント</h4>
-                <div style="font-size: 12px; line-height: 1.4;">
-                    • 住宅で人口を増やし税収アップ<br>
-                    • 商業施設で経済を活性化<br>
-                    • 環境施設で持続可能性を確保<br>
-                    • バランスよく発展させよう！
+                <div class="building-card available" onclick="buildBuilding('apartment')" data-cost="300000">
+                    <div class="building-icon">🏢</div>
+                    <div class="building-name">高層アパート</div>
+                    <div class="building-desc">人口+500, 収入+800/ターン</div>
+                    <div class="building-cost">💰 300,000</div>
                 </div>
             </div>
+
+            <div class="building-category">
+                <div class="category-title">🏪 商業地区</div>
+                <div class="building-card available" onclick="buildBuilding('commercial')" data-cost="150000">
+                    <div class="building-icon">🛍️</div>
+                    <div class="building-name">商業地区</div>
+                    <div class="building-desc">収入+600/ターン, 経済+8%</div>
+                    <div class="building-cost">💰 150,000</div>
+                </div>
+                <div class="building-card available" onclick="buildBuilding('business')" data-cost="500000">
+                    <div class="building-icon">🏛️</div>
+                    <div class="building-name">ビジネスパーク</div>
+                    <div class="building-desc">収入+1500/ターン, 経済+15%</div>
+                    <div class="building-cost">💰 500,000</div>
+                </div>
+            </div>
+
+            <div class="building-category">
+                <div class="category-title">🏭 工業地区</div>
+                <div class="building-card available" onclick="buildBuilding('factory')" data-cost="200000">
+                    <div class="building-icon">🏭</div>
+                    <div class="building-name">工場地区</div>
+                    <div class="building-desc">収入+1000/ターン, 環境-10%</div>
+                    <div class="building-cost">💰 200,000</div>
+                </div>
+                <div class="building-card available" onclick="buildBuilding('tech_park')" data-cost="600000">
+                    <div class="building-icon">🔬</div>
+                    <div class="building-name">ハイテクパーク</div>
+                    <div class="building-desc">収入+2000/ターン, 経済+20%</div>
+                    <div class="building-cost">💰 600,000</div>
+                </div>
+            </div>
+
+            <div class="building-category">
+                <div class="category-title">🌿 環境施設</div>
+                <div class="building-card available" onclick="buildBuilding('park')" data-cost="80000">
+                    <div class="building-icon">🌳</div>
+                    <div class="building-name">中央公園</div>
+                    <div class="building-desc">環境+15%, 幸福度+10%</div>
+                    <div class="building-cost">💰 80,000</div>
+                </div>
+                <div class="building-card available" onclick="buildBuilding('solar_farm')" data-cost="250000">
+                    <div class="building-icon">☀️</div>
+                    <div class="building-name">太陽光発電所</div>
+                    <div class="building-desc">環境+25%, 収入+400/ターン</div>
+                    <div class="building-cost">💰 250,000</div>
+                </div>
+            </div>
+
+            <div class="building-category">
+                <div class="category-title">🎯 特殊施設</div>
+                <div class="building-card available" onclick="buildBuilding('stadium')" data-cost="800000">
+                    <div class="building-icon">🏟️</div>
+                    <div class="building-name">スタジアム</div>
+                    <div class="building-desc">幸福度+20%, 収入+1000/ターン</div>
+                    <div class="building-cost">💰 800,000</div>
+                </div>
+                <div class="building-card available" onclick="buildBuilding('landmark')" data-cost="1200000">
+                    <div class="building-icon">🗼</div>
+                    <div class="building-name">ランドマークタワー</div>
+                    <div class="building-desc">都市レベル+2, 観光収入+2000/ターン</div>
+                    <div class="building-cost">💰 1,200,000</div>
+                </div>
+            </div>
+
+            <button class="control-button secondary" onclick="showCityReport()">
+                📊 都市レポートを見る
+            </button>
         </div>
     </div>
 
     <script>
         // ゲーム状態
         const gameState = {
-            money: 1000000,
-            income: 5000,
-            population: 1000,
-            environment: 75,
-            economy: 50,
-            happiness: 60,
+            money: 10000000,
+            income: 50000,
+            population: 5000,
+            environment: 85,
+            economy: 65,
+            happiness: 78,
             turn: 1,
+            cityLevel: 3,
+            isDay: true,
             buildings: [],
-            achievements: ['🏠 最初の家を建設']
+            achievements: ['🌟 最初の一歩']
         };
 
-        // Three.jsのセットアップ
+        // Three.js変数
         let scene, camera, renderer, controls;
+        let sunLight, ambientLight;
         const buildingMeshes = [];
-        const gridSize = 20;
+        const gridSize = 50;
         const grid = [];
 
+        // 建物の設定
+        const buildingConfigs = {
+            residential: { 
+                color: 0xff6b6b, 
+                height: 2, 
+                name: "住宅地区",
+                effects: { population: 200, income: 300 }
+            },
+            apartment: { 
+                color: 0x74b9ff, 
+                height: 4, 
+                name: "高層アパート",
+                effects: { population: 500, income: 800 }
+            },
+            commercial: { 
+                color: 0xfdcb6e, 
+                height: 2.5, 
+                name: "商業地区",
+                effects: { income: 600, economy: 8 }
+            },
+            business: { 
+                color: 0x636e72, 
+                height: 5, 
+                name: "ビジネスパーク",
+                effects: { income: 1500, economy: 15 }
+            },
+            factory: { 
+                color: 0xe17055, 
+                height: 3, 
+                name: "工場地区",
+                effects: { income: 1000, environment: -10 }
+            },
+            tech_park: { 
+                color: 0x00cec9, 
+                height: 4, 
+                name: "ハイテクパーク",
+                effects: { income: 2000, economy: 20 }
+            },
+            park: { 
+                color: 0x00b894, 
+                height: 0.5, 
+                name: "中央公園",
+                effects: { environment: 15, happiness: 10 }
+            },
+            solar_farm: { 
+                color: 0xf9ca24, 
+                height: 1, 
+                name: "太陽光発電所",
+                effects: { environment: 25, income: 400 }
+            },
+            stadium: { 
+                color: 0x6c5ce7, 
+                height: 3, 
+                name: "スタジアム",
+                effects: { happiness: 20, income: 1000 }
+            },
+            landmark: { 
+                color: 0xa29bfe, 
+                height: 8, 
+                name: "ランドマークタワー",
+                effects: { cityLevel: 2, income: 2000 }
+            }
+        };
+
         function init3D() {
-            // シーンの設定
+            // シーン設定
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x87CEEB);
             
-            // カメラの設定
+            // カメラ設定
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(15, 15, 15);
+            camera.position.set(25, 20, 25);
             camera.lookAt(0, 0, 0);
             
-            // レンダラーの設定
+            // レンダラー設定
             const container = document.getElementById('city3d');
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.shadowMap.enabled = true;
             container.appendChild(renderer.domElement);
             
-            // コントロールの設定
+            // コントロール設定
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
             
-            // ライティング
-            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
-            scene.add(ambientLight);
+            // ライティング設定
+            setupLighting();
             
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(10, 20, 5);
-            scene.add(directionalLight);
+            // 地面作成
+            createGround();
             
-            // 地面の作成
-            const groundGeometry = new THREE.PlaneGeometry(30, 30);
-            const groundMaterial = new THREE.MeshLambertMaterial({ 
-                color: 0x3d9970,
-                side: THREE.DoubleSide 
-            });
-            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-            ground.rotation.x = -Math.PI / 2;
-            scene.add(ground);
+            // 道路作成
+            createRoads();
             
-            // グリッドの作成
-            const gridHelper = new THREE.GridHelper(30, 30, 0x000000, 0x000000);
-            scene.add(gridHelper);
-            
-            // グリッド配列の初期化
-            for (let x = -14; x <= 14; x += 2) {
-                for (let z = -14; z <= 14; z += 2) {
-                    grid.push({ x, z, occupied: false });
-                }
-            }
+            // グリッド初期化
+            initGrid();
             
             // アニメーションループ
             function animate() {
@@ -367,199 +520,261 @@
             window.addEventListener('resize', onWindowResize);
         }
 
-        function onWindowResize() {
-            const container = document.getElementById('city3d');
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
+        function setupLighting() {
+            // 環境光
+            ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+            
+            // 太陽光
+            sunLight = new THREE.DirectionalLight(0xffffff, 1);
+            sunLight.position.set(10, 20, 5);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 2048;
+            sunLight.shadow.mapSize.height = 2048;
+            scene.add(sunLight);
         }
 
-        // 建物の建設
+        function createGround() {
+            const groundGeometry = new THREE.PlaneGeometry(50, 50);
+            const groundMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0x3d9970,
+                side: THREE.DoubleSide 
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+            
+            // グリッドヘルパー
+            const gridHelper = new THREE.GridHelper(50, 50, 0x000000, 0x000000);
+            scene.add(gridHelper);
+        }
+
+        function createRoads() {
+            const roadMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+            
+            // 主要道路
+            for (let i = -20; i <= 20; i += 10) {
+                const roadGeometry = new THREE.PlaneGeometry(50, 2);
+                const road1 = new THREE.Mesh(roadGeometry, roadMaterial);
+                road1.rotation.x = -Math.PI / 2;
+                road1.position.set(0, 0.01, i);
+                
+                const road2 = new THREE.Mesh(roadGeometry, roadMaterial);
+                road2.rotation.x = -Math.PI / 2;
+                road2.rotation.z = Math.PI / 2;
+                road2.position.set(i, 0.01, 0);
+                
+                scene.add(road1);
+                scene.add(road2);
+            }
+        }
+
+        function initGrid() {
+            for (let x = -22; x <= 22; x += 4) {
+                for (let z = -22; z <= 22; z += 4) {
+                    // 道路の位置は除外
+                    if (x % 10 === 0 || z % 10 === 0) continue;
+                    grid.push({ x, z, occupied: false });
+                }
+            }
+        }
+
         function buildBuilding(type) {
             const cost = parseInt(document.querySelector(`[onclick="buildBuilding('${type}')"]`).dataset.cost);
             
             if (gameState.money < cost) {
-                showNotification('💰 お金が足りません！');
+                showNotification('💰 資金が足りません！');
                 return;
             }
             
-            // 空いているグリッドを探す
             const availableSpots = grid.filter(spot => !spot.occupied);
             if (availableSpots.length === 0) {
-                showNotification('🚧 建設できる場所がありません！');
+                showNotification('🚧 建設できる空地がありません！');
                 return;
             }
             
             const spot = availableSpots[Math.floor(Math.random() * availableSpots.length)];
             spot.occupied = true;
             
-            // 建設アニメーション
-            showConstructionAnimation(spot.x, spot.z);
+            // 建設エフェクト
+            showConstructionEffect(spot.x, spot.z);
             
-            // 建物の作成
             setTimeout(() => {
-                createBuilding(type, spot.x, spot.z);
+                create3DBuilding(type, spot.x, spot.z);
                 gameState.money -= cost;
-                
-                // 建物効果の適用
                 applyBuildingEffects(type);
-                
-                // 実績チェック
                 checkAchievements();
-                
                 updateUI();
-                showNotification(`✅ ${getBuildingName(type)}を建設しました！`);
-            }, 1000);
+                showNotification(`✅ ${buildingConfigs[type].name}を建設しました！`);
+            }, 800);
         }
 
-        function createBuilding(type, x, z) {
-            let geometry, material, color;
+        function create3DBuilding(type, x, z) {
+            const config = buildingConfigs[type];
             
-            switch(type) {
-                case 'house':
-                    geometry = new THREE.BoxGeometry(1.5, 1, 1.5);
-                    color = 0xff6b6b;
-                    break;
-                case 'apartment':
-                    geometry = new THREE.BoxGeometry(1.8, 2.5, 1.8);
-                    color = 0x74b9ff;
-                    break;
-                case 'shop':
-                    geometry = new THREE.BoxGeometry(1.6, 1.2, 1.6);
-                    color = 0xfdcb6e;
-                    break;
-                case 'office':
-                    geometry = new THREE.BoxGeometry(2, 3, 2);
-                    color = 0x636e72;
-                    break;
-                case 'park':
-                    geometry = new THREE.BoxGeometry(1.8, 0.3, 1.8);
-                    color = 0x00b894;
-                    break;
-                case 'solar':
-                    geometry = new THREE.CylinderGeometry(0.8, 1, 0.5, 8);
-                    color = 0xf9ca24;
-                    break;
+            // メインビル
+            const geometry = new THREE.BoxGeometry(3, config.height, 3);
+            const material = new THREE.MeshLambertMaterial({ color: config.color });
+            const building = new THREE.Mesh(geometry, material);
+            building.position.set(x, config.height / 2, z);
+            building.castShadow = true;
+            building.receiveShadow = true;
+            
+            // 詳細な装飾（窓など）
+            if (config.height > 2) {
+                const windowGeometry = new THREE.BoxGeometry(0.1, 0.3, 1.5);
+                const windowMaterial = new THREE.MeshLambertMaterial({ color: 0x87CEEB });
+                
+                for (let i = 1; i < config.height; i += 0.8) {
+                    const window1 = new THREE.Mesh(windowGeometry, windowMaterial);
+                    window1.position.set(x + 1.6, i, z);
+                    
+                    const window2 = new THREE.Mesh(windowGeometry, windowMaterial);
+                    window2.position.set(x - 1.6, i, z);
+                    
+                    scene.add(window1);
+                    scene.add(window2);
+                }
             }
             
-            material = new THREE.MeshLambertMaterial({ color });
-            const building = new THREE.Mesh(geometry, material);
-            building.position.set(x, geometry.parameters.height / 2, z);
-            
-            // 建物情報を保存
             building.userData = { type, x, z };
             scene.add(building);
             buildingMeshes.push(building);
             
-            // 建物をゲーム状態に追加
-            gameState.buildings.push({
-                type,
-                x,
-                z,
-                level: 1
-            });
+            gameState.buildings.push({ type, x, z, level: 1 });
         }
 
         function applyBuildingEffects(type) {
-            switch(type) {
-                case 'house':
-                    gameState.population += 50;
-                    gameState.income += 100;
-                    break;
-                case 'apartment':
-                    gameState.population += 200;
-                    gameState.income += 300;
-                    break;
-                case 'shop':
-                    gameState.income += 500;
-                    gameState.economy = Math.min(100, gameState.economy + 5);
-                    break;
-                case 'office':
-                    gameState.income += 1000;
-                    gameState.economy = Math.min(100, gameState.economy + 10);
-                    break;
-                case 'park':
-                    gameState.environment = Math.min(100, gameState.environment + 10);
-                    gameState.happiness = Math.min(100, gameState.happiness + 5);
-                    break;
-                case 'solar':
-                    gameState.environment = Math.min(100, gameState.environment + 15);
-                    gameState.income += 200;
-                    break;
-            }
+            const effects = buildingConfigs[type].effects;
             
-            // 幸福度の再計算
+            Object.keys(effects).forEach(key => {
+                if (key === 'cityLevel') {
+                    gameState.cityLevel += effects[key];
+                } else {
+                    gameState[key] += effects[key];
+                    // 値を制限
+                    if (key !== 'population' && key !== 'income') {
+                        gameState[key] = Math.max(0, Math.min(100, gameState[key]));
+                    }
+                }
+            });
+            
             recalculateHappiness();
         }
 
         function recalculateHappiness() {
-            const baseHappiness = 50;
-            const envBonus = (gameState.environment - 50) * 0.3;
-            const economyBonus = (gameState.economy - 50) * 0.2;
-            const populationPenalty = Math.max(0, (gameState.population - 5000) / 1000) * -1;
+            const base = 50;
+            const envBonus = (gameState.environment - 50) * 0.4;
+            const economyBonus = (gameState.economy - 50) * 0.3;
+            const popDensity = Math.max(0, (gameState.population - 10000) / 2000) * -2;
             
-            gameState.happiness = Math.max(0, Math.min(100, baseHappiness + envBonus + economyBonus + populationPenalty));
+            gameState.happiness = Math.max(0, Math.min(100, base + envBonus + economyBonus + popDensity));
         }
 
-        function showConstructionAnimation(x, z) {
-            const overlay = document.getElementById('constructionOverlay');
-            const animation = document.createElement('div');
-            animation.className = 'construction-animation';
-            animation.style.left = '50%';
-            animation.style.top = '50%';
-            animation.style.width = '100px';
-            animation.style.height = '100px';
-            animation.style.transform = 'translate(-50%, -50%)';
-            overlay.appendChild(animation);
+        function showConstructionEffect(x, z) {
+            const effectsContainer = document.getElementById('constructionEffects');
+            const effect = document.createElement('div');
+            effect.className = 'construction-effect pulse';
+            effect.style.cssText = `
+                width: 60px;
+                height: 60px;
+                background: radial-gradient(circle, #FFD700 20%, transparent 70%);
+                border-radius: 50%;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+            `;
+            effectsContainer.appendChild(effect);
             
-            setTimeout(() => {
-                animation.remove();
-            }, 2000);
+            setTimeout(() => effect.remove(), 1500);
         }
 
         function nextTurn() {
             gameState.turn++;
             gameState.money += gameState.income;
+            gameState.population += Math.floor(gameState.population * 0.03);
             
-            // ターンごとの自然な人口増加
-            gameState.population += Math.floor(gameState.population * 0.02);
-            
-            // 環境の自然減少（経済活動による）
-            if (gameState.economy > 60) {
-                gameState.environment = Math.max(0, gameState.environment - 1);
+            // 環境の自然変化
+            if (gameState.economy > 70) {
+                gameState.environment = Math.max(0, gameState.environment - 2);
             }
             
             updateUI();
-            showNotification(`📊 ターン ${gameState.turn}:`);
+            showNotification(`📊 ターン ${gameState.turn}:
+収入: +${gameState.income.toLocaleString()}円
+人口: +${Math.floor(gameState.population * 0.03).toLocaleString()}人`);
         }
 
-        function getBuildingName(type) {
-            const names = {
-                'house': '基本住宅',
-                'apartment': 'アパート',
-                'shop': '商店',
-                'office': 'オフィス',
-                'park': '公園',
-                'solar': '太陽光発電'
-            };
-            return names[type];
+        function toggleDayNight() {
+            gameState.isDay = !gameState.isDay;
+            if (gameState.isDay) {
+                scene.background = new THREE.Color(0x87CEEB);
+                sunLight.intensity = 1;
+                ambientLight.intensity = 0.6;
+                document.querySelector('.day-night-toggle').textContent = '🌙 夜モード';
+            } else {
+                scene.background = new THREE.Color(0x2c3e50);
+                sunLight.intensity = 0.3;
+                ambientLight.intensity = 0.3;
+                document.querySelector('.day-night-toggle').textContent = '☀️ 昼モード';
+            }
+        }
+
+        function showCityReport() {
+            const report = `
+🏙️ 都市レポート - ターン ${gameState.turn}
+
+📈 基本統計:
+• 総人口: ${gameState.population.toLocaleString()}人
+• 環境指数: ${gameState.environment}%
+• 経済成長: ${gameState.economy}%
+• 市民幸福度: ${gameState.happiness}%
+
+💰 財政:
+• 資金: ${gameState.money.toLocaleString()}円
+• ターン収入: ${gameState.income.toLocaleString()}円
+
+🎯 目標:
+• SDGs達成度: ${Math.min(100, Math.floor((gameState.environment + gameState.economy + gameState.happiness) / 3))}%
+• 都市レベル: ${gameState.cityLevel}
+            `;
+            
+            alert(report);
         }
 
         function checkAchievements() {
-            if (gameState.buildings.length >= 10 && !gameState.achievements.includes('🏗️ 建設マスター')) {
-                gameState.achievements.push('🏗️ 建設マスター');
-                showNotification('🏆 実績獲得: 建設マスター！');
+            const newAchievements = [];
+            
+            if (gameState.buildings.length >= 5 && !gameState.achievements.includes('🏗️ 建設マスター')) {
+                newAchievements.push('🏗️ 建設マスター');
             }
             
-            if (gameState.population >= 5000 && !gameState.achievements.includes('👥 大都市')) {
-                gameState.achievements.push('👥 大都市');
-                showNotification('🏆 実績獲得: 大都市！');
+            if (gameState.population >= 10000 && !gameState.achievements.includes('👥 大都市')) {
+                newAchievements.push('👥 大都市');
             }
             
-            if (gameState.environment >= 90 && !gameState.achievements.includes('🌿 エコシティ')) {
-                gameState.achievements.push('🌿 エコシティ');
-                showNotification('🏆 実績獲得: エコシティ！');
+            if (gameState.money >= 5000000 && !gameState.achievements.includes('💰 億万長者')) {
+                newAchievements.push('💰 億万長者');
             }
+            
+            newAchievements.forEach(achievement => {
+                gameState.achievements.push(achievement);
+                showAchievementPopup(achievement);
+            });
+        }
+
+        function showAchievementPopup(achievement) {
+            const popup = document.createElement('div');
+            popup.className = 'achievement-popup';
+            popup.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 10px;">🏆</div>
+                <div style="font-weight: bold; font-size: 18px;">実績獲得！</div>
+                <div>${achievement}</div>
+            `;
+            document.body.appendChild(popup);
+            
+            setTimeout(() => popup.remove(), 3000);
         }
 
         function showNotification(message) {
@@ -568,9 +783,7 @@
             notification.textContent = message;
             document.body.appendChild(notification);
             
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
+            setTimeout(() => notification.remove(), 3000);
         }
 
         function updateUI() {
@@ -581,22 +794,31 @@
             document.getElementById('economy').textContent = gameState.economy + '%';
             document.getElementById('happiness').textContent = gameState.happiness + '%';
             document.getElementById('turn').textContent = gameState.turn;
+            document.getElementById('cityLevel').textContent = gameState.cityLevel;
+            
+            // SDGs進捗
+            const sdgsProgress = Math.min(100, Math.floor((gameState.environment + gameState.economy + gameState.happiness) / 3));
+            document.getElementById('sdgsProgress').textContent = sdgsProgress + '%';
+            document.querySelector('.progress-bar').style.width = sdgsProgress + '%';
             
             // 建物カードの状態更新
             document.querySelectorAll('.building-card').forEach(card => {
                 const cost = parseInt(card.dataset.cost);
-                if (gameState.money < cost) {
-                    card.classList.add('unavailable');
-                } else {
-                    card.classList.remove('unavailable');
-                }
+                card.className = `building-card ${gameState.money >= cost ? 'available' : 'unavailable'}`;
             });
             
-            // 実績表示の更新
+            // 実績表示更新
             const achievementsContainer = document.getElementById('achievements');
             achievementsContainer.innerHTML = gameState.achievements
-                .map(ach => `<div class="achievement">${ach}</div>`)
+                .map(ach => `<div style="margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.1); border-radius: 5px;">${ach}</div>`)
                 .join('');
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('city3d');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
         }
 
         // 初期化
