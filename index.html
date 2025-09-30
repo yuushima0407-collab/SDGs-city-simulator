@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SDGs 3D都市開発 - 持続可能な未来づくり</title>
+    <title>SDGs都市開発 - 持続可能な未来づくり</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <style>
         * {
             margin: 0;
@@ -17,361 +16,471 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a2a6c, #2a5298);
-            color: white;
+            color: #333;
             min-height: 100vh;
             overflow: hidden;
-            touch-action: none;
         }
         .game-container {
             display: grid;
-            grid-template-columns: 300px 1fr 350px;
+            grid-template-columns: 320px 1fr 360px;
             height: 100vh;
-            gap: 8px;
-            padding: 8px;
+            gap: 12px;
+            padding: 12px;
+            background: #f0f2f5;
         }
         .panel {
-            background: rgba(0, 0, 0, 0.85);
+            background: white;
             border-radius: 20px;
             padding: 20px;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
         }
         .city-view {
             position: relative;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            background: white;
         }
         #city3d {
             width: 100%;
             height: 100%;
         }
-        .sdgs-indicator {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            padding: 15px;
-            border-radius: 15px;
-            margin: 15px 0;
+        .sdgs-header {
             text-align: center;
+            margin-bottom: 20px;
+        }
+        .sdgs-header h2 {
+            color: #1a2a6c;
+            font-size: 24px;
+            margin-bottom: 8px;
         }
         .sdgs-progress {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .progress-percent {
+            font-size: 42px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .progress-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .sdgs-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
-            margin: 10px 0;
+            margin: 15px 0;
         }
         .sdg-goal {
-            background: rgba(255,255,255,0.1);
-            padding: 10px;
-            border-radius: 10px;
+            background: #f8f9fa;
+            padding: 12px 8px;
+            border-radius: 12px;
             text-align: center;
             font-size: 12px;
+            font-weight: 500;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
         }
         .sdg-goal.active {
-            background: linear-gradient(135deg, #FFD700, #FF9800);
-            color: black;
+            background: #FFD700;
+            color: #000;
+            border-color: #FF9800;
             font-weight: bold;
         }
-        .building-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-            border: 2px solid transparent;
+        .city-stats {
+            background: #f8f9fa;
+            padding: 20px;
             border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 10px;
+            margin: 20px 0;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .stat-value {
+            font-weight: bold;
+            color: #1a2a6c;
+        }
+        .positive { color: #4CAF50; }
+        .warning { color: #FF9800; }
+        .challenge-card {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        .challenge-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .building-section {
+            margin: 25px 0;
+        }
+        .section-title {
+            color: #1a2a6c;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .building-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
         }
+        .building-card:hover {
+            border-color: #4FC3F7;
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.2);
+            transform: translateY(-2px);
+        }
         .building-card:active {
             transform: scale(0.98);
         }
-        .building-card.available:hover {
-            border-color: #4FC3F7;
-            background: rgba(79, 195, 247, 0.15);
-            transform: translateY(-2px);
-        }
         .sdg-badge {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 12px;
+            right: 12px;
             background: #FFD700;
-            color: black;
-            padding: 2px 6px;
-            border-radius: 10px;
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 12px;
             font-size: 10px;
             font-weight: bold;
         }
-        .learning-tooltip {
-            position: absolute;
-            background: rgba(0,0,0,0.95);
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #4CAF50;
-            max-width: 300px;
-            z-index: 1000;
-            font-size: 14px;
-            line-height: 1.4;
+        .building-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
         }
-        .challenge-alert {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            padding: 15px;
-            border-radius: 15px;
+        .building-icon {
+            font-size: 28px;
+        }
+        .building-info {
+            flex: 1;
+        }
+        .building-name {
+            font-weight: bold;
+            color: #1a2a6c;
+            font-size: 15px;
+        }
+        .building-desc {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+        .building-effects {
+            display: flex;
+            gap: 10px;
             margin: 10px 0;
-            animation: pulse 2s infinite;
+            flex-wrap: wrap;
+        }
+        .effect-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .effect-tag.positive {
+            background: #e8f5e8;
+            color: #4CAF50;
+        }
+        .effect-tag.negative {
+            background: #ffebee;
+            color: #f44336;
+        }
+        .building-cost {
+            text-align: right;
+            font-weight: bold;
+            color: #FF9800;
+            font-size: 14px;
+        }
+        .control-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .floating-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            z-index: 1000;
+            animation: slideInRight 0.5s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .construction-effect {
+            position: absolute;
+            pointer-events: none;
+            z-index: 100;
+            animation: pulse 1.5s ease-out;
         }
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
         }
-        .realistic-building {
-            position: relative;
-            transition: all 0.5s ease;
-        }
-        .building-windows {
+        .day-night-toggle {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            background: 
-                linear-gradient(90deg, 
-                    transparent 10%, 
-                    rgba(255,255,255,0.1) 10%, 
-                    rgba(255,255,255,0.1) 20%, 
-                    transparent 20%,
-                    transparent 30%,
-                    rgba(255,255,255,0.1) 30%,
-                    rgba(255,255,255,0.1) 40%,
-                    transparent 40%
-                ),
-                linear-gradient(0deg, 
-                    transparent 10%, 
-                    rgba(255,255,255,0.1) 10%, 
-                    rgba(255,255,255,0.1) 20%, 
-                    transparent 20%,
-                    transparent 30%,
-                    rgba(255,255,255,0.1) 30%,
-                    rgba(255,255,255,0.1) 40%,
-                    transparent 40%
-                );
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            color: #333;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <!-- 左パネル: SDGs指標と統計 -->
+        <!-- 左パネル: SDGs指標 -->
         <div class="panel">
-            <h2 style="text-align: center; margin-bottom: 20px; color: #FFD700;">🌍 SDGs都市開発</h2>
+            <div class="sdgs-header">
+                <h2>SDGs都市開発</h2>
+            </div>
             
-            <div class="sdgs-indicator">
-                <div style="font-size: 24px; font-weight: bold;">SDGs達成度</div>
-                <div style="font-size: 32px; margin: 10px 0;">68%</div>
-                <div style="font-size: 12px;">持続可能な開発目標への進捗</div>
-            </div>
-
             <div class="sdgs-progress">
-                <div class="sdg-goal active">🔋 7: エネルギー</div>
-                <div class="sdg-goal">🏭 8: 経済成長</div>
-                <div class="sdg-goal">🏙️ 11: 持続可能な都市</div>
-                <div class="sdg-goal">🌡️ 13: 気候変動</div>
-                <div class="sdg-goal">🌊 14: 海の豊かさ</div>
-                <div class="sdg-goal">🌳 15: 陸の豊かさ</div>
+                <div class="progress-percent">68%</div>
+                <div class="progress-label">持続可能な開発目標への進捗</div>
             </div>
 
-            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; margin: 15px 0;">
-                <h4 style="color: #FFD700; margin-bottom: 10px;">📊 都市バランス</h4>
-                <div style="display: flex; justify-content: space-between; margin: 8px 0;">
+            <div class="sdgs-grid">
+                <div class="sdg-goal active">🔋 7<br>エネルギー</div>
+                <div class="sdg-goal">🏭 8<br>経済成長</div>
+                <div class="sdg-goal">🏙️ 11<br>持続可能な都市</div>
+                <div class="sdg-goal">🌡️ 13<br>気候変動</div>
+                <div class="sdg-goal">🌊 14<br>海の豊かさ</div>
+                <div class="sdg-goal">🌳 15<br>陸の豊かさ</div>
+            </div>
+
+            <div class="city-stats">
+                <div class="stat-item">
                     <span>環境 vs 経済:</span>
-                    <span style="color: #4CAF50;">良好</span>
+                    <span class="stat-value positive">良好</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin: 8px 0;">
+                <div class="stat-item">
                     <span>炭素排出量:</span>
-                    <span style="color: #FF9800;">中程度</span>
+                    <span class="stat-value warning">中程度</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin: 8px 0;">
+                <div class="stat-item">
                     <span>再生可能エネルギー:</span>
-                    <span style="color: #4CAF50;">35%</span>
+                    <span class="stat-value positive">35%</span>
+                </div>
+                <div class="stat-item">
+                    <span>リサイクル率:</span>
+                    <span class="stat-value">42%</span>
+                </div>
+                <div class="stat-item">
+                    <span>緑地率:</span>
+                    <span class="stat-value positive">28%</span>
                 </div>
             </div>
 
-            <div class="challenge-alert">
-                <div style="font-weight: bold;">🎯 今週のSDGsチャレンジ</div>
-                <div style="font-size: 12px; margin-top: 5px;">再生可能エネルギー比率を50%以上にしよう！</div>
+            <div class="challenge-card">
+                <div class="challenge-title">
+                    🎯 今週のSDGsチャレンジ
+                </div>
+                <div style="font-size: 14px;">
+                    再生可能エネルギー比率を50%以上にしよう！
+                </div>
             </div>
+
+            <button class="control-button" onclick="showCityReport()">
+                📊 都市レポートを見る
+            </button>
         </div>
 
         <!-- 中央: 3D都市ビュー -->
         <div class="city-view">
             <div id="city3d"></div>
-            <div id="learningTooltip" class="learning-tooltip" style="display: none;"></div>
+            <button class="day-night-toggle" onclick="toggleDayNight()">🌙 夜モード</button>
+            <div id="constructionEffects"></div>
         </div>
 
-        <!-- 右パネル: 建設と学習 -->
+        <!-- 右パネル: 建設メニュー -->
         <div class="panel">
-            <h3 style="color: #FFD700; margin-bottom: 20px;">🏗️ 持続可能な建設</h3>
+            <h3 style="color: #1a2a6c; margin-bottom: 25px; text-align: center;">持続可能な建設</h3>
 
-            <div style="margin-bottom: 20px;">
-                <div class="category-title">🏠 住宅 & コミュニティ</div>
-                <div class="building-card available" onclick="buildBuilding('green_residential')" 
-                     onmouseenter="showLearning('green_residential')" 
-                     onmouseleave="hideLearning()">
+            <div class="building-section">
+                <div class="section-title">🏠 住宅 & コミュニティ</div>
+                
+                <div class="building-card" onclick="buildBuilding('eco_residential')">
                     <div class="sdg-badge">SDG 11</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 24px;">🏘️</span>
-                        <div>
-                            <div style="font-weight: bold;">エコ住宅地区</div>
-                            <div style="font-size: 11px; opacity: 0.8;">省エネ設計、緑地統合</div>
+                    <div class="building-header">
+                        <div class="building-icon">🏘️</div>
+                        <div class="building-info">
+                            <div class="building-name">エコ住宅地区</div>
+                            <div class="building-desc">省エネ設計、緑地統合</div>
                         </div>
                     </div>
-                    <div style="margin-top: 8px; font-size: 12px;">
-                        <span style="color: #4CAF50;">環境+15%</span> • 
-                        <span style="color: #4CAF50;">幸福度+10%</span> • 
-                        <span style="color: #FFD700;">💰 200,000</span>
+                    <div class="building-effects">
+                        <div class="effect-tag positive">環境+15%</div>
+                        <div class="effect-tag positive">幸福度+10%</div>
                     </div>
+                    <div class="building-cost">💰 200,000</div>
                 </div>
 
-                <div class="building-card available" onclick="buildBuilding('social_housing')"
-                     onmouseenter="showLearning('social_housing')" 
-                     onmouseleave="hideLearning()">
+                <div class="building-card" onclick="buildBuilding('social_housing')">
                     <div class="sdg-badge">SDG 1,10</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 24px;">🏢</span>
-                        <div>
-                            <div style="font-weight: bold;">社会的住宅</div>
-                            <div style="font-size: 11px; opacity: 0.8;">低所得者向け住宅</div>
+                    <div class="building-header">
+                        <div class="building-icon">🏢</div>
+                        <div class="building-info">
+                            <div class="building-name">社会的住宅</div>
+                            <div class="building-desc">低所得者向け住宅</div>
                         </div>
                     </div>
-                    <div style="margin-top: 8px; font-size: 12px;">
-                        <span style="color: #4CAF50;">幸福度+20%</span> • 
-                        <span style="color: #FF6B6B;">収入-10%</span> • 
-                        <span style="color: #FFD700;">💰 150,000</span>
+                    <div class="building-effects">
+                        <div class="effect-tag positive">幸福度+20%</div>
+                        <div class="effect-tag negative">収入-10%</div>
                     </div>
+                    <div class="building-cost">💰 150,000</div>
                 </div>
             </div>
 
-            <div style="margin-bottom: 20px;">
-                <div class="category-title">⚡ エネルギー革新</div>
-                <div class="building-card available" onclick="buildBuilding('solar_farm')"
-                     onmouseenter="showLearning('solar_farm')" 
-                     onmouseleave="hideLearning()">
+            <div class="building-section">
+                <div class="section-title">⚡ エネルギー革新</div>
+                
+                <div class="building-card" onclick="buildBuilding('solar_farm')">
                     <div class="sdg-badge">SDG 7</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 24px;">☀️</span>
-                        <div>
-                            <div style="font-weight: bold;">大規模太陽光発電</div>
-                            <div style="font-size: 11px; opacity: 0.8;">再生可能エネルギー</div>
+                    <div class="building-header">
+                        <div class="building-icon">☀️</div>
+                        <div class="building-info">
+                            <div class="building-name">大規模太陽光発電</div>
+                            <div class="building-desc">再生可能エネルギー</div>
                         </div>
                     </div>
-                    <div style="margin-top: 8px; font-size: 12px;">
-                        <span style="color: #4CAF50;">環境+25%</span> • 
-                        <span style="color: #4CAF50;">収入+500/ターン</span> • 
-                        <span style="color: #FFD700;">💰 400,000</span>
+                    <div class="building-effects">
+                        <div class="effect-tag positive">環境+25%</div>
+                        <div class="effect-tag positive">収入+500/ターン</div>
                     </div>
+                    <div class="building-cost">💰 400,000</div>
                 </div>
 
-                <div class="building-card available" onclick="buildBuilding('wind_turbine')"
-                     onmouseenter="showLearning('wind_turbine')" 
-                     onmouseleave="hideLearning()">
+                <div class="building-card" onclick="buildBuilding('wind_turbine')">
                     <div class="sdg-badge">SDG 7,13</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 24px;">🌬️</span>
-                        <div>
-                            <div style="font-weight: bold;">風力発電所</div>
-                            <div style="font-size: 11px; opacity: 0.8;">クリーンエネルギー</div>
+                    <div class="building-header">
+                        <div class="building-icon">🌬️</div>
+                        <div class="building-info">
+                            <div class="building-name">風力発電所</div>
+                            <div class="building-desc">クリーンエネルギー</div>
                         </div>
                     </div>
-                    <div style="margin-top: 8px; font-size: 12px;">
-                        <span style="color: #4CAF50;">環境+30%</span> • 
-                        <span style="color: #4CAF50;">炭素排出-15%</span> • 
-                        <span style="color: #FFD700;">💰 600,000</span>
+                    <div class="building-effects">
+                        <div class="effect-tag positive">環境+30%</div>
+                        <div class="effect-tag positive">炭素排出-15%</div>
                     </div>
+                    <div class="building-cost">💰 600,000</div>
                 </div>
             </div>
 
-            <div style="margin-bottom: 20px;">
-                <div class="category-title">🔄 循環経済</div>
-                <div class="building-card available" onclick="buildBuilding('recycling_center')"
-                     onmouseenter="showLearning('recycling_center')" 
-                     onmouseleave="hideLearning()">
+            <div class="building-section">
+                <div class="section-title">🔄 循環経済</div>
+                
+                <div class="building-card" onclick="buildBuilding('recycling_center')">
                     <div class="sdg-badge">SDG 12</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 24px;">♻️</span>
-                        <div>
-                            <div style="font-weight: bold;">リサイクルセンター</div>
-                            <div style="font-size: 11px; opacity: 0.8;">廃棄物管理</div>
+                    <div class="building-header">
+                        <div class="building-icon">♻️</div>
+                        <div class="building-info">
+                            <div class="building-name">リサイクルセンター</div>
+                            <div class="building-desc">廃棄物管理と資源循環</div>
                         </div>
                     </div>
-                    <div style="margin-top: 8px; font-size: 12px;">
-                        <span style="color: #4CAF50;">環境+20%</span> • 
-                        <span style="color: #4CAF50;">資源効率+15%</span> • 
-                        <span style="color: #FFD700;">💰 250,000</span>
+                    <div class="building-effects">
+                        <div class="effect-tag positive">環境+20%</div>
+                        <div class="effect-tag positive">資源効率+15%</div>
                     </div>
+                    <div class="building-cost">💰 250,000</div>
                 </div>
 
-                <div class="building-card available" onclick="buildBuilding('urban_farm')"
-                     onmouseenter="showLearning('urban_farm')" 
-                     onmouseleave="hideLearning()">
+                <div class="building-card" onclick="buildBuilding('urban_farm')">
                     <div class="sdg-badge">SDG 2,11</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 24px;">🌱</span>
-                        <div>
-                            <div style="font-weight: bold;">都市農業</div>
-                            <div style="font-size: 11px; opacity: 0.8;">地産地消</div>
+                    <div class="building-header">
+                        <div class="building-icon">🌱</div>
+                        <div class="building-info">
+                            <div class="building-name">都市農業</div>
+                            <div class="building-desc">地産地消と食料安全保障</div>
                         </div>
                     </div>
-                    <div style="margin-top: 8px; font-size: 12px;">
-                        <span style="color: #4CAF50;">食料安全保障+25%</span> • 
-                        <span style="color: #4CAF50;">環境+10%</span> • 
-                        <span style="color: #FFD700;">💰 180,000</span>
+                    <div class="building-effects">
+                        <div class="effect-tag positive">食料安全保障+25%</div>
+                        <div class="effect-tag positive">環境+10%</div>
                     </div>
+                    <div class="building-cost">💰 180,000</div>
                 </div>
             </div>
+
+            <button class="control-button" onclick="nextTurn()" style="background: linear-gradient(135deg, #4CAF50, #45a049);">
+                ⏭️ 次のターンへ
+            </button>
         </div>
     </div>
 
     <script>
-        // Three.jsで超リアルな都市を構築
+        // Three.jsの基本設定
         let scene, camera, renderer, controls;
-
-        // 建物の学習コンテンツ
-        const learningContent = {
-            green_residential: {
-                title: "エコ住宅地区 - SDG 11",
-                content: "省エネ設計と緑地統合により、エネルギー消費を40%削減。持続可能な都市開発のモデルです。",
-                impact: "• エネルギー効率: +40%\n• CO2排出削減: 年間2,000トン\n• 緑地面積: 30%確保",
-                realWorld: "コペンハーゲン（デンマーク）やフライブルク（ドイツ）で実践"
-            },
-            solar_farm: {
-                title: "太陽光発電 - SDG 7",
-                content: "再生可能エネルギーで化石燃料への依存を削減。クリーンで持続可能なエネルギー供給。",
-                impact: "• 再生可能エネルギー比率: +15%\n• 炭素排出削減: 年間5,000トン\n• エネルギー自立性向上",
-                realWorld: "中国、ドイツ、日本が世界の太陽光発電をリード"
-            },
-            recycling_center: {
-                title: "リサイクルセンター - SDG 12",
-                content: "廃棄物を資源として再利用する循環経済の要。埋立地への負荷を軽減します。",
-                impact: "• リサイクル率: +35%\n• 廃棄物削減: 40%\n• 新たな雇用創出",
-                realWorld: "スウェーデンは廃棄物の99%をリサイクルまたはエネルギー回収"
-            }
-        };
+        let isDay = true;
 
         function init3D() {
             // シーン設定
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x87CEEB);
-            scene.fog = new THREE.Fog(0x87CEEB, 10, 50);
             
             // カメラ設定
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(30, 25, 30);
+            const container = document.getElementById('city3d');
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(25, 20, 25);
             camera.lookAt(0, 0, 0);
             
             // レンダラー設定
-            const container = document.getElementById('city3d');
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             container.appendChild(renderer.domElement);
             
             // コントロール設定
@@ -379,20 +488,16 @@
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
             
-            // 高度なライティング
-            setupAdvancedLighting();
+            // ライティング
+            setupLighting();
             
-            // リアルな地面と環境
-            createRealisticEnvironment();
-            
-            // 初期建物の配置
-            createInitialCity();
+            // 環境作成
+            createEnvironment();
             
             // アニメーションループ
             function animate() {
                 requestAnimationFrame(animate);
                 controls.update();
-                updateCityLife();
                 renderer.render(scene, camera);
             }
             animate();
@@ -400,234 +505,213 @@
             window.addEventListener('resize', onWindowResize);
         }
 
-        function setupAdvancedLighting() {
-            // HDR風ライティング
-            const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+        function setupLighting() {
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
             scene.add(ambientLight);
             
-            const mainLight = new THREE.DirectionalLight(0xffffff, 1);
-            mainLight.position.set(10, 20, 5);
-            mainLight.castShadow = true;
-            mainLight.shadow.mapSize.width = 2048;
-            mainLight.shadow.mapSize.height = 2048;
-            scene.add(mainLight);
-            
-            // 補助ライト
-            const fillLight = new THREE.DirectionalLight(0x667eea, 0.3);
-            fillLight.position.set(-10, 10, -5);
-            scene.add(fillLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(10, 20, 5);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
         }
 
-        function createRealisticEnvironment() {
-            // テクスチャ風の地面
-            const groundGeometry = new THREE.PlaneGeometry(80, 80, 20, 20);
-            const groundMaterial = new THREE.MeshLambertMaterial({ 
-                color: 0x3d9970,
-                side: THREE.DoubleSide 
-            });
+        function createEnvironment() {
+            // 地面
+            const groundGeometry = new THREE.PlaneGeometry(50, 50);
+            const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x3d9970 });
             const ground = new THREE.Mesh(groundGeometry, groundMaterial);
             ground.rotation.x = -Math.PI / 2;
-            ground.receiveShadow = true;
-            
-            // 地面に凹凸を追加
-            const vertices = groundGeometry.attributes.position;
-            for (let i = 0; i < vertices.count; i++) {
-                vertices.setZ(i, (Math.random() - 0.5) * 0.5);
-            }
-            vertices.needsUpdate = true;
-            
             scene.add(ground);
             
-            // 詳細な道路ネットワーク
-            createDetailedRoads();
+            // グリッド
+            const gridHelper = new THREE.GridHelper(50, 50);
+            scene.add(gridHelper);
             
-            // 自然環境
-            createNatureElements();
+            // 道路
+            createRoads();
+            
+            // 初期建物
+            createInitialBuildings();
         }
 
-        function createDetailedRoads() {
+        function createRoads() {
             const roadMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
-            const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
             
-            // 主要道路
-            for (let i = -30; i <= 30; i += 15) {
-                // 道路本体
-                const roadGeometry = new THREE.PlaneGeometry(80, 3);
-                const road = new THREE.Mesh(roadGeometry, roadMaterial);
-                road.rotation.x = -Math.PI / 2;
-                road.position.set(0, 0.1, i);
-                road.receiveShadow = true;
+            for (let i = -20; i <= 20; i += 10) {
+                const roadGeometry = new THREE.PlaneGeometry(50, 3);
+                const road1 = new THREE.Mesh(roadGeometry, roadMaterial);
+                road1.rotation.x = -Math.PI / 2;
+                road1.position.set(0, 0.01, i);
                 
-                // 中央線
-                const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-                    new THREE.Vector3(-40, 0.11, 0),
-                    new THREE.Vector3(40, 0.11, 0)
-                ]);
-                const line = new THREE.Line(lineGeometry, lineMaterial);
-                line.position.z = i;
+                const road2 = new THREE.Mesh(roadGeometry, roadMaterial);
+                road2.rotation.x = -Math.PI / 2;
+                road2.rotation.z = Math.PI / 2;
+                road2.position.set(i, 0.01, 0);
                 
-                scene.add(road);
-                scene.add(line);
+                scene.add(road1);
+                scene.add(road2);
             }
         }
 
-        function createNatureElements() {
-            // 木の生成
-            for (let i = 0; i < 20; i++) {
-                const tree = createTree();
-                tree.position.set(
-                    (Math.random() - 0.5) * 60,
-                    0,
-                    (Math.random() - 0.5) * 60
-                );
-                scene.add(tree);
-            }
-            
-            // 水辺の作成
-            const waterGeometry = new THREE.PlaneGeometry(20, 80);
-            const waterMaterial = new THREE.MeshLambertMaterial({ 
-                color: 0x0077be,
-                transparent: true,
-                opacity: 0.7
-            });
-            const water = new THREE.Mesh(waterGeometry, waterMaterial);
-            water.rotation.x = -Math.PI / 2;
-            water.position.set(-25, 0.05, 0);
-            scene.add(water);
-        }
-
-        function createTree() {
-            const group = new THREE.Group();
-            
-            // 幹
-            const trunkGeometry = new THREE.CylinderGeometry(0.3, 0.4, 2, 8);
-            const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
-            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-            trunk.position.y = 1;
-            trunk.castShadow = true;
-            
-            // 葉
-            const leavesGeometry = new THREE.SphereGeometry(1.5, 8, 6);
-            const leavesMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
-            const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
-            leaves.position.y = 3;
-            leaves.castShadow = true;
-            
-            group.add(trunk);
-            group.add(leaves);
-            return group;
-        }
-
-        function createInitialCity() {
-            // 初期建物の配置（リアルな街並み）
-            const buildingTypes = ['green_residential', 'commercial', 'public'];
-            
-            for (let i = -20; i <= 20; i += 8) {
-                for (let j = -20; j <= 20; j += 8) {
-                    if (Math.abs(i) < 15 && Math.abs(j) < 15 && Math.random() > 0.7) {
-                        const type = buildingTypes[Math.floor(Math.random() * buildingTypes.length)];
-                        createRealisticBuilding(type, i, 0, j);
-                    }
-                }
+        function createInitialBuildings() {
+            // いくつかの初期建物を作成
+            for (let i = 0; i < 8; i++) {
+                const x = (Math.random() - 0.5) * 30;
+                const z = (Math.random() - 0.5) * 30;
+                createBuilding('eco_residential', x, z);
             }
         }
 
-        function createRealisticBuilding(type, x, y, z) {
-            let geometry, material, height;
+        function createBuilding(type, x, z) {
+            let geometry, material, height, color;
             
             switch(type) {
-                case 'green_residential':
-                    height = 3 + Math.random() * 2;
-                    geometry = new THREE.BoxGeometry(4, height, 4);
-                    material = new THREE.MeshLambertMaterial({ 
-                        color: 0xff6b6b,
-                        roughness: 0.7,
-                        metalness: 0.1
-                    });
+                case 'eco_residential':
+                    height = 2 + Math.random();
+                    color = 0xff6b6b;
                     break;
-                case 'commercial':
-                    height = 6 + Math.random() * 4;
-                    geometry = new THREE.BoxGeometry(5, height, 5);
-                    material = new THREE.MeshLambertMaterial({ 
-                        color: 0x74b9ff,
-                        roughness: 0.5,
-                        metalness: 0.3
-                    });
+                case 'solar_farm':
+                    height = 1;
+                    color = 0xf9ca24;
+                    break;
+                case 'recycling_center':
+                    height = 2;
+                    color = 0x00b894;
                     break;
                 default:
-                    height = 4 + Math.random() * 3;
-                    geometry = new THREE.BoxGeometry(4, height, 4);
-                    material = new THREE.MeshLambertMaterial({ color: 0xfdcb6e });
+                    height = 2;
+                    color = 0x74b9ff;
             }
             
+            geometry = new THREE.BoxGeometry(3, height, 3);
+            material = new THREE.MeshLambertMaterial({ color });
             const building = new THREE.Mesh(geometry, material);
             building.position.set(x, height / 2, z);
             building.castShadow = true;
-            building.receiveShadow = true;
-            
-            // 窓の追加（商業ビルの場合）
-            if (type === 'commercial') {
-                addWindows(building, height);
-            }
             
             scene.add(building);
             return building;
         }
 
-        function addWindows(building, height) {
-            const windowMaterial = new THREE.MeshLambertMaterial({ color: 0x87CEEB });
+        function buildBuilding(type) {
+            const x = (Math.random() - 0.5) * 40;
+            const z = (Math.random() - 0.5) * 40;
             
-            for (let i = 1; i < height; i += 1.5) {
-                const windowGeometry = new THREE.BoxGeometry(0.1, 0.8, 1.5);
-                const window1 = new THREE.Mesh(windowGeometry, windowMaterial);
-                window1.position.set(2.6, i - height/2 + 0.4, 0);
+            // 建設エフェクト
+            showConstructionEffect(x, z);
+            
+            setTimeout(() => {
+                createBuilding(type, x, z);
+                showNotification(`✅ ${getBuildingName(type)}を建設しました！`);
                 
-                const window2 = new THREE.Mesh(windowGeometry, windowMaterial);
-                window2.position.set(-2.6, i - height/2 + 0.4, 0);
-                
-                building.add(window1);
-                building.add(window2);
+                // SDGs学習情報を表示
+                showSDGsLearning(type);
+            }, 800);
+        }
+
+        function showConstructionEffect(x, z) {
+            const effectsContainer = document.getElementById('constructionEffects');
+            const effect = document.createElement('div');
+            effect.className = 'construction-effect';
+            effect.style.cssText = `
+                width: 60px;
+                height: 60px;
+                background: radial-gradient(circle, #FFD700 20%, transparent 70%);
+                border-radius: 50%;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+            `;
+            effectsContainer.appendChild(effect);
+            
+            setTimeout(() => effect.remove(), 1500);
+        }
+
+        function getBuildingName(type) {
+            const names = {
+                'eco_residential': 'エコ住宅地区',
+                'social_housing': '社会的住宅',
+                'solar_farm': '大規模太陽光発電',
+                'wind_turbine': '風力発電所',
+                'recycling_center': 'リサイクルセンター',
+                'urban_farm': '都市農業'
+            };
+            return names[type] || type;
+        }
+
+        function showSDGsLearning(type) {
+            const learningData = {
+                'eco_residential': {
+                    goals: ['SDG 11: 持続可能な都市'],
+                    message: '省エネ住宅はエネルギー消費を40%削減し、都市の環境負荷を軽減します。'
+                },
+                'solar_farm': {
+                    goals: ['SDG 7: エネルギー', 'SDG 13: 気候変動'],
+                    message: '再生可能エネルギーは化石燃料への依存を減らし、気候変動対策に貢献します。'
+                },
+                'recycling_center': {
+                    goals: ['SDG 12: つくる責任 つかう責任'],
+                    message: 'リサイクルにより廃棄物を資源として活用し、循環型社会を実現します。'
+                }
+            };
+            
+            const data = learningData[type];
+            if (data) {
+                setTimeout(() => {
+                    alert(`🎓 SDGs学習ポイント\n\n関連目標: ${data.goals.join(', ')}\n\n${data.message}`);
+                }, 1000);
             }
         }
 
-        function buildBuilding(type) {
-            // 建設ロジック（簡略化）
-            const x = (Math.random() - 0.5) * 40;
-            const z = (Math.random() - 0.5) * 40;
-            createRealisticBuilding(type, x, 0, z);
-            
-            // 学習コンテンツの表示
-            showLearningPopup(type);
+        function toggleDayNight() {
+            isDay = !isDay;
+            if (isDay) {
+                scene.background = new THREE.Color(0x87CEEB);
+                document.querySelector('.day-night-toggle').textContent = '🌙 夜モード';
+            } else {
+                scene.background = new THREE.Color(0x2c3e50);
+                document.querySelector('.day-night-toggle').textContent = '☀️ 昼モード';
+            }
         }
 
-        function showLearning(type) {
-            const content = learningContent[type];
-            if (!content) return;
-            
-            const tooltip = document.getElementById('learningTooltip');
-            tooltip.innerHTML = `
-                <div style="font-weight: bold; margin-bottom: 8px; color: #FFD700;">${content.title}</div>
-                <div style="margin-bottom: 8px;">${content.content}</div>
-                <div style="font-size: 12px; margin-bottom: 8px; white-space: pre-line;">${content.impact}</div>
-                <div style="font-size: 11px; opacity: 0.8;">🌍 ${content.realWorld}</div>
+        function nextTurn() {
+            showNotification('📊 新しいターンが始まりました！');
+            // ここにターン進行のロジックを追加
+        }
+
+        function showCityReport() {
+            const report = `
+🏙️ 都市開発レポート
+
+📈 SDGs進捗:
+• 総合達成度: 68%
+• 環境指標: 75%
+• 社会指標: 62%
+• 経済指標: 67%
+
+🌱 環境パフォーマンス:
+• 再生可能エネルギー: 35%
+• 炭素排出量: 中程度
+• リサイクル率: 42%
+• 緑地率: 28%
+
+💡 改善提案:
+• 再生可能エネルギー施設の増設
+• 公共交通網の拡充
+• 緑地面積の拡大
             `;
-            tooltip.style.display = 'block';
+            alert(report);
         }
 
-        function showLearningPopup(type) {
-            const content = learningContent[type];
-            if (!content) return;
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'floating-notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
             
-            alert(`🏗️ ${content.title}\n\n${content.content}\n\n📊 影響:\n${content.impact}\n\n🌍 実例: ${content.realWorld}`);
-        }
-
-        function hideLearning() {
-            document.getElementById('learningTooltip').style.display = 'none';
-        }
-
-        function updateCityLife() {
-            // 都市の生命感を表現（車の動き、光の点滅など）
-            // 簡易実装
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
         }
 
         function onWindowResize() {
@@ -639,15 +723,6 @@
 
         // 初期化
         window.addEventListener('load', init3D);
-
-        // 学習ツールチップの位置更新
-        document.addEventListener('mousemove', (e) => {
-            const tooltip = document.getElementById('learningTooltip');
-            if (tooltip.style.display === 'block') {
-                tooltip.style.left = (e.clientX + 10) + 'px';
-                tooltip.style.top = (e.clientY + 10) + 'px';
-            }
-        });
     </script>
 </body>
 </html>
