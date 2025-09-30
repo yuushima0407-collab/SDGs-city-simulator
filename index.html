@@ -3,38 +3,812 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIスマートシティ計画官 - 完全版</title>
+    <title>SDGs グローバルミッション</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a2a6c, #2a5298);
-            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
             overflow: hidden;
+            touch-action: none;
         }
         .game-container {
             display: grid;
-            grid-template-columns: 350px 1fr 400px;
+            grid-template-rows: 80px 1fr 120px;
             height: 100vh;
-            gap: 12px;
-            padding: 12px;
+            gap: 10px;
+            padding: 10px;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .city-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .city-flag {
+            font-size: 32px;
+        }
+        .city-details h2 {
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+        .city-details .mission {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .resources {
+            display: flex;
+            gap: 20px;
+        }
+        .resource {
+            text-align: center;
+        }
+        .resource-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .resource-label {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 15px;
         }
         .panel {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
-            padding: 25px;
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
             overflow-y: auto;
         }
+        .city-view {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+        #city3d {
+            width: 100%;
+            height: 100%;
+        }
+        .construction-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .building-option {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .building-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.4);
+        }
+        .building-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .tech-tree {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .tech-level {
+            margin-bottom: 15px;
+        }
+        .tech-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tech-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        .event-log {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .event-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        .control-bar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .control-button {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
+        }
+        .turn-info {
+            text-align: center;
+        }
+        .turn-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .progress-container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 8px;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #00b894, #fdcb6e, #e17055);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .sdgs-badge {
+            display: inline-block;
+            background: #FFD700;
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            margin: 2px;
+        }
+        .floating-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            z-index: 1000;
+            animation: slideInRight 0.5s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .construction-effect {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #FFD700 20%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100;
+            animation: constructPulse 1s ease-out;
+        }
+        @keyframes constructPulse {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- ヘッダー: 都市情報と資源 -->
+        <div class="header">
+            <div class="city-info">
+                <div class="city-flag">🇯🇵</div>
+                <div class="city-details">
+                    <h2>東京ミッション</h2>
+                    <div class="mission">カーボンニュートラル2030 - CO2排出量70%削減</div>
+                </div>
+            </div>
+            <div class="resources">
+                <div class="resource">
+                    <div class="resource-value" id="budget">2,500,000</div>
+                    <div class="resource-label">予算</div>
+                </div>
+                <div class="resource">
+                    <div class="resource-value" id="energy">78%</div>
+                    <div class="resource-label">エネルギー</div>
+                </div>
+                <div class="resource">
+                    <div class="resource-value" id="environment">65%</div>
+                    <div class="resource-label">環境</div>
+                </div>
+                <div class="resource">
+                    <div class="resource-value" id="water">85%</div>
+                    <div class="resource-label">水資源</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <!-- 左パネル: 建設メニュー -->
+            <div class="panel">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">🏗️ 施設建設</h3>
+                
+                <div class="construction-grid">
+                    <div class="building-option" onclick="constructBuilding('residential')">
+                        <div class="building-icon">🏠</div>
+                        <div>住宅</div>
+                        <div style="font-size: 10px; opacity: 0.8;">人口+1000</div>
+                    </div>
+                    <div class="building-option" onclick="constructBuilding('commercial')">
+                        <div class="building-icon">🏪</div>
+                        <div>商業</div>
+                        <div style="font-size: 10px; opacity: 0.8;">収入+5000</div>
+                    </div>
+                    <div class="building-option" onclick="constructBuilding('solar')">
+                        <div class="building-icon">☀️</div>
+                        <div>太陽光</div>
+                        <div style="font-size: 10px; opacity: 0.8;">エネルギー+15%</div>
+                    </div>
+                    <div class="building-option" onclick="constructBuilding('wind')">
+                        <div class="building-icon">🌬️</div>
+                        <div>風力</div>
+                        <div style="font-size: 10px; opacity: 0.8;">エネルギー+20%</div>
+                    </div>
+                    <div class="building-option" onclick="constructBuilding('park')">
+                        <div class="building-icon">🌳</div>
+                        <div>公園</div>
+                        <div style="font-size: 10px; opacity: 0.8;">環境+10%</div>
+                    </div>
+                    <div class="building-option" onclick="constructBuilding('water_plant')">
+                        <div class="building-icon">💧</div>
+                        <div>浄水場</div>
+                        <div style="font-size: 10px; opacity: 0.8;">水資源+25%</div>
+                    </div>
+                    <div class="building-option" onclick="constructBuilding('recycling')">
+                        <div class="building-icon">♻️</div>
+                        <div>リサイクル</div>
+                        <div style="font-size: 10px; opacity: 0.8;">廃棄物-15%</div>
+                    </div>
+                    <div class="building-option" onclick="constructBuilding('research')">
+                        <div class="building-icon">🔬</div>
+                        <div>研究所</div>
+                        <div style="font-size: 10px; opacity: 0.8;">技術+10%</div>
+                    </div>
+                </div>
+
+                <div class="tech-tree">
+                    <h4 style="color: #2c3e50; margin-bottom: 15px;">🔧 技術ツリー</h4>
+                    <div class="tech-level">
+                        <div style="font-size: 12px; margin-bottom: 8px; color: #7f8c8d;">レベル1</div>
+                        <div class="tech-items">
+                            <div class="tech-item">省エネ家電</div>
+                            <div class="tech-item">太陽光発電</div>
+                            <div class="tech-item">リサイクル</div>
+                        </div>
+                    </div>
+                    <div class="tech-level">
+                        <div style="font-size: 12px; margin-bottom: 8px; color: #7f8c8d;">レベル2</div>
+                        <div class="tech-items">
+                            <div class="tech-item" style="opacity: 0.5;">スマートグリッド</div>
+                            <div class="tech-item" style="opacity: 0.5;">水リサイクル</div>
+                            <div class="tech-item" style="opacity: 0.5;">電気自動車</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中央: 3D都市ビュー -->
+            <div class="city-view">
+                <div id="city3d"></div>
+                <div id="constructionEffects"></div>
+            </div>
+
+            <!-- 右パネル: ミッションとイベント -->
+            <div class="panel">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">🎯 ミッション進捗</h3>
+                
+                <div class="progress-container">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;">
+                        <span>CO2削減目標</span>
+                        <span>45% / 70%</span>
+                    </div>
+                    <div class="progress-bar" style="width: 64%"></div>
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <h4 style="color: #2c3e50; margin-bottom: 10px;">🏆 SDGs目標</h4>
+                    <div>
+                        <span class="sdgs-badge">7: エネルギー</span>
+                        <span class="sdgs-badge">11: 持続可能な都市</span>
+                        <span class="sdgs-badge">13: 気候変動</span>
+                    </div>
+                </div>
+
+                <div class="event-log">
+                    <h4 style="color: #2c3e50; margin-bottom: 10px;">📝 イベントログ</h4>
+                    <div class="event-item">🏭 工業地区を建設しました</div>
+                    <div class="event-item">☀️ 太陽光発電所が完成</div>
+                    <div class="event-item">💧 水需要が10%増加</div>
+                    <div class="event-item">🌿 環境指標が改善しました</div>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: rgba(116, 185, 255, 0.1); border-radius: 10px;">
+                    <h4 style="color: #2c3e50; margin-bottom: 8px;">🌍 国際技術</h4>
+                    <div style="font-size: 12px; line-height: 1.4;">
+                        ドイツのエネルギー転換技術が利用可能
+                        <span class="sdgs-badge" style="background: #74b9ff; margin-left: 5px;">新着</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- コントロールバー -->
+        <div class="control-bar">
+            <div class="turn-info">
+                <div style="font-size: 14px; color: #7f8c8d;">ターン</div>
+                <div class="turn-number" id="turn">5</div>
+            </div>
+            <button class="control-button" onclick="nextTurn()">
+                ⏭️ 次のターンへ
+            </button>
+            <div style="text-align: right;">
+                <div style="font-size: 14px; color: #7f8c8d;">人口</div>
+                <div style="font-size: 20px; font-weight: bold; color: #2c3e50;" id="population">125,000</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================================
+        // 🎮 ゲームエンジン - 完全実装
+        // =============================================
+
+        class GlobalSDGsGame {
+            constructor() {
+                this.currentCity = 'tokyo';
+                this.turn = 5;
+                this.resources = {
+                    budget: 2500000,
+                    energy: 78,
+                    environment: 65,
+                    water: 85,
+                    population: 125000
+                };
+                this.buildings = [];
+                this.missions = {
+                    tokyo: { target: 70, current: 45, name: 'CO2排出量70%削減' }
+                };
+                this.events = [];
+                this.init();
+            }
+
+            init() {
+                this.loadCityData();
+                this.updateUI();
+            }
+
+            loadCityData() {
+                // 都市データの読み込み
+                const cities = {
+                    tokyo: {
+                        flag: '🇯🇵',
+                        name: '東京ミッション',
+                        mission: 'カーボンニュートラル2030 - CO2排出量70%削減',
+                        challenges: ['高密度都市', '土地不足', 'エネルギー需要大']
+                    }
+                };
+                this.cityData = cities[this.currentCity];
+            }
+
+            constructBuilding(type) {
+                const cost = this.getBuildingCost(type);
+                if (this.resources.budget < cost) {
+                    this.showNotification('❌ 予算が足りません');
+                    return false;
+                }
+
+                this.resources.budget -= cost;
+                this.applyBuildingEffects(type);
+                
+                const building = {
+                    type,
+                    turn: this.turn,
+                    position: this.getRandomGridPosition()
+                };
+                this.buildings.push(building);
+
+                this.addEvent(`🏗️ ${this.getBuildingName(type)}を建設しました`);
+                this.showNotification(`✅ ${this.getBuildingName(type)}を建設しました`);
+                this.updateUI();
+                return building;
+            }
+
+            getBuildingCost(type) {
+                const costs = {
+                    'residential': 100000,
+                    'commercial': 150000,
+                    'solar': 200000,
+                    'wind': 250000,
+                    'park': 50000,
+                    'water_plant': 300000,
+                    'recycling': 180000,
+                    'research': 400000
+                };
+                return costs[type] || 0;
+            }
+
+            getBuildingName(type) {
+                const names = {
+                    'residential': '住宅地区',
+                    'commercial': '商業地区',
+                    'solar': '太陽光発電所',
+                    'wind': '風力発電所',
+                    'park': '公園',
+                    'water_plant': '浄水場',
+                    'recycling': 'リサイクルセンター',
+                    'research': '研究所'
+                };
+                return names[type] || type;
+            }
+
+            applyBuildingEffects(type) {
+                const effects = {
+                    'residential': { population: 1000, budget: -5000 },
+                    'commercial': { budget: 5000, energy: -5 },
+                    'solar': { energy: 15, environment: 5 },
+                    'wind': { energy: 20, environment: 8 },
+                    'park': { environment: 10, budget: -2000 },
+                    'water_plant': { water: 25, energy: -10 },
+                    'recycling': { environment: 12, budget: 3000 },
+                    'research': { budget: -8000 }
+                };
+
+                const effect = effects[type] || {};
+                Object.keys(effect).forEach(key => {
+                    if (this.resources[key] !== undefined) {
+                        this.resources[key] += effect[key];
+                        // 値を制限
+                        if (key !== 'budget' && key !== 'population') {
+                            this.resources[key] = Math.max(0, Math.min(100, this.resources[key]));
+                        }
+                    }
+                });
+
+                // ミッション進捗更新
+                if (type === 'solar' || type === 'wind' || type === 'recycling') {
+                    this.missions.tokyo.current = Math.min(70, this.missions.tokyo.current + 2);
+                }
+            }
+
+            getRandomGridPosition() {
+                return {
+                    x: Math.floor(Math.random() * 8),
+                    z: Math.floor(Math.random() * 8)
+                };
+            }
+
+            nextTurn() {
+                this.turn++;
+                
+                // ターンごとの自然な変化
+                this.resources.energy = Math.max(0, this.resources.energy - 3);
+                this.resources.water = Math.max(0, this.resources.water - 2);
+                this.resources.population += Math.floor(this.resources.population * 0.02);
+                this.resources.budget += Math.floor(this.resources.population * 0.8);
+                
+                // ランダムイベント
+                this.generateRandomEvent();
+                
+                this.addEvent(`📊 ターン ${this.turn} 開始 - 人口増加: ${Math.floor(this.resources.population * 0.02).toLocaleString()}人`);
+                this.showNotification(`🔄 ターン ${this.turn} が始まりました`);
+                this.updateUI();
+            }
+
+            generateRandomEvent() {
+                const events = [
+                    { message: "🌡️ 熱波来襲！エネルギー需要が15%増加", effect: { energy: -10 } },
+                    { message: "💧 水不足警告！節水対策が必要", effect: { water: -15 } },
+                    { message: "🌿 環境意識の高まり！環境指標が改善", effect: { environment: 8 } },
+                    { message: "💰 経済成長！予算収入が増加", effect: { budget: 100000 } }
+                ];
+                
+                const event = events[Math.floor(Math.random() * events.length)];
+                this.addEvent(event.message);
+                
+                Object.keys(event.effect).forEach(key => {
+                    if (this.resources[key] !== undefined) {
+                        this.resources[key] += event.effect[key];
+                    }
+                });
+            }
+
+            addEvent(message) {
+                this.events.unshift(message);
+                if (this.events.length > 6) {
+                    this.events.pop();
+                }
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'floating-notification';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.remove(), 3000);
+            }
+
+            showConstructionEffect(x, z) {
+                const effectsContainer = document.getElementById('constructionEffects');
+                const effect = document.createElement('div');
+                effect.className = 'construction-effect';
+                effect.style.left = `${12.5 + x * 12.5}%`;
+                effect.style.top = `${12.5 + z * 12.5}%`;
+                effectsContainer.appendChild(effect);
+                
+                setTimeout(() => effect.remove(), 1000);
+            }
+
+            updateUI() {
+                // リソース更新
+                document.getElementById('budget').textContent = this.resources.budget.toLocaleString();
+                document.getElementById('energy').textContent = this.resources.energy + '%';
+                document.getElementById('environment').textContent = this.resources.environment + '%';
+                document.getElementById('water').textContent = this.resources.water + '%';
+                document.getElementById('population').textContent = this.resources.population.toLocaleString();
+                document.getElementById('turn').textContent = this.turn;
+                
+                // 進捗バー更新
+                const progress = (this.missions.tokyo.current / this.missions.tokyo.target) * 100;
+                document.querySelector('.progress-bar').style.width = `${progress}%`;
+                document.querySelector('.progress-container span:last-child').textContent = 
+                    `${this.missions.tokyo.current}% / ${this.missions.tokyo.target}%`;
+                
+                // イベントログ更新
+                const eventLog = document.querySelector('.event-log');
+                eventLog.innerHTML = '<h4 style="color: #2c3e50; margin-bottom: 10px;">📝 イベントログ</h4>';
+                this.events.forEach(event => {
+                    const eventItem = document.createElement('div');
+                    eventItem.className = 'event-item';
+                    eventItem.textContent = event;
+                    eventLog.appendChild(eventItem);
+                });
+            }
+        }
+
+        // =============================================
+        // 🎮 3D都市エンジン
+        // =============================================
+
+        let scene, camera, renderer, controls;
+        const game = new GlobalSDGsGame();
+
+        function init3D() {
+            // シーン設定
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB);
+            
+            // カメラ設定
+            const container = document.getElementById('city3d');
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(8, 12, 8);
+            camera.lookAt(0, 0, 0);
+            
+            // レンダラー設定
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+            
+            // コントロール設定
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            // ライティング
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 20, 5);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+            
+            // グリッド地面の作成
+            createCityGrid();
+            
+            // アニメーションループ
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+            
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function createCityGrid() {
+            // 地面
+            const groundGeometry = new THREE.PlaneGeometry(16, 16);
+            const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x3d9970 });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -0.1;
+            scene.add(ground);
+            
+            // グリッド線
+            const gridHelper = new THREE.GridHelper(16, 8, 0x000000, 0x000000);
+            scene.add(gridHelper);
+            
+            // 道路
+            createRoads();
+        }
+
+        function createRoads() {
+            const roadMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+            
+            // 縦横の主要道路
+            for (let i = -7; i <= 7; i += 2) {
+                const roadGeometry = new THREE.PlaneGeometry(16, 0.5);
+                const road1 = new THREE.Mesh(roadGeometry, roadMaterial);
+                road1.rotation.x = -Math.PI / 2;
+                road1.position.set(0, 0, i);
+                
+                const road2 = new THREE.Mesh(roadGeometry, roadMaterial);
+                road2.rotation.x = -Math.PI / 2;
+                road2.rotation.z = Math.PI / 2;
+                road2.position.set(i, 0, 0);
+                
+                scene.add(road1);
+                scene.add(road2);
+            }
+        }
+
+        function create3DBuilding(type, x, z) {
+            let geometry, material, color, height;
+            const baseX = (x - 3.5) * 2;
+            const baseZ = (z - 3.5) * 2;
+            
+            switch(type) {
+                case 'residential':
+                    geometry = new THREE.BoxGeometry(1.5, 1.2, 1.5);
+                    color = 0xff6b6b;
+                    height = 0.6;
+                    break;
+                case 'commercial':
+                    geometry = new THREE.BoxGeometry(1.5, 1.8, 1.5);
+                    color = 0xfdcb6e;
+                    height = 0.9;
+                    break;
+                case 'solar':
+                    geometry = new THREE.BoxGeometry(1.2, 0.2, 1.2);
+                    color = 0xf9ca24;
+                    height = 0.1;
+                    break;
+                case 'wind':
+                    geometry = new THREE.CylinderGeometry(0.3, 0.4, 2, 6);
+                    color = 0x74b9ff;
+                    height = 1;
+                    break;
+                case 'park':
+                    geometry = new THREE.BoxGeometry(1.8, 0.1, 1.8);
+                    color = 0x00b894;
+                    height = 0.05;
+                    break;
+                case 'water_plant':
+                    geometry = new THREE.BoxGeometry(1.6, 1, 1.6);
+                    color = 0x0984e3;
+                    height = 0.5;
+                    break;
+                case 'recycling':
+                    geometry = new THREE.BoxGeometry(1.4, 0.8, 1.4);
+                    color = 0x00cec9;
+                    height = 0.4;
+                    break;
+                case 'research':
+                    geometry = new THREE.BoxGeometry(1.3, 1.5, 1.3);
+                    color = 0xa29bfe;
+                    height = 0.75;
+                    break;
+            }
+            
+            material = new THREE.MeshLambertMaterial({ color });
+            const building = new THREE.Mesh(geometry, material);
+            building.position.set(baseX, height, baseZ);
+            building.castShadow = true;
+            
+            scene.add(building);
+            return building;
+        }
+
+        // =============================================
+        // 🎮 ゲーム制御関数
+        // =============================================
+
+        function constructBuilding(type) {
+            const building = game.constructBuilding(type);
+            if (building) {
+                game.showConstructionEffect(building.position.x, building.position.z);
+                setTimeout(() => {
+                    create3DBuilding(type, building.position.x, building.position.z);
+                }, 500);
+            }
+        }
+
+        function nextTurn() {
+            game.nextTurn();
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('city3d');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        // =============================================
+        // 🚀 初期化
+        // =============================================
+
+        window.addEventListener('load', () => {
+            init3D();
+            game.updateUI();
+            
+            // 初期建物の配置
+            for (let i = 0; i < 8; i++) {
+                const types = ['residential', 'commercial', 'solar', 'park'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                const pos = game.getRandomGridPosition();
+                create3DBuilding(type, pos.x, pos.z);
+            }
+        });
+    </script>
+</body>
+</html>        }
         .city-view {
             background: rgba(0, 0, 0, 0.4);
             border-radius: 20px;
