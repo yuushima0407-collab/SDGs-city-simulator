@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SDGs World Builder - Multiplayer</title>
+    <title>SDGs World Builder - Improved</title>
     <style>
         * {
             margin: 0;
@@ -20,715 +20,990 @@
         }
 
         .app-container {
-            max-width: 1600px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* 3Dビューアー */
-        .city-3d-view {
-            width: 100%;
-            height: 400px;
-            background: linear-gradient(45deg, #2d3436, #636e72);
-            border-radius: 15px;
+        /* 画面管理 */
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* ヘッダー */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* ナビゲーション */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
             margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .nav-tab.active {
+            background: #00b894;
+            border-color: #00cec9;
+        }
+
+        /* カードシステム */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
             position: relative;
             overflow: hidden;
         }
 
-        .building-3d {
+        .card::before {
+            content: '';
             position: absolute;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 5px 5px 0 0;
-            transition: all 0.5s ease;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
         }
 
-        .building-3d:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
+        .card:hover::before {
+            left: 100%;
         }
 
-        /* マルチプレイヤー */
-        .multiplayer-panel {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 2px solid #74b9ff;
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #00cec9;
+            box-shadow: 0 15px 30px rgba(0, 206, 201, 0.3);
         }
 
-        .players-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 15px 0;
+        .card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(1);
         }
 
-        .player-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
+        .card.new {
+            border-color: #fdcb6e;
+            animation: pulse 2s infinite;
+        }
+
+        .card-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
             text-align: center;
-            transition: all 0.3s ease;
         }
 
-        .player-card.online {
-            border: 2px solid #00b894;
+        .card-rarity {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            font-weight: bold;
         }
 
-        .player-card.offline {
-            opacity: 0.6;
+        .rarity-common { background: #636e72; }
+        .rarity-rare { background: #0984e3; }
+        .rarity-epic { background: #6c5ce7; }
+
+        /* 都市建設グリッド */
+        .city-builder {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
         }
 
-        .player-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            margin: 0 auto 10px;
+        .city-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5em;
-        }
-
-        /* 仮想通貨 */
-        .crypto-market {
-            background: rgba(253, 203, 110, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 2px solid #fdcb6e;
-        }
-
-        .crypto-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 15px 0;
-        }
-
-        .crypto-coin {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .coin-price {
-            font-size: 1.3em;
-            font-weight: bold;
-            margin: 8px 0;
-        }
-
-        .price-up { color: #00b894; }
-        .price-down { color: #ff7675; }
-
-        /* AIアドバイザー */
-        .ai-advisor {
-            background: rgba(116, 185, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 2px solid #74b9ff;
-            position: relative;
-        }
-
-        .ai-message {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 10px 0;
-            border-left: 4px solid #74b9ff;
-        }
-
-        .ai-typing {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            background: #74b9ff;
-            border-radius: 50%;
-            margin-left: 5px;
-            animation: typing 1s infinite;
-        }
-
-        @keyframes typing {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
-        }
-
-        /* リアルタイムデータ */
-        .live-data {
-            background: rgba(0, 184, 148, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 2px solid #00b894;
-        }
-
-        .data-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .data-item {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-        }
-
-        .data-value {
-            font-size: 1.4em;
-            font-weight: bold;
-            margin: 5px 0;
-        }
-
-        /* 取引市場 */
-        .marketplace {
-            background: rgba(108, 92, 231, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 2px solid #6c5ce7;
-        }
-
-        .market-items {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin: 15px 0;
-        }
-
-        .market-item {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
+            cursor: pointer;
             transition: all 0.3s ease;
-        }
-
-        .market-item:hover {
-            transform: translateY(-3px);
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .item-price {
-            color: #fdcb6e;
-            font-weight: bold;
             font-size: 1.2em;
         }
 
-        /* チャットシステム */
-        .chat-panel {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
+        .grid-cell:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .grid-cell.built {
+            background: rgba(0, 184, 148, 0.3);
+        }
+
+        .grid-cell.selected {
+            background: rgba(0, 206, 201, 0.5);
+            box-shadow: 0 0 15px rgba(0, 206, 201, 0.5);
+        }
+
+        /* 建設オプション */
+        .build-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
             margin: 20px 0;
-            height: 300px;
-            display: flex;
-            flex-direction: column;
         }
 
-        .chat-messages {
-            flex-grow: 1;
-            overflow-y: auto;
-            margin-bottom: 15px;
-        }
-
-        .chat-message {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 10px 15px;
-            margin: 8px 0;
-            max-width: 80%;
-        }
-
-        .chat-message.own {
-            background: rgba(116, 185, 255, 0.3);
-            margin-left: auto;
-        }
-
-        .chat-input {
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input input {
-            flex-grow: 1;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            color: white;
-        }
-
-        /* 協力プロジェクト */
-        .coop-projects {
-            background: rgba(214, 48, 49, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 2px solid #d63031;
-        }
-
-        .project-card {
+        .build-option {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .build-option:hover {
+            transform: translateY(-3px);
+            border-color: #74b9ff;
+        }
+
+        .build-option.available {
+            background: rgba(116, 185, 255, 0.2);
+        }
+
+        /* 国詳細画面 */
+        .country-detail {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .country-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .country-flag {
+            font-size: 4em;
+        }
+
+        .country-info h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        /* ARプレビュー */
+        .ar-preview {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px dashed #00cec9;
+        }
+
+        .ar-viewport {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(45deg, #1a2a6c, #b21f1f);
+            border-radius: 10px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ar-building {
+            position: absolute;
+            transition: all 0.5s ease;
+        }
+
+        /* リソース表示 */
+        .resources-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .resource {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .resource:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .resource-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+
+        /* ボタン */
+        .btn {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+            font-size: 1em;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 184, 148, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-ar {
+            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+        }
+
+        /* アニメーション */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* 通知 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 1000;
+            animation: slideIn 0.5s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+        }
+
+        /* 進捗バー */
+        .progress-container {
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
             margin: 10px 0;
-            border-left: 4px solid #d63031;
+            overflow: hidden;
         }
 
-        .project-progress {
-            margin: 10px 0;
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00b894, #00cec9);
+            border-radius: 10px;
+            transition: width 0.5s ease;
         }
-
-        /* レスポンシブ調整 */
-        @media (max-width: 768px) {
-            .players-grid,
-            .crypto-grid,
-            .data-grid,
-            .market-items {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        /* 既存のスタイルを継承 */
-        .screen { display: none; }
-        .screen.active { display: block; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 2.5em; margin-bottom: 10px; background: linear-gradient(45deg, #00b894, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .nav-tabs { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
-        .nav-tab { padding: 12px 20px; background: rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
-        .nav-tab.active { background: #00b894; border-color: #00cec9; }
-        .btn { background: linear-gradient(45deg, #00b894, #00cec9); color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; transition: all 0.3s ease; margin: 5px; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,184,148,0.4); }
-        .btn-secondary { background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3); }
-        .notification { position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #00b894, #00a085); color: white; padding: 15px 25px; border-radius: 10px; z-index: 1000; animation: slideIn 0.5s ease; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- マルチプレイヤーハブ -->
-        <div id="multiplayerHub" class="screen active">
+        <!-- スタート画面 -->
+        <div id="startScreen" class="screen active">
             <div class="header">
-                <h1>🌐 SDGs グローバルネットワーク</h1>
-                <p>世界中のプレイヤーと協力して持続可能な未来を創ろう</p>
+                <h1>🌍 SDGs World Builder</h1>
+                <p>世界の知恵を集めて、理想の未来都市を作ろう！</p>
+            </div>
+            <div style="text-align: center; margin-top: 50px;">
+                <button class="btn" onclick="showScreen('countrySelect')">🚀 ゲームを始める</button>
+                <button class="btn btn-secondary" onclick="showScreen('tutorial')">📚 遊び方</button>
+            </div>
+        </div>
+
+        <!-- 国選択画面 -->
+        <div id="countrySelect" class="screen">
+            <div class="header">
+                <h1>🌏 訪問する国を選ぼう</h1>
+                <p>各国のSDGs成功事例を学んでカードを獲得しよう</p>
             </div>
 
-            <!-- リアルタイムデータ -->
-            <div class="live-data">
-                <h3>📊 グローバル統計（リアルタイム）</h3>
-                <div class="data-grid">
-                    <div class="data-item">
-                        <div>🌍 オンラインプレイヤー</div>
-                        <div class="data-value" id="onlinePlayers">1,247</div>
-                        <div>世界中で接続中</div>
-                    </div>
-                    <div class="data-item">
-                        <div>🏙️ 建設された都市</div>
-                        <div class="data-value" id="totalCities">8,956</div>
-                        <div>持続可能な都市</div>
-                    </div>
-                    <div class="data-item">
-                        <div>⚡ 節約されたエネルギー</div>
-                        <div class="data-value" id="savedEnergy">2.4TWh</div>
-                        <div>相当于原子力発電所2基分</div>
-                    </div>
-                    <div class="data-item">
-                        <div>🌿 削減されたCO2</div>
-                        <div class="data-value" id="reducedCO2">1.8Mt</div>
-                        <div>自動車38万台分</div>
-                    </div>
-                </div>
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="showContinent('asia')">🌏 アジア</div>
+                <div class="nav-tab" onclick="showContinent('europe')">🏰 ヨーロッパ</div>
+                <div class="nav-tab" onclick="showContinent('africa')">🦁 アフリカ</div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
-                <!-- メインコンテンツ -->
-                <div>
-                    <!-- 3D都市ビューアー -->
-                    <div class="city-3d-view" id="city3dView">
-                        <!-- 3D建物はJavaScriptで生成 -->
+            <div class="cards-container">
+                <!-- 日本のカード -->
+                <div class="card continent-asia" onclick="visitCountry('japan')">
+                    <div class="card-icon">🇯🇵</div>
+                    <h3>日本</h3>
+                    <p>ごみ分別・災害対策・公共交通</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
                     </div>
-
-                    <!-- 協力プロジェクト -->
-                    <div class="coop-projects">
-                        <h3>🤝 協力プロジェクト</h3>
-                        <div class="project-card">
-                            <h4>🌊 太平洋ごみベルト清掃作戦</h4>
-                            <div class="project-progress">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                    <span>進捗状況</span>
-                                    <span>68%</span>
-                                </div>
-                                <div style="height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden;">
-                                    <div style="height: 100%; width: 68%; background: #00b894; border-radius: 4px;"></div>
-                                </div>
-                            </div>
-                            <p>目標: 1,000トンの海洋プラスチック回収</p>
-                            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                <button class="btn" onclick="joinProject('ocean_cleanup')">参加する</button>
-                                <button class="btn btn-secondary" onclick="donateToProject('ocean_cleanup')">💰 寄付する</button>
-                            </div>
-                        </div>
-
-                        <div class="project-card">
-                            <h4>🌳 アマゾン再植林プロジェクト</h4>
-                            <div class="project-progress">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                    <span>進捗状況</span>
-                                    <span>42%</span>
-                                </div>
-                                <div style="height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden;">
-                                    <div style="height: 100%; width: 42%; background: #00b894; border-radius: 4px;"></div>
-                                </div>
-                            </div>
-                            <p>目標: 100万本の植樹</p>
-                            <button class="btn" onclick="joinProject('reforestation')">参加する</button>
-                        </div>
-                    </div>
+                    <small>未訪問 - クリックして探検</small>
                 </div>
 
-                <!-- サイドバー -->
-                <div>
-                    <!-- オンラインプレイヤー -->
-                    <div class="multiplayer-panel">
-                        <h3>👥 オンラインプレイヤー</h3>
-                        <div class="players-grid" id="playersGrid">
-                            <!-- プレイヤーカードはJavaScriptで生成 -->
-                        </div>
+                <!-- シンガポールのカード -->
+                <div class="card continent-asia" onclick="visitCountry('singapore')">
+                    <div class="card-icon">🇸🇬</div>
+                    <h3>シンガポール</h3>
+                    <p>水資源管理・都市緑化</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
                     </div>
+                    <small>未訪問 - クリックして探検</small>
+                </div>
 
-                    <!-- 仮想通貨市場 -->
-                    <div class="crypto-market">
-                        <h3>💰 SDGsトークン相場</h3>
-                        <div class="crypto-grid">
-                            <div class="crypto-coin">
-                                <div>🌿 ECO</div>
-                                <div class="coin-price price-up">¥245.6</div>
-                                <div>+2.3%</div>
-                            </div>
-                            <div class="crypto-coin">
-                                <div>💧 WTR</div>
-                                <div class="coin-price price-up">¥187.9</div>
-                                <div>+1.8%</div>
-                            </div>
-                            <div class="crypto-coin">
-                                <div>⚡ NRG</div>
-                                <div class="coin-price price-down">¥312.4</div>
-                                <div>-0.7%</div>
-                            </div>
-                        </div>
+                <!-- ドイツのカード -->
+                <div class="card continent-europe" style="display: none" onclick="visitCountry('germany')">
+                    <div class="card-icon">🇩🇪</div>
+                    <h3>ドイツ</h3>
+                    <p>エネルギー転換・リサイクル</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
                     </div>
+                    <small>未訪問 - クリックして探検</small>
                 </div>
-            </div>
 
-            <!-- AIアドバイザー -->
-            <div class="ai-advisor">
-                <h3>🤖 AI SDGsアドバイザー</h3>
-                <div class="ai-message">
-                    <strong>アドバイス:</strong> あなたの都市はエネルギー効率が優れていますが、水資源管理に改善の余地があります。シンガポールのNEWater技術を導入してみてはいかがでしょうか？
-                </div>
-                <div class="ai-message">
-                    <strong>市場分析:</strong> ECOトークンが上昇傾向にあります。環境プロジェクトへの投資が増加しているためです。
-                </div>
-                <button class="btn" onclick="askAIAdvice()">🎯 新しいアドバイスを求める</button>
-                <span class="ai-typing"></span>
-            </div>
-
-            <!-- チャットシステム -->
-            <div class="chat-panel">
-                <h3>💬 グローバルチャット</h3>
-                <div class="chat-messages" id="chatMessages">
-                    <div class="chat-message">
-                        <strong>Tokyo_Planter:</strong> 日本の屋上緑化技術を共有します！
+                <!-- ルワンダのカード -->
+                <div class="card continent-africa" style="display: none" onclick="visitCountry('rwanda')">
+                    <div class="card-icon">🇷🇼</div>
+                    <h3>ルワンダ</h3>
+                    <p>プラスチック禁止・清潔政策</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
                     </div>
-                    <div class="chat-message">
-                        <strong>Berlin_Energy:</strong> ドイツのスマートグリッドデータが必要な方はいますか？
-                    </div>
-                    <div class="chat-message own">
-                        <strong>あなた:</strong> ルワンダのごみ政策について詳しく知りたいです
-                    </div>
-                </div>
-                <div class="chat-input">
-                    <input type="text" id="chatInput" placeholder="メッセージを入力...">
-                    <button class="btn" onclick="sendChatMessage()">送信</button>
-                </div>
-            </div>
-
-            <!-- 取引市場 -->
-            <div class="marketplace">
-                <h3>🛒 SDGs技術市場</h3>
-                <div class="market-items">
-                    <div class="market-item">
-                        <h4>🇯🇵 日本の太陽光技術</h4>
-                        <p>変換効率23%の最新パネル</p>
-                        <div class="item-price">ECO 1,200</div>
-                        <button class="btn" onclick="buyItem('japan_solar')">購入</button>
-                    </div>
-                    <div class="market-item">
-                        <h4>🇩🇪 ドイツの風力データ</h4>
-                        <p>10年間の運用データセット</p>
-                        <div class="item-price">WTR 850</div>
-                        <button class="btn" onclick="buyItem('germany_wind')">購入</button>
-                    </div>
-                    <div class="market-item">
-                        <h4>🇸🇬 シンガポール水処理</h4>
-                        <p>NEWaterの設計図</p>
-                        <div class="item-price">NRG 2,100</div>
-                        <button class="btn" onclick="buyItem('singapore_water')">購入</button>
-                    </div>
+                    <small>未訪問 - クリックして探検</small>
                 </div>
             </div>
 
             <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-secondary" onclick="showScreen('startScreen')">← 戻る</button>
+                <button class="btn" onclick="showScreen('cityBuilder')">🏙️ 都市を建設</button>
                 <button class="btn" onclick="showScreen('cardCollection')">🃏 カード図鑑</button>
-                <button class="btn btn-secondary" onclick="showScreen('cityBuilder')">🏙️ 単独プレイ</button>
-                <button class="btn" onclick="createCoopRoom()">👥 協力ルーム作成</button>
+            </div>
+        </div>
+
+        <!-- 国詳細画面 -->
+        <div id="countryDetail" class="screen">
+            <div class="country-detail">
+                <div class="country-header">
+                    <div class="country-flag" id="detailFlag">🇯🇵</div>
+                    <div class="country-info">
+                        <h2 id="detailCountryName">日本</h2>
+                        <p id="detailCountryDescription">持続可能な社会を実現するための先進的な取り組み</p>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <h4>調査進捗</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="detailProgress" style="width: 0%"></div>
+                    </div>
+                    <small id="detailProgressText">0% 完了</small>
+                </div>
+
+                <div class="cards-container" id="countryCards">
+                    <!-- 国のカードはJavaScriptで生成 -->
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="showScreen('countrySelect')">← 国選択に戻る</button>
+                    <button class="btn" onclick="continueExploration()">🔍 さらに探検する</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 都市建設画面 -->
+        <div id="cityBuilder" class="screen">
+            <div class="header">
+                <h1>🏙️ マイシティ建設</h1>
+                <p>獲得したカードを使って持続可能な都市を建設しよう</p>
+            </div>
+
+            <!-- リソース表示 -->
+            <div class="resources-bar">
+                <div class="resource">
+                    <div>💰</div>
+                    <div class="resource-value" id="money">1,000,000</div>
+                    <div>予算</div>
+                </div>
+                <div class="resource">
+                    <div>🌿</div>
+                    <div class="resource-value" id="environment">50%</div>
+                    <div>環境指標</div>
+                </div>
+                <div class="resource">
+                    <div>😊</div>
+                    <div class="resource-value" id="happiness">65%</div>
+                    <div>市民幸福度</div>
+                </div>
+                <div class="resource">
+                    <div>⚡</div>
+                    <div class="resource-value" id="energy">75%</div>
+                    <div>エネルギー</div>
+                </div>
+            </div>
+
+            <div class="city-builder">
+                <h3>🏗️ 都市建設エリア</h3>
+                <p>グリッドをクリックして建設場所を選択し、右の施設から建設してください</p>
+                
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+                    <!-- 建設グリッド -->
+                    <div>
+                        <div class="city-grid" id="cityGrid">
+                            <!-- グリッドはJavaScriptで生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 建設オプション -->
+                    <div>
+                        <h4>建設可能な施設</h4>
+                        <div class="build-options" id="buildOptions">
+                            <!-- 建設オプションはJavaScriptで生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ARプレビュー -->
+            <div class="ar-preview">
+                <h3>👁️ AR都市プレビュー</h3>
+                <p>スマートフォンを動かして都市を360度見てみよう</p>
+                <div class="ar-viewport" id="arViewport">
+                    <div style="text-align: center;">
+                        <div style="font-size: 3em; margin-bottom: 10px;">📱</div>
+                        <p>AR機能を有効にするには<br>スマートフォンで表示してください</p>
+                    </div>
+                </div>
+                <button class="btn btn-ar" onclick="simulateAR()">🎮 ARをシミュレート</button>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-secondary" onclick="showScreen('countrySelect')">🌍 国を探検</button>
+                <button class="btn" onclick="nextTurn()">⏭️ 次のターン</button>
+                <button class="btn" onclick="showScreen('cardCollection')">🃏 カード図鑑</button>
+            </div>
+        </div>
+
+        <!-- カードコレクション画面 -->
+        <div id="cardCollection" class="screen">
+            <div class="header">
+                <h1>🃏 SDGsカードコレクション</h1>
+                <p>集めたカードで新しい技術を開発しよう</p>
+            </div>
+
+            <div class="resources-bar">
+                <div class="resource">
+                    <div>🃏</div>
+                    <div class="resource-value" id="totalCards">0/12</div>
+                    <div>収集カード</div>
+                </div>
+                <div class="resource">
+                    <div>🏆</div>
+                    <div class="resource-value" id="completion">0%</div>
+                    <div>コンプリート率</div>
+                </div>
+            </div>
+
+            <div class="cards-container" id="cardsContainer">
+                <!-- カードはJavaScriptで生成 -->
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn" onclick="showScreen('countrySelect')">🌍 国を探検</button>
+                <button class="btn btn-secondary" onclick="showScreen('cityBuilder')">🏙️ 都市建設</button>
             </div>
         </div>
     </div>
 
     <script>
-        // マルチプレイヤーゲーム状態
-        const multiplayerState = {
-            onlinePlayers: [
-                { id: 1, name: 'Eco_Warrior', avatar: '🌍', country: '🇺🇸', level: 42, online: true },
-                { id: 2, name: 'Green_Architect', avatar: '🏗️', country: '🇩🇪', level: 38, online: true },
-                { id: 3, name: 'Water_Guardian', avatar: '💧', country: '🇸🇬', level: 35, online: true },
-                { id: 4, name: 'Solar_Pioneer', avatar: '☀️', country: '🇯🇵', level: 45, online: false },
-                { id: 5, name: 'Forest_Protector', avatar: '🌳', country: '🇧🇷', level: 31, online: true }
-            ],
-            chatMessages: [],
-            coopProjects: {
-                ocean_cleanup: { progress: 68, participants: 1247, goal: 1000 },
-                reforestation: { progress: 42, participants: 892, goal: 1000000 }
+        // ゲーム状態
+        const gameState = {
+            currentScreen: 'startScreen',
+            resources: {
+                money: 1000000,
+                environment: 50,
+                happiness: 65,
+                energy: 75
             },
-            cryptoPrices: {
-                ECO: { price: 245.6, change: 2.3 },
-                WTR: { price: 187.9, change: 1.8 },
-                NRG: { price: 312.4, change: -0.7 }
+            visitedCountries: {},
+            collectedCards: [],
+            builtFacilities: [],
+            currentTurn: 1,
+            selectedCell: null
+        };
+
+        // 国のデータ
+        const countries = {
+            japan: {
+                name: '日本',
+                flag: '🇯🇵',
+                description: '高度な技術と伝統の調和で持続可能な社会を実現',
+                cards: [
+                    { id: 'japan_recycling', name: 'ごみ分別システム', icon: '🗑️', rarity: 'rare', description: '細かい分別でリサイクル率80%を達成', progress: 0 },
+                    { id: 'japan_transit', name: '公共交通ネットワーク', icon: '🚆', rarity: 'epic', description: '世界最高レベルの鉄道システム', progress: 0 },
+                    { id: 'japan_disaster', name: '防災技術', icon: '🏯', rarity: 'rare', description: '地震対策と早期警戒システム', progress: 0 }
+                ]
             },
-            userTokens: {
-                ECO: 5000,
-                WTR: 3200,
-                NRG: 1800
+            singapore: {
+                name: 'シンガポール',
+                flag: '🇸🇬',
+                description: '限られた資源を逆手に取った革新的な解決策',
+                cards: [
+                    { id: 'singapore_water', name: 'NEWater', icon: '💧', rarity: 'epic', description: '下水の高度再生で水の40%を供給', progress: 0 },
+                    { id: 'singapore_green', name: 'ガーデンシティ', icon: '🌿', rarity: 'rare', description: '国土の47%が緑地', progress: 0 }
+                ]
+            },
+            germany: {
+                name: 'ドイツ',
+                flag: '🇩🇪',
+                description: 'エネルギー転換で持続可能な未来を先導',
+                cards: [
+                    { id: 'germany_energy', name: 'エネルギー転換', icon: '⚡', rarity: 'epic', description: '再生可能エネルギー46%を達成', progress: 0 },
+                    { id: 'germany_recycling', name: 'デポジット制度', icon: '♻️', rarity: 'common', description: '容器の回収率98%を実現', progress: 0 }
+                ]
+            },
+            rwanda: {
+                name: 'ルワンダ',
+                flag: '🇷🇼',
+                description: '厳格な政策でアフリカの模範国に',
+                cards: [
+                    { id: 'rwanda_plastic', name: 'プラスチック禁止', icon: '🚫', rarity: 'common', description: '2008年よりビニール袋を全面禁止', progress: 0 },
+                    { id: 'rwanda_clean', name: '清潔政策', icon: '✨', rarity: 'rare', description: 'アフリカで最も清潔な都市に', progress: 0 }
+                ]
             }
         };
 
-        // 3D都市の建物データ
-        const cityBuildings = [
-            { type: 'residential', x: 50, width: 80, height: 120, color: '#74b9ff' },
-            { type: 'commercial', x: 150, width: 100, height: 180, color: '#a29bfe' },
-            { type: 'solar', x: 280, width: 60, height: 40, color: '#fdcb6e' },
-            { type: 'park', x: 360, width: 120, height: 30, color: '#00b894' },
-            { type: 'recycling', x: 500, width: 90, height: 70, color: '#55efc4' },
-            { type: 'research', x: 620, width: 110, height: 150, color: '#ffeaa7' }
-        ];
+        // 建設可能な施設
+        const facilities = {
+            solar: { name: '太陽光発電所', icon: '☀️', cost: 200000, effects: { energy: 20, environment: 15 }, requirements: [] },
+            wind: { name: '風力発電', icon: '🌬️', cost: 300000, effects: { energy: 25, environment: 20 }, requirements: [] },
+            recycling: { name: 'リサイクル施設', icon: '♻️', cost: 150000, effects: { environment: 25, happiness: 5 }, requirements: ['japan_recycling'] },
+            park: { name: '都市公園', icon: '🌳', cost: 100000, effects: { happiness: 15, environment: 10 }, requirements: [] },
+            research: { name: '環境研究所', icon: '🔬', cost: 500000, effects: { happiness: 10, energy: 10, environment: 20 }, requirements: [] }
+        };
 
-        // 初期化
-        function initializeMultiplayerHub() {
-            render3DCity();
-            updateOnlinePlayers();
-            startRealTimeUpdates();
-            simulateLiveData();
-        }
-
-        // 3D都市の描画
-        function render3DCity() {
-            const container = document.getElementById('city3dView');
-            container.innerHTML = '';
-
-            cityBuildings.forEach(building => {
-                const buildingEl = document.createElement('div');
-                buildingEl.className = 'building-3d';
-                buildingEl.style.left = building.x + 'px';
-                buildingEl.style.width = building.width + 'px';
-                buildingEl.style.height = building.height + 'px';
-                buildingEl.style.background = building.color;
-                buildingEl.title = getBuildingName(building.type);
-                
-                container.appendChild(buildingEl);
-            });
-        }
-
-        function getBuildingName(type) {
-            const names = {
-                residential: '住宅地',
-                commercial: '商業ビル',
-                solar: '太陽光発電所',
-                park: '都市公園',
-                recycling: 'リサイクル施設',
-                research: '環境研究所'
-            };
-            return names[type] || type;
-        }
-
-        // オンラインプレイヤー表示
-        function updateOnlinePlayers() {
-            const container = document.getElementById('playersGrid');
-            container.innerHTML = '';
-
-            multiplayerState.onlinePlayers.forEach(player => {
-                const playerEl = document.createElement('div');
-                playerEl.className = `player-card ${player.online ? 'online' : 'offline'}`;
-                playerEl.innerHTML = `
-                    <div class="player-avatar">${player.avatar}</div>
-                    <div><strong>${player.name}</strong></div>
-                    <div>${player.country} Lv.${player.level}</div>
-                    <div style="font-size: 0.8em; opacity: 0.7;">
-                        ${player.online ? '🟢 オンライン' : '⚫ オフライン'}
-                    </div>
-                `;
-                playerEl.onclick = () => viewPlayerProfile(player.id);
-                container.appendChild(playerEl);
-            });
-        }
-
-        // リアルタイムデータ更新
-        function startRealTimeUpdates() {
-            // 仮想通貨価格の変動
-            setInterval(() => {
-                Object.keys(multiplayerState.cryptoPrices).forEach(coin => {
-                    const change = (Math.random() - 0.5) * 4;
-                    multiplayerState.cryptoPrices[coin].change = parseFloat(change.toFixed(1));
-                    multiplayerState.cryptoPrices[coin].price = parseFloat(
-                        (multiplayerState.cryptoPrices[coin].price * (1 + change/100)).toFixed(1)
-                    );
-                });
-                updateCryptoDisplay();
-            }, 10000);
-
-            // オンラインプレイヤー数の変動
-            setInterval(() => {
-                const change = Math.floor(Math.random() * 21) - 10;
-                const current = parseInt(document.getElementById('onlinePlayers').textContent.replace(',', ''));
-                document.getElementById('onlinePlayers').textContent = (current + change).toLocaleString();
-            }, 15000);
-        }
-
-        // ライブデータシミュレーション
-        function simulateLiveData() {
-            setInterval(() => {
-                // 都市数の増加
-                const cities = parseInt(document.getElementById('totalCities').textContent.replace(',', ''));
-                document.getElementById('totalCities').textContent = (cities + Math.floor(Math.random() * 3)).toLocaleString();
-
-                // エネルギー節約
-                const energy = parseFloat(document.getElementById('savedEnergy').textContent);
-                document.getElementById('savedEnergy').textContent = (energy + Math.random() * 0.1).toFixed(1) + 'TWh';
-
-                // CO2削減
-                const co2 = parseFloat(document.getElementById('reducedCO2').textContent);
-                document.getElementById('reducedCO2').textContent = (co2 + Math.random() * 0.05).toFixed(1) + 'Mt';
-            }, 8000);
-        }
-
-        // 仮想通貨表示更新
-        function updateCryptoDisplay() {
-            document.querySelectorAll('.crypto-coin').forEach((coin, index) => {
-                const coins = Object.keys(multiplayerState.cryptoPrices);
-                const coinData = multiplayerState.cryptoPrices[coins[index]];
-                
-                const priceEl = coin.querySelector('.coin-price');
-                priceEl.textContent = `¥${coinData.price}`;
-                priceEl.className = `coin-price ${coinData.change >= 0 ? 'price-up' : 'price-down'}`;
-                
-                const changeEl = coin.querySelector('.coin-price').nextElementSibling;
-                changeEl.textContent = `${coinData.change >= 0 ? '+' : ''}${coinData.change}%`;
-            });
-        }
-
-        // チャット機能
-        function sendChatMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-            
-            if (message) {
-                const chatMessages = document.getElementById('chatMessages');
-                const messageEl = document.createElement('div');
-                messageEl.className = 'chat-message own';
-                messageEl.innerHTML = `<strong>あなた:</strong> ${message}`;
-                chatMessages.appendChild(messageEl);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-                
-                input.value = '';
-                
-                // 自動返信をシミュレート
-                setTimeout(() => {
-                    const replies = [
-                        "いい質問ですね！その技術について詳しく説明します。",
-                        "私もそのプロジェクトに参加しています！",
-                        "そのデータを持っています。共有しましょうか？",
-                        "素晴らしいアイデアですね！実現方法を考えましょう。"
-                    ];
-                    const randomReply = replies[Math.floor(Math.random() * replies.length)];
-                    
-                    const botMessage = document.createElement('div');
-                    botMessage.className = 'chat-message';
-                    botMessage.innerHTML = `<strong>Global_Helper:</strong> ${randomReply}`;
-                    chatMessages.appendChild(botMessage);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }, 2000);
-            }
-        }
-
-        // プロジェクト参加
-        function joinProject(projectId) {
-            const project = multiplayerState.coopProjects[projectId];
-            project.participants++;
-            showNotification(`🤝 ${getProjectName(projectId)}に参加しました！`);
-        }
-
-        function donateToProject(projectId) {
-            showNotification(`💰 ${getProjectName(projectId)}にECOトークンを寄付しました！`);
-            // ここで実際の寄付処理を実装
-        }
-
-        function getProjectName(projectId) {
-            const names = {
-                ocean_cleanup: '太平洋ごみベルト清掃作戦',
-                reforestation: 'アマゾン再植林プロジェクト'
-            };
-            return names[projectId] || projectId;
-        }
-
-        // AIアドバイス
-        function askAIAdvice() {
-            const advice = [
-                "水資源の効率化には、シンガポールのNEWater技術がおすすめです",
-                "エネルギー消費を削減するには、ドイツのスマートグリッドを導入しましょう",
-                "ごみ処理には、日本の高度な分別システムが効果的です",
-                "交通のCO2削減には、ノルウェーのEV普及政策を参考にしてください"
-            ];
-            const randomAdvice = advice[Math.floor(Math.random() * advice.length)];
-            
-            showNotification(`🤖 AIアドバイス: ${randomAdvice}`);
-        }
-
-        // アイテム購入
-        function buyItem(itemId) {
-            const items = {
-                japan_solar: { name: '日本の太陽光技術', price: { ECO: 1200 } },
-                germany_wind: { name: 'ドイツの風力データ', price: { WTR: 850 } },
-                singapore_water: { name: 'シンガポール水処理', price: { NRG: 2100 } }
-            };
-            
-            const item = items[itemId];
-            if (item) {
-                showNotification(`🛒 ${item.name}を購入しました！`);
-                // ここで実際の購入処理を実装
-            }
-        }
-
-        // 画面管理
+        // 画面表示
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(screen => {
                 screen.classList.remove('active');
             });
             document.getElementById(screenId).classList.add('active');
+            gameState.currentScreen = screenId;
+            
+            if (screenId === 'cityBuilder') {
+                initializeCityBuilder();
+            } else if (screenId === 'cardCollection') {
+                updateCardCollection();
+            }
+        }
+
+        // 大陸表示切り替え
+        function showContinent(continent) {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.card').forEach(card => {
+                card.style.display = 'none';
+            });
+            document.querySelectorAll('.continent-' + continent).forEach(card => {
+                card.style.display = 'block';
+            });
+        }
+
+        // 国を訪問
+        function visitCountry(countryId) {
+            const country = countries[countryId];
+            if (!gameState.visitedCountries[countryId]) {
+                gameState.visitedCountries[countryId] = { progress: 0, cards: {} };
+            }
+            
+            // 国詳細画面を表示
+            document.getElementById('detailFlag').textContent = country.flag;
+            document.getElementById('detailCountryName').textContent = country.name;
+            document.getElementById('detailCountryDescription').textContent = country.description;
+            
+            // カードを表示
+            const cardsContainer = document.getElementById('countryCards');
+            cardsContainer.innerHTML = '';
+            
+            country.cards.forEach(card => {
+                const cardProgress = gameState.visitedCountries[countryId].cards[card.id] || 0;
+                const cardEl = document.createElement('div');
+                cardEl.className = `card ${cardProgress >= 100 ? '' : 'disabled'}`;
+                cardEl.innerHTML = `
+                    <div class="card-rarity rarity-${card.rarity}">${getRarityText(card.rarity)}</div>
+                    <div class="card-icon">${card.icon}</div>
+                    <h3>${card.name}</h3>
+                    <p>${card.description}</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${cardProgress}%"></div>
+                    </div>
+                    <small>${cardProgress >= 100 ? '✅ 獲得済み' : `${cardProgress}% 調査完了`}</small>
+                `;
+                
+                if (cardProgress < 100) {
+                    cardEl.onclick = () => studyCard(countryId, card.id);
+                }
+                
+                cardsContainer.appendChild(cardEl);
+            });
+            
+            updateCountryProgress(countryId);
+            showScreen('countryDetail');
+        }
+
+        // カードを調査
+        function studyCard(countryId, cardId) {
+            const country = gameState.visitedCountries[countryId];
+            if (!country.cards[cardId]) {
+                country.cards[cardId] = 0;
+            }
+            
+            country.cards[cardId] += 25;
+            
+            if (country.cards[cardId] >= 100) {
+                // カード獲得
+                const cardData = countries[countryId].cards.find(c => c.id === cardId);
+                if (!gameState.collectedCards.find(c => c.id === cardId)) {
+                    gameState.collectedCards.push({
+                        id: cardId,
+                        name: cardData.name,
+                        icon: cardData.icon,
+                        rarity: cardData.rarity,
+                        description: cardData.description,
+                        country: countryId
+                    });
+                    showNotification(`🎉 カード「${cardData.name}」を獲得しました！`);
+                }
+            }
+            
+            updateCountryProgress(countryId);
+            visitCountry(countryId); // 画面を更新
+        }
+
+        // 国の進捗を更新
+        function updateCountryProgress(countryId) {
+            const country = gameState.visitedCountries[countryId];
+            const totalCards = countries[countryId].cards.length;
+            let completed = 0;
+            let totalProgress = 0;
+            
+            countries[countryId].cards.forEach(card => {
+                const progress = country.cards[card.id] || 0;
+                totalProgress += progress;
+                if (progress >= 100) completed++;
+            });
+            
+            const avgProgress = totalProgress / totalCards;
+            document.getElementById('detailProgress').style.width = avgProgress + '%';
+            document.getElementById('detailProgressText').textContent = `${Math.round(avgProgress)}% 完了 (${completed}/${totalCards} カード獲得)`;
+        }
+
+        // さらに探検
+        function continueExploration() {
+            showNotification('🔍 さらに詳しく調査を続けています...');
+            // ここで追加の調査コンテンツを表示できる
+        }
+
+        // 都市建設の初期化
+        function initializeCityBuilder() {
+            initializeCityGrid();
+            updateBuildOptions();
+            updateResourceDisplay();
+            initializeARView();
+        }
+
+        // 都市グリッドの初期化
+        function initializeCityGrid() {
+            const grid = document.getElementById('cityGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 36; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.innerHTML = '＋';
+                cell.onclick = () => selectGridCell(i, cell);
+                grid.appendChild(cell);
+            }
+        }
+
+        // グリッドセル選択
+        function selectGridCell(index, cellElement) {
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.classList.remove('selected');
+            });
+            
+            cellElement.classList.add('selected');
+            gameState.selectedCell = index;
+            
+            showNotification('📍 建設場所を選択しました');
+        }
+
+        // 建設オプションの更新
+        function updateBuildOptions() {
+            const container = document.getElementById('buildOptions');
+            container.innerHTML = '';
+            
+            Object.entries(facilities).forEach(([id, facility]) => {
+                const canBuild = canBuildFacility(id);
+                const option = document.createElement('div');
+                option.className = `build-option ${canBuild ? 'available' : ''}`;
+                option.innerHTML = `
+                    <div style="font-size: 2em; margin-bottom: 10px;">${facility.icon}</div>
+                    <h4>${facility.name}</h4>
+                    <p>💰 ${facility.cost.toLocaleString()}</p>
+                    <div style="font-size: 0.9em; opacity: 0.8;">
+                        ${canBuild ? '✅ 建設可能' : '❌ 条件未達成'}
+                    </div>
+                `;
+                
+                if (canBuild) {
+                    option.onclick = () => buildFacility(id);
+                }
+                
+                container.appendChild(option);
+            });
+        }
+
+        // 施設建設の条件チェック
+        function canBuildFacility(facilityId) {
+            const facility = facilities[facilityId];
+            return facility.requirements.every(req => 
+                gameState.collectedCards.some(card => card.id === req)
+            );
+        }
+
+        // 施設を建設
+        function buildFacility(facilityId) {
+            if (gameState.selectedCell === null) {
+                showNotification('❌ まず建設場所を選んでください');
+                return;
+            }
+            
+            const facility = facilities[facilityId];
+            
+            if (gameState.resources.money < facility.cost) {
+                showNotification('❌ 予算が足りません');
+                return;
+            }
+            
+            // 建設処理
+            gameState.resources.money -= facility.cost;
+            Object.entries(facility.effects).forEach(([resource, value]) => {
+                gameState.resources[resource] = Math.min(100, gameState.resources[resource] + value);
+            });
+            
+            // グリッド更新
+            const cell = document.querySelectorAll('.grid-cell')[gameState.selectedCell];
+            cell.classList.add('built');
+            cell.innerHTML = facility.icon;
+            cell.title = facility.name;
+            
+            gameState.builtFacilities.push({
+                id: facilityId,
+                cell: gameState.selectedCell,
+                name: facility.name
+            });
+            
+            updateResourceDisplay();
+            updateBuildOptions();
+            updateARView();
+            showNotification(`🏗️ ${facility.name}を建設しました！`);
+            
+            gameState.selectedCell = null;
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.classList.remove('selected');
+            });
+        }
+
+        // リソース表示の更新
+        function updateResourceDisplay() {
+            document.getElementById('money').textContent = gameState.resources.money.toLocaleString();
+            document.getElementById('environment').textContent = gameState.resources.environment + '%';
+            document.getElementById('happiness').textContent = gameState.resources.happiness + '%';
+            document.getElementById('energy').textContent = gameState.resources.energy + '%';
+        }
+
+        // 次のターン
+        function nextTurn() {
+            gameState.currentTurn++;
+            gameState.resources.money += 50000; // ターン収入
+            
+            // ランダムイベント
+            const events = [
+                { message: '🌧️ 大雨でエネルギー生産が増加', effect: { energy: 10 } },
+                { message: '🎉 市民祭りで幸福度上昇', effect: { happiness: 8 } },
+                { message: '📈 観光客が増加', effect: { money: 100000 } },
+                { message: '🌪️ 嵐で施設が被害', effect: { energy: -15, happiness: -5 } }
+            ];
+            
+            const randomEvent = events[Math.floor(Math.random() * events.length)];
+            showNotification(randomEvent.message);
+            
+            // 効果適用
+            Object.keys(randomEvent.effect).forEach(resource => {
+                if (resource === 'money') {
+                    gameState.resources[resource] += randomEvent.effect[resource];
+                } else {
+                    gameState.resources[resource] = Math.max(0, 
+                        Math.min(100, gameState.resources[resource] + randomEvent.effect[resource])
+                    );
+                }
+            });
+            
+            updateResourceDisplay();
+            showNotification(`⏰ ターン ${gameState.currentTurn} が終了しました`);
+        }
+
+        // ARビューの初期化
+        function initializeARView() {
+            updateARView();
+        }
+
+        // ARビューの更新
+        function updateARView() {
+            const viewport = document.getElementById('arViewport');
+            viewport.innerHTML = '';
+            
+            gameState.builtFacilities.forEach((facility, index) => {
+                const building = document.createElement('div');
+                building.className = 'ar-building';
+                building.innerHTML = facilities[facility.id].icon;
+                building.style.fontSize = '2em';
+                building.style.left = (20 + (index % 3) * 30) + '%';
+                building.style.bottom = (20 + Math.floor(index / 3) * 25) + '%';
+                building.title = facility.name;
+                viewport.appendChild(building);
+            });
+            
+            if (gameState.builtFacilities.length === 0) {
+                viewport.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 3em; margin-bottom: 10px;">🏗️</div>
+                        <p>施設を建設するとここに表示されます</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ARシミュレーション
+        function simulateAR() {
+            showNotification('🎮 ARシミュレーションを開始... スマートフォンで実際のAR体験をお楽しみください！');
+            document.getElementById('arViewport').style.background = 'linear-gradient(45deg, #00b894, #0984e3)';
+            setTimeout(() => {
+                document.getElementById('arViewport').style.background = 'linear-gradient(45deg, #1a2a6c, #b21f1f)';
+            }, 2000);
+        }
+
+        // カードコレクションの更新
+        function updateCardCollection() {
+            const container = document.getElementById('cardsContainer');
+            const totalCards = document.getElementById('totalCards');
+            const completion = document.getElementById('completion');
+            
+            container.innerHTML = '';
+            
+            // すべての国のカードを表示
+            Object.values(countries).forEach(country => {
+                country.cards.forEach(card => {
+                    const collected = gameState.collectedCards.find(c => c.id === card.id);
+                    const cardEl = document.createElement('div');
+                    cardEl.className = `card ${collected ? '' : 'disabled'}`;
+                    cardEl.innerHTML = `
+                        <div class="card-rarity rarity-${card.rarity}">${getRarityText(card.rarity)}</div>
+                        <div class="card-icon">${card.icon}</div>
+                        <h3>${card.name}</h3>
+                        <p>${card.description}</p>
+                        <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+                            ${collected ? '✅ 所持済み' : '🔒 未獲得'}
+                        </div>
+                    `;
+                    container.appendChild(cardEl);
+                });
+            });
+            
+            // 統計更新
+            const totalCardCount = Object.values(countries).reduce((sum, country) => sum + country.cards.length, 0);
+            const collectedCount = gameState.collectedCards.length;
+            totalCards.textContent = `${collectedCount}/${totalCardCount}`;
+            completion.textContent = `${Math.round((collectedCount / totalCardCount) * 100)}%`;
+        }
+
+        // レアリティテキスト
+        function getRarityText(rarity) {
+            const texts = { common: 'ノーマル', rare: 'レア', epic: 'エピック' };
+            return texts[rarity] || rarity;
         }
 
         // 通知機能
@@ -743,31 +1018,10 @@
             }, 4000);
         }
 
-        // プレイヤープロフィール表示
-        function viewPlayerProfile(playerId) {
-            const player = multiplayerState.onlinePlayers.find(p => p.id === playerId);
-            if (player) {
-                showNotification(`👤 ${player.name}のプロフィール: ${player.country} Lv.${player.level}`);
-            }
-        }
-
-        // 協力ルーム作成
-        function createCoopRoom() {
-            showNotification('👥 協力ルームを作成しました！他のプレイヤーを招待できます');
-        }
-
-        // 初期化実行
+        // 初期化
         window.onload = function() {
-            initializeMultiplayerHub();
-            showNotification('🌐 グローバルネットワークに接続しました');
+            showNotification('🎮 SDGs World Builderを開始しました！');
         };
-
-        // チャット入力でEnterキー対応
-        document.getElementById('chatInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendChatMessage();
-            }
-        });
     </script>
 </body>
 </html>
