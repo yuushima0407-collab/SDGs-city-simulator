@@ -9,58 +9,509 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a2a6c, #2a5298);
-            color: #333;
-            overflow-x: hidden;
         }
-        .game-container {
-            max-width: 1200px;
-            margin: 0 auto;
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
             padding: 20px;
         }
-        .header {
-            background: rgba(255, 255, 255, 0.95);
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.8);
             border-radius: 20px;
             padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .game-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-card h3 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+
+        .mission-progress {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00b894, #00cec9);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            width: 20%;
+        }
+
+        .countries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .country-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .country-card:hover {
+            transform: translateY(-5px);
+            border-color: #00cec9;
+            box-shadow: 0 10px 25px rgba(0, 206, 201, 0.3);
+        }
+
+        .country-card.active {
+            border-color: #00b894;
+            background: rgba(0, 184, 148, 0.2);
+        }
+
+        .country-flag {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .country-name {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #00cec9;
+        }
+
+        .country-challenge {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .game-phases {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .phase-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
             text-align: center;
         }
-        .country-mission {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+        .phase-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
         }
-        .mission-header {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 25px;
+
+        .phase-title {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #fdbb2d;
         }
-        .country-flag {
-            font-size: 48px;
-        }
-        .mission-info h2 {
-            color: #2c3e50;
-            margin-bottom: 8px;
-        }
-        .mission-description {
-            color: #7f8c8d;
-            line-height: 1.6;
-        }
-        .phase-container {
+
+        .resources-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
-            margin: 25px 0;
+            margin-bottom: 30px;
         }
-        .phase {
-            background: linear-gradient(135deg, #74b9ff, #0984e3);
+
+        .resource-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .solution-options {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .solution-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #00cec9;
+        }
+
+        .solution-pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .pros { color: #00b894; }
+        .cons { color: #ff7675; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Global SDGs Challenge</h1>
+            <p class="subtitle">世界の課題解決者 - 持続可能な未来を創ろう</p>
+        </div>
+
+        <div class="game-stats">
+            <div class="stat-card">
+                <h3>1,000,000</h3>
+                <p>RWフラン</p>
+            </div>
+            <div class="stat-card">
+                <h3>4.5%</h3>
+                <p>支持率</p>
+            </div>
+            <div class="stat-card">
+                <h3>60%</h3>
+                <p>議会支持</p>
+            </div>
+            <div class="stat-card">
+                <h3>30%</h3>
+                <p>清潔度</p>
+            </div>
+        </div>
+
+        <div class="mission-progress">
+            <h3>📊 ミッション進捗: プラスチックごみの削減</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p>現在: <span id="currentProgress">20</span>% / 目標: 80%</p>
+        </div>
+
+        <div class="countries-grid">
+            <div class="country-card active" onclick="selectCountry('rwanda')">
+                <div class="country-flag">🇷🇼</div>
+                <div class="country-name">ルワンダ</div>
+                <div class="country-challenge">プラスチックごみ問題の解決</div>
+                <div class="country-data">
+                    <small>✅ 2008年ビニール袋全面禁止<br>🏙️ アフリカで最も清潔な都市</small>
+                </div>
+            </div>
+
+            <div class="country-card" onclick="selectCountry('brazil')">
+                <div class="country-flag">🇧🇷</div>
+                <div class="country-name">ブラジル</div>
+                <div class="country-challenge">アマゾン熱帯雨林保護</div>
+                <div class="country-data">
+                    <small>🌳 森林減少が深刻<br>🔥 違法伐採対策が必要</small>
+                </div>
+            </div>
+
+            <div class="country-card" onclick="selectCountry('india')">
+                <div class="country-flag">🇮🇳</div>
+                <div class="country-name">インド</div>
+                <div class="country-challenge">大気汚染対策</div>
+                <div class="country-data">
+                    <small>🏭 PM2.5濃度が危険レベル<br>💨 世界で最も汚染が深刻</small>
+                </div>
+            </div>
+
+            <div class="country-card" onclick="selectCountry('norway')">
+                <div class="country-flag">🇳🇴</div>
+                <div class="country-name">ノルウェー</div>
+                <div class="country-challenge">ゼロエミッション交通</div>
+                <div class="country-data">
+                    <small>⚡ EV普及率世界一<br>🚢 次は船舶・航空機</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-phases">
+            <div class="phase-card">
+                <div class="phase-icon">📊</div>
+                <div class="phase-title">1. 課題分析フェーズ</div>
+                <p>データ収集と現状分析</p>
+            </div>
+            <div class="phase-card">
+                <div class="phase-icon">📝</div>
+                <div class="phase-title">2. 対策計画フェーズ</div>
+                <p>解決策の立案と計画</p>
+            </div>
+            <div class="phase-card">
+                <div class="phase-icon">🏗️</div>
+                <div class="phase-title">3. 実行フェーズ</div>
+                <p>プロジェクトの実施</p>
+            </div>
+            <div class="phase-card">
+                <div class="phase-icon">📈</div>
+                <div class="phase-title">4. 結果評価フェーズ</div>
+                <p>成果の測定と評価</p>
+            </div>
+        </div>
+
+        <div class="resources-grid">
+            <div class="resource-item">
+                <div>💰</div>
+                <div>予算: 1,000,000</div>
+            </div>
+            <div class="resource-item">
+                <div>👥</div>
+                <div>人的資源: 85%</div>
+            </div>
+            <div class="resource-item">
+                <div>🏛️</div>
+                <div>政治的支援: 60%</div>
+            </div>
+            <div class="resource-item">
+                <div>😊</div>
+                <div>市民支持: 45%</div>
+            </div>
+            <div class="resource-item">
+                <div>⏰</div>
+                <div>残り時間: 12ヶ月</div>
+            </div>
+        </div>
+
+        <div class="solution-options">
+            <h3>💡 解決策オプション - ルワンダ</h3>
+            
+            <div class="solution-card">
+                <h4>分別収集システムの導入</h4>
+                <div class="solution-pros-cons">
+                    <div class="pros">
+                        <strong>✅ メリット:</strong><br>
+                        • リサイクル率 +25%<br>
+                        • 市民意識 +15%<br>
+                        • 清潔度 +20%
+                    </div>
+                    <div class="cons">
+                        <strong>❌ デメリット:</strong><br>
+                        • 予算 -200,000<br>
+                        • 実施期間 3ヶ月<br>
+                        • 一時的な混乱
+                    </div>
+                </div>
+            </div>
+
+            <div class="solution-card">
+                <h4>リサイクル施設の建設</h4>
+                <div class="solution-pros-cons">
+                    <div class="pros">
+                        <strong>✅ メリット:</strong><br>
+                        • 雇用創出 +100人<br>
+                        • 経済効果 +15%<br>
+                        • 技術移転
+                    </div>
+                    <div class="cons">
+                        <strong>❌ デメリット:</strong><br>
+                        • 予算 -500,000<br>
+                        • 建設期間 6ヶ月<br>
+                        • 用地確保課題
+                    </div>
+                </div>
+            </div>
+
+            <div class="solution-card">
+                <h4>市民啓発キャンペーン</h4>
+                <div class="solution-pros-cons">
+                    <div class="pros">
+                        <strong>✅ メリット:</strong><br>
+                        • 市民支持 +20%<br>
+                        • 意識向上 +30%<br>
+                        • 持続的効果
+                    </div>
+                    <div class="cons">
+                        <strong>❌ デメリット:</strong><br>
+                        • 予算 -100,000<br>
+                        • 効果発現に時間<br>
+                        • 測定困難
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="implementSolution()">
+                🚀 解決策を実施する
+            </button>
+            <button class="btn btn-secondary" onclick="analyzeData()">
+                📈 データ分析
+            </button>
+            <button class="btn btn-secondary" onclick="nextPhase()">
+                ⏭️ 次のフェーズへ
+            </button>
+            <button class="btn btn-secondary" onclick="showSDGs()">
+                🌱 SDGs目標
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentProgress = 20;
+        let budget = 1000000;
+        let currentCountry = 'rwanda';
+
+        function selectCountry(country) {
+            currentCountry = country;
+            document.querySelectorAll('.country-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            updateSolutionOptions(country);
+        }
+
+        function updateSolutionOptions(country) {
+            const solutionSection = document.querySelector('.solution-options h3');
+            switch(country) {
+                case 'brazil':
+                    solutionSection.textContent = '💡 解決策オプション - ブラジル';
+                    break;
+                case 'india':
+                    solutionSection.textContent = '💡 解決策オプション - インド';
+                    break;
+                case 'norway':
+                    solutionSection.textContent = '💡 解決策オプション - ノルウェー';
+                    break;
+                default:
+                    solutionSection.textContent = '💡 解決策オプション - ルワンダ';
+            }
+        }
+
+        function implementSolution() {
+            if (budget >= 100000) {
+                currentProgress += 15;
+                budget -= 100000;
+                
+                if (currentProgress > 100) currentProgress = 100;
+                
+                document.getElementById('currentProgress').textContent = currentProgress;
+                document.getElementById('progressFill').style.width = currentProgress + '%';
+                
+                // パルス効果
+                document.getElementById('progressFill').classList.add('pulse');
+                setTimeout(() => {
+                    document.getElementById('progressFill').classList.remove('pulse');
+                }, 1000);
+                
+                alert('✅ 解決策を実施しました！\n進捗: +15%\n予算: -100,000');
+            } else {
+                alert('❌ 予算が足りません！');
+            }
+        }
+
+        function analyzeData() {
+            alert('📊 データ分析を実行中...\n• ごみ発生量調査\n• 市民意識調査\n• 経済影響分析');
+        }
+
+        function nextPhase() {
+            alert('⏭️ 次のフェーズに進みます\n現在の進捗: ' + currentProgress + '%');
+        }
+
+        function showSDGs() {
+            alert('🌱 SDGs目標:\n\n1. 持続可能な都市\n2. つくる責任 つかう責任\n3. 海の豊かさを守ろう\n4. 気候変動に具体的な対策を');
+        }
+
+        // 初期化
+        document.getElementById('progressFill').style.width = currentProgress + '%';
+    </script>
+</body>
+</html>            background: linear-gradient(135deg, #74b9ff, #0984e3);
             color: white;
             padding: 20px;
             border-radius: 15px;
