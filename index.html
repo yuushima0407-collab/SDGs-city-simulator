@@ -3,28 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SDGs City Manager Ver4</title>
+<title>SDGs City Manager Ver4 - 教育版</title>
 <style>
-/* 基本CSS */
-body{font-family:Arial, sans-serif;margin:0;padding:0;background:#f0f0f0;color:#222;text-align:center;}
+body{font-family:Arial,sans-serif;margin:0;padding:0;background:#e0f7fa;color:#222;}
 h1,h2{margin:10px 0;}
 .hidden{display:none;}
-#city-img{width:90%;max-width:600px;margin:20px auto;display:block;border-radius:8px;}
-button{margin:10px;padding:10px 20px;font-size:16px;border:none;border-radius:5px;background:#4CAF50;color:white;cursor:pointer;}
-button:hover{background:#45a049;}
-#score-bar{margin-top:10px;font-size:18px;}
+#city-img{width:90%;max-width:600px;margin:20px auto;display:block;border-radius:8px;transition:0.5s;}
+button{margin:10px;padding:12px 20px;font-size:16px;border:none;border-radius:5px;background:#0288d1;color:white;cursor:pointer;}
+button:hover{background:#0277bd;}
+#score-bar{margin:10px auto;width:90%;max-width:600px;text-align:left;}
+.score-gauge{height:20px;background:#ccc;border-radius:10px;margin:5px 0;position:relative;}
+.score-fill{height:100%;border-radius:10px;transition:0.5s;}
 #choices button{display:block;width:80%;margin:10px auto;}
-@media(max-width:600px){button{width:90%;}}
+#explanation{background:#fff3e0;padding:10px;margin:10px auto;border-radius:8px;max-width:600px;display:none;}
 </style>
 </head>
 <body>
-
 <div id="app">
-  <!-- タイトル画面 -->
+  <!-- タイトル -->
   <div id="title-screen">
     <h1>SDGs City Manager</h1>
-    <p>都市課題を解決しながら、SDGsを学ぶシミュレーションゲーム</p>
-    <button id="start-btn">ゲームスタート</button>
+    <p>都市課題を解決しながら、SDGsを楽しく学ぶゲーム</p>
+    <button id="start-btn">ゲーム開始</button>
   </div>
 
   <!-- 問題画面 -->
@@ -33,7 +33,18 @@ button:hover{background:#45a049;}
     <img id="city-img" src="" alt="都市画像">
     <h2 id="question-text"></h2>
     <div id="choices"></div>
-    <div id="score-bar">🌿<span id="env-score">0</span> 💰<span id="eco-score">0</span> 🤝<span id="soc-score">0</span></div>
+    <div id="score-bar">
+      <div>🌿環境
+        <div class="score-gauge"><div id="env-fill" class="score-fill" style="width:0%;background:green;"></div></div>
+      </div>
+      <div>💰経済
+        <div class="score-gauge"><div id="eco-fill" class="score-fill" style="width:0%;background:gold;"></div></div>
+      </div>
+      <div>🤝社会
+        <div class="score-gauge"><div id="soc-fill" class="score-fill" style="width:0%;background:blue;"></div></div>
+      </div>
+    </div>
+    <div id="explanation"></div>
   </div>
 
   <!-- 結果画面 -->
@@ -44,7 +55,7 @@ button:hover{background:#45a049;}
   </div>
 </div>
 
-<!-- JSONデータ埋め込み -->
+<!-- データ -->
 <script id="city-data" type="application/json">
 [
   {
@@ -54,61 +65,33 @@ button:hover{background:#45a049;}
     "questions":[
       {"q":"雇用格差が拡大している。どうする？",
        "choices":[
-         {"text":"AI教育を全国無料化","effect":{"social":2}},
-         {"text":"外資系企業の誘致","effect":{"economy":2}},
-         {"text":"ベーシックインカム導入","effect":{"social":1,"economy":-1}}
+         {"text":"AI教育を全国無料化","effect":{"social":2},"explanation":"世界のAI教育導入事例では学習格差改善に成功したケースがあります。"},
+         {"text":"外資系企業の誘致","effect":{"economy":2},"explanation":"経済は伸びるが、格差は広がる可能性があります。"},
+         {"text":"ベーシックインカム導入","effect":{"social":1,"economy":-1},"explanation":"社会安定を改善するが、財政負担が増えます。"}
        ]
       },
       {"q":"都市熱問題への対策は？",
        "choices":[
-         {"text":"都市緑化（垂直庭園）","effect":{"environment":3}},
-         {"text":"冷房効率改善","effect":{"economy":1}},
-         {"text":"日射反射舗装","effect":{"environment":2}}
+         {"text":"都市緑化（垂直庭園）","effect":{"environment":3},"explanation":"緑化でヒートアイランドを緩和する実例があります。"},
+         {"text":"冷房効率改善","effect":{"economy":1},"explanation":"経済的には効率向上。環境への効果は限定的。"},
+         {"text":"日射反射舗装","effect":{"environment":2},"explanation":"道路温度を下げる方法ですが導入コストは高めです。"}
        ]
       },
       {"q":"エネルギー集中リスクに対して？",
        "choices":[
-         {"text":"地方分散電源","effect":{"environment":2,"economy":-1}},
-         {"text":"AI最適制御","effect":{"economy":2,"environment":1}},
-         {"text":"再エネ投資ファンド設立","effect":{"economy":1,"social":1}}
-       ]
-      }
-    ]
-  },
-  {
-    "city_id":"rio_ocean",
-    "name":"リオ・オーシャンフロント",
-    "level_images":["images/rio_ocean_lv1.jpg","images/rio_ocean_lv2.jpg","images/rio_ocean_lv3.jpg"],
-    "questions":[
-      {"q":"塩害で住宅が劣化。どうする？",
-       "choices":[
-         {"text":"耐塩素材の採用","effect":{"economy":-1,"environment":2}},
-         {"text":"定期点検ロボット導入","effect":{"economy":1}},
-         {"text":"海上住宅を内陸へ移設","effect":{"environment":1,"social":1}}
-       ]
-      },
-      {"q":"海洋プラ対策は？",
-       "choices":[
-         {"text":"回収AIボート運用","effect":{"environment":3}},
-         {"text":"リサイクル教育","effect":{"social":2}},
-         {"text":"ごみ焼却発電","effect":{"economy":1,"environment":-1}}
-       ]
-      },
-      {"q":"観光依存経済をどう多様化する？",
-       "choices":[
-         {"text":"漁業AI化","effect":{"economy":2}},
-         {"text":"海洋エネルギー研究投資","effect":{"environment":2}},
-         {"text":"観光増税","effect":{"economy":1,"social":-1}}
+         {"text":"地方分散電源","effect":{"environment":2,"economy":-1},"explanation":"停電リスク軽減。初期コストは高い。"},
+         {"text":"AI最適制御","effect":{"economy":2,"environment":1},"explanation":"効率的運用で再エネ活用も増える例があります。"},
+         {"text":"再エネ投資ファンド設立","effect":{"economy":1,"social":1},"explanation":"資金循環により長期的な環境改善に寄与。"}
        ]
       }
     ]
   }
-  // 他都市も同じフォーマットで追加可能
 ]
 </script>
 
 <script>
-// JS処理
+document.addEventListener('DOMContentLoaded',()=>{
+
 const cities = JSON.parse(document.getElementById('city-data').textContent);
 let currentCityIndex=0,currentQuestionIndex=0,scores={environment:0,economy:0,social:0};
 
@@ -121,9 +104,10 @@ const cityImg=document.getElementById('city-img');
 const cityName=document.getElementById('city-name');
 const questionText=document.getElementById('question-text');
 const choicesDiv=document.getElementById('choices');
-const envScoreEl=document.getElementById('env-score');
-const ecoScoreEl=document.getElementById('eco-score');
-const socScoreEl=document.getElementById('soc-score');
+const envFill=document.getElementById('env-fill');
+const ecoFill=document.getElementById('eco-fill');
+const socFill=document.getElementById('soc-fill');
+const explanationDiv=document.getElementById('explanation');
 const resultText=document.getElementById('result-text');
 
 startBtn.onclick=()=>{titleScreen.classList.add('hidden');questionScreen.classList.remove('hidden');showQuestion();};
@@ -132,10 +116,11 @@ restartBtn.onclick=()=>location.reload();
 function showQuestion(){
   const city=cities[currentCityIndex];
   const question=city.questions[currentQuestionIndex];
-  const level=Math.min(currentQuestionIndex,city.level_images.length-1);
-  cityImg.src=city.level_images[level];
+  const level=Math.min(Math.floor(currentQuestionIndex/1),city.level_images.length-1);
+  fadeImage(city.level_images[level]);
   cityName.textContent=city.name + " (Lv"+(level+1)+")";
   questionText.textContent=question.q;
+  explanationDiv.style.display='none';
   choicesDiv.innerHTML='';
   question.choices.forEach(choice=>{
     const btn=document.createElement('button');
@@ -146,25 +131,33 @@ function showQuestion(){
   updateScores();
 }
 
+function fadeImage(src){
+  cityImg.style.opacity=0;
+  setTimeout(()=>{cityImg.src=src;cityImg.style.opacity=1;},300);
+}
+
 function selectChoice(choice){
   scores.environment+=(choice.effect.environment||0);
   scores.economy+=(choice.effect.economy||0);
   scores.social+=(choice.effect.social||0);
-
-  currentQuestionIndex++;
-  const city=cities[currentCityIndex];
-  if(currentQuestionIndex>=city.questions.length){
-    currentCityIndex++;
-    currentQuestionIndex=0;
-    if(currentCityIndex>=cities.length){showResult();return;}
-  }
-  showQuestion();
+  explanationDiv.textContent=choice.explanation||'';
+  explanationDiv.style.display='block';
+  updateScores();
+  setTimeout(()=>{
+    currentQuestionIndex++;
+    if(currentQuestionIndex>=cities[currentCityIndex].questions.length){
+      currentCityIndex++;
+      currentQuestionIndex=0;
+      if(currentCityIndex>=cities.length){showResult();return;}
+    }
+    showQuestion();
+  },2000); // 2秒で次の問題
 }
 
 function updateScores(){
-  envScoreEl.textContent=scores.environment;
-  ecoScoreEl.textContent=scores.economy;
-  socScoreEl.textContent=scores.social;
+  envFill.style.width=Math.max(0,scores.environment*10)+'%';
+  ecoFill.style.width=Math.max(0,scores.economy*10)+'%';
+  socFill.style.width=Math.max(0,scores.social*10)+'%';
 }
 
 function showResult(){
@@ -177,7 +170,8 @@ function showResult(){
   else type="社会重視都市";
   resultText.textContent=`🌿:${scores.environment} 💰:${scores.economy} 🤝:${scores.social} → あなたの都市タイプ: ${type}`;
 }
-</script>
 
+});
+</script>
 </body>
 </html>
