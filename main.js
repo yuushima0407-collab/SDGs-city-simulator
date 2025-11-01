@@ -49,20 +49,18 @@ let currentQuestionIndex = 0;
 let status = { env: 50, eco: 50, soc: 50 };
 
 // ----- DOM取得 -----
-const startBtn = document.getElementById("startBtn");
-const citySelect = document.getElementById("citySelect");
-const citySelectScreen = document.getElementById("citySelectScreen");
-const gameScreen = document.getElementById("gameScreen");
-const cityNameEl = document.getElementById("cityName");
-const questionTitle = document.getElementById("questionTitle");
-const questionDesc = document.getElementById("questionDesc");
-const choiceButtons = document.getElementById("choiceButtons");
+const startBtn = document.getElementById("btn-start");
+const cityNameEl = document.getElementById("city-name");
+const questionTitle = document.getElementById("question-title");
+const questionDesc = document.getElementById("question-desc");
+const choiceButtons = document.getElementById("choices");
 const explainBox = document.getElementById("explainBox");
-const progressText = document.getElementById("progressText");
-const envBar = document.getElementById("envBar");
-const ecoBar = document.getElementById("ecoBar");
-const socBar = document.getElementById("socBar");
-const cityView = document.getElementById("cityView");
+const progressText = document.getElementById("progress");
+const envBar = document.getElementById("env-bar");
+const ecoBar = document.getElementById("eco-bar");
+const socBar = document.getElementById("soc-bar");
+const cityView = document.getElementById("city-view");
+
 
 // ----- イベント -----
 startBtn.addEventListener("click", startGame);
