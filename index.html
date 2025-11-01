@@ -3,175 +3,234 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SDGs City Manager Ver4 - 教育版</title>
+<title>SDGs都市経営ゲーム</title>
 <style>
-body{font-family:Arial,sans-serif;margin:0;padding:0;background:#e0f7fa;color:#222;}
-h1,h2{margin:10px 0;}
-.hidden{display:none;}
-#city-img{width:90%;max-width:600px;margin:20px auto;display:block;border-radius:8px;transition:0.5s;}
-button{margin:10px;padding:12px 20px;font-size:16px;border:none;border-radius:5px;background:#0288d1;color:white;cursor:pointer;}
-button:hover{background:#0277bd;}
-#score-bar{margin:10px auto;width:90%;max-width:600px;text-align:left;}
-.score-gauge{height:20px;background:#ccc;border-radius:10px;margin:5px 0;position:relative;}
-.score-fill{height:100%;border-radius:10px;transition:0.5s;}
-#choices button{display:block;width:80%;margin:10px auto;}
-#explanation{background:#fff3e0;padding:10px;margin:10px auto;border-radius:8px;max-width:600px;display:none;}
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f0f2f5;
+}
+#game {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.screen {
+  text-align: center;
+}
+#cities button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 1rem;
+}
+#city-image {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+#choices button {
+  display: block;
+  margin: 10px auto;
+  padding: 10px 20px;
+}
+.status-bar {
+  margin: 10px 0;
+}
+.bar {
+  width: 100%;
+  height: 20px;
+  background: #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.bar div {
+  height: 100%;
+  width: 50%;
+  background: #4caf50;
+  transition: width 0.3s;
+}
 </style>
 </head>
 <body>
-<div id="app">
-  <!-- タイトル -->
-  <div id="title-screen">
-    <h1>SDGs City Manager</h1>
-    <p>都市課題を解決しながら、SDGsを楽しく学ぶゲーム</p>
-    <button id="start-btn">ゲーム開始</button>
+<div id="game">
+  <div id="city-selection" class="screen">
+    <h2>都市を選んでください</h2>
+    <div id="cities"></div>
   </div>
 
-  <!-- 問題画面 -->
-  <div id="question-screen" class="hidden">
-    <h2 id="city-name"></h2>
-    <img id="city-img" src="" alt="都市画像">
-    <h2 id="question-text"></h2>
+  <div id="question-screen" class="screen" style="display:none;">
+    <img id="city-image" src="" alt="都市画像">
+    <h3 id="question-text"></h3>
     <div id="choices"></div>
-    <div id="score-bar">
-      <div>🌿環境
-        <div class="score-gauge"><div id="env-fill" class="score-fill" style="width:0%;background:green;"></div></div>
-      </div>
-      <div>💰経済
-        <div class="score-gauge"><div id="eco-fill" class="score-fill" style="width:0%;background:gold;"></div></div>
-      </div>
-      <div>🤝社会
-        <div class="score-gauge"><div id="soc-fill" class="score-fill" style="width:0%;background:blue;"></div></div>
-      </div>
-    </div>
-    <div id="explanation"></div>
+    <div id="effect-text"></div>
+    <button id="next-btn" style="display:none;">次へ</button>
   </div>
 
-  <!-- 結果画面 -->
-  <div id="result-screen" class="hidden">
-    <h2>ゲーム結果</h2>
-    <p id="result-text"></p>
-    <button id="restart-btn">最初に戻る</button>
+  <div id="status-screen">
+    <h3>都市ステータス</h3>
+    <div class="status-bar">
+      <span>環境</span>
+      <div class="bar"><div id="env-bar"></div></div>
+    </div>
+    <div class="status-bar">
+      <span>経済</span>
+      <div class="bar"><div id="eco-bar"></div></div>
+    </div>
+    <div class="status-bar">
+      <span>社会</span>
+      <div class="bar"><div id="soc-bar"></div></div>
+    </div>
   </div>
 </div>
 
-<!-- データ -->
-<script id="city-data" type="application/json">
-[
+<script>
+// 都市データ
+const cities = [
   {
-    "city_id":"tokyo_future",
-    "name":"東京フューチャー・メトロ",
-    "level_images":["images/tokyo_future_lv1.jpg","images/tokyo_future_lv2.jpg","images/tokyo_future_lv3.jpg"],
-    "questions":[
-      {"q":"雇用格差が拡大している。どうする？",
-       "choices":[
-         {"text":"AI教育を全国無料化","effect":{"social":2},"explanation":"世界のAI教育導入事例では学習格差改善に成功したケースがあります。"},
-         {"text":"外資系企業の誘致","effect":{"economy":2},"explanation":"経済は伸びるが、格差は広がる可能性があります。"},
-         {"text":"ベーシックインカム導入","effect":{"social":1,"economy":-1},"explanation":"社会安定を改善するが、財政負担が増えます。"}
-       ]
-      },
-      {"q":"都市熱問題への対策は？",
-       "choices":[
-         {"text":"都市緑化（垂直庭園）","effect":{"environment":3},"explanation":"緑化でヒートアイランドを緩和する実例があります。"},
-         {"text":"冷房効率改善","effect":{"economy":1},"explanation":"経済的には効率向上。環境への効果は限定的。"},
-         {"text":"日射反射舗装","effect":{"environment":2},"explanation":"道路温度を下げる方法ですが導入コストは高めです。"}
-       ]
-      },
-      {"q":"エネルギー集中リスクに対して？",
-       "choices":[
-         {"text":"地方分散電源","effect":{"environment":2,"economy":-1},"explanation":"停電リスク軽減。初期コストは高い。"},
-         {"text":"AI最適制御","effect":{"economy":2,"environment":1},"explanation":"効率的運用で再エネ活用も増える例があります。"},
-         {"text":"再エネ投資ファンド設立","effect":{"economy":1,"social":1},"explanation":"資金循環により長期的な環境改善に寄与。"}
-       ]
-      }
+    name: "エコ都市",
+    image: "https://picsum.photos/seed/eco/400/200",
+    questions: [
+      { text: "再生可能エネルギーを導入しますか？", choices: [
+        { text: "はい", effect: { env: +20, eco: -5, soc: +5 }, description: "環境が良くなり、経済は少し減少。" },
+        { text: "いいえ", effect: { env: -10, eco: 0, soc: 0 }, description: "環境が悪化しました。" }
+      ]},
+      { text: "公共交通を増やしますか？", choices: [
+        { text: "はい", effect: { env: +15, eco: -5, soc: +10 }, description: "環境と社会が向上。" },
+        { text: "いいえ", effect: { env: -5, eco: 0, soc: -5 }, description: "環境と社会が少し悪化。" }
+      ]},
+      { text: "大規模な工場建設を許可しますか？", choices: [
+        { text: "はい", effect: { env: -20, eco: +20, soc: -5 }, description: "経済は増加、環境は悪化。" },
+        { text: "いいえ", effect: { env: +5, eco: -10, soc: 0 }, description: "環境は少し向上。" }
+      ]}
+    ],
+    specialEvents: [
+      { trigger: 2, text: "台風が直撃しました！", effect: { env: -15, eco: -10, soc: -5 } }
+    ]
+  },
+  {
+    name: "工業都市",
+    image: "https://picsum.photos/seed/ind/400/200",
+    questions: [
+      { text: "新しい工場を誘致しますか？", choices: [
+        { text: "はい", effect: { env: -15, eco: +20, soc: -5 }, description: "経済は増えるが環境が悪化。" },
+        { text: "いいえ", effect: { env: +5, eco: -10, soc: 0 }, description: "環境は少し向上。" }
+      ]},
+      { text: "労働環境を改善しますか？", choices: [
+        { text: "はい", effect: { env: 0, eco: -5, soc: +15 }, description: "社会が大幅に向上。" },
+        { text: "いいえ", effect: { env: 0, eco: 0, soc: -10 }, description: "社会が悪化。" }
+      ]},
+      { text: "汚染対策を強化しますか？", choices: [
+        { text: "はい", effect: { env: +20, eco: -5, soc: +5 }, description: "環境が改善。" },
+        { text: "いいえ", effect: { env: -20, eco: 0, soc: -5 }, description: "環境悪化。" }
+      ]}
+    ],
+    specialEvents: [
+      { trigger: 1, text: "ストライキ発生！", effect: { env: 0, eco: -15, soc: -10 } }
     ]
   }
-]
-</script>
+];
 
-<script>
-document.addEventListener('DOMContentLoaded',()=>{
+// ステータス初期値
+let status = { env: 50, eco: 50, soc: 50 };
+let currentCity = null;
+let currentQIndex = 0;
 
-const cities = JSON.parse(document.getElementById('city-data').textContent);
-let currentCityIndex=0,currentQuestionIndex=0,scores={environment:0,economy:0,social:0};
+// 初期化
+function init() {
+  const citiesDiv = document.getElementById("cities");
+  cities.forEach((city, index) => {
+    const btn = document.createElement("button");
+    btn.textContent = city.name;
+    btn.addEventListener("click", () => startCity(index));
+    citiesDiv.appendChild(btn);
+  });
+  updateStatusBars();
+}
 
-const titleScreen=document.getElementById('title-screen');
-const questionScreen=document.getElementById('question-screen');
-const resultScreen=document.getElementById('result-screen');
-const startBtn=document.getElementById('start-btn');
-const restartBtn=document.getElementById('restart-btn');
-const cityImg=document.getElementById('city-img');
-const cityName=document.getElementById('city-name');
-const questionText=document.getElementById('question-text');
-const choicesDiv=document.getElementById('choices');
-const envFill=document.getElementById('env-fill');
-const ecoFill=document.getElementById('eco-fill');
-const socFill=document.getElementById('soc-fill');
-const explanationDiv=document.getElementById('explanation');
-const resultText=document.getElementById('result-text');
+// 都市スタート
+function startCity(index) {
+  currentCity = cities[index];
+  currentQIndex = 0;
+  document.getElementById("city-selection").style.display = "none";
+  document.getElementById("question-screen").style.display = "block";
+  showQuestion();
+}
 
-startBtn.onclick=()=>{titleScreen.classList.add('hidden');questionScreen.classList.remove('hidden');showQuestion();};
-restartBtn.onclick=()=>location.reload();
-
-function showQuestion(){
-  const city=cities[currentCityIndex];
-  const question=city.questions[currentQuestionIndex];
-  const level=Math.min(Math.floor(currentQuestionIndex/1),city.level_images.length-1);
-  fadeImage(city.level_images[level]);
-  cityName.textContent=city.name + " (Lv"+(level+1)+")";
-  questionText.textContent=question.q;
-  explanationDiv.style.display='none';
-  choicesDiv.innerHTML='';
-  question.choices.forEach(choice=>{
-    const btn=document.createElement('button');
-    btn.textContent=choice.text;
-    btn.onclick=()=>selectChoice(choice);
+// 質問表示
+function showQuestion() {
+  const q = currentCity.questions[currentQIndex];
+  document.getElementById("city-image").src = currentCity.image;
+  document.getElementById("question-text").textContent = q.text;
+  const choicesDiv = document.getElementById("choices");
+  choicesDiv.innerHTML = "";
+  q.choices.forEach((choice, i) => {
+    const btn = document.createElement("button");
+    btn.textContent = choice.text;
+    btn.addEventListener("click", () => selectChoice(i));
     choicesDiv.appendChild(btn);
   });
-  updateScores();
+  document.getElementById("effect-text").textContent = "";
+  document.getElementById("next-btn").style.display = "none";
 }
 
-function fadeImage(src){
-  cityImg.style.opacity=0;
-  setTimeout(()=>{cityImg.src=src;cityImg.style.opacity=1;},300);
+// 選択時
+function selectChoice(i) {
+  const choice = currentCity.questions[currentQIndex].choices[i];
+  status.env += choice.effect.env;
+  status.eco += choice.effect.eco;
+  status.soc += choice.effect.soc;
+  clampStatus();
+  updateStatusBars();
+  document.getElementById("effect-text").textContent = choice.description;
+
+  // 特殊イベント判定
+  const event = currentCity.specialEvents.find(e => e.trigger === currentQIndex);
+  if (event) {
+    status.env += event.effect.env;
+    status.eco += event.effect.eco;
+    status.soc += event.effect.soc;
+    clampStatus();
+    updateStatusBars();
+    document.getElementById("effect-text").textContent += " " + event.text;
+  }
+
+  document.getElementById("next-btn").style.display = "block";
 }
 
-function selectChoice(choice){
-  scores.environment+=(choice.effect.environment||0);
-  scores.economy+=(choice.effect.economy||0);
-  scores.social+=(choice.effect.social||0);
-  explanationDiv.textContent=choice.explanation||'';
-  explanationDiv.style.display='block';
-  updateScores();
-  setTimeout(()=>{
-    currentQuestionIndex++;
-    if(currentQuestionIndex>=cities[currentCityIndex].questions.length){
-      currentCityIndex++;
-      currentQuestionIndex=0;
-      if(currentCityIndex>=cities.length){showResult();return;}
-    }
+// 次の質問
+document.getElementById("next-btn").addEventListener("click", () => {
+  currentQIndex++;
+  if (currentQIndex >= currentCity.questions.length) {
+    alert("この都市のシナリオは終了です。");
+    localStorage.setItem("status", JSON.stringify(status));
+    document.getElementById("question-screen").style.display = "none";
+    document.getElementById("city-selection").style.display = "block";
+  } else {
     showQuestion();
-  },2000); // 2秒で次の問題
-}
-
-function updateScores(){
-  envFill.style.width=Math.max(0,scores.environment*10)+'%';
-  ecoFill.style.width=Math.max(0,scores.economy*10)+'%';
-  socFill.style.width=Math.max(0,scores.social*10)+'%';
-}
-
-function showResult(){
-  questionScreen.classList.add('hidden');
-  resultScreen.classList.remove('hidden');
-  const total=(scores.environment+scores.economy+scores.social)/3;
-  let type="";
-  if(scores.environment>=scores.economy && scores.environment>=scores.social) type="エコ重視都市";
-  else if(scores.economy>=scores.environment && scores.economy>=scores.social) type="経済重視都市";
-  else type="社会重視都市";
-  resultText.textContent=`🌿:${scores.environment} 💰:${scores.economy} 🤝:${scores.social} → あなたの都市タイプ: ${type}`;
-}
-
+  }
 });
+
+// ステータスバー更新
+function updateStatusBars() {
+  document.getElementById("env-bar").style.width = status.env + "%";
+  document.getElementById("eco-bar").style.width = status.eco + "%";
+  document.getElementById("soc-bar").style.width = status.soc + "%";
+}
+
+// ステータス範囲制限
+function clampStatus() {
+  status.env = Math.max(0, Math.min(100, status.env));
+  status.eco = Math.max(0, Math.min(100, status.eco));
+  status.soc = Math.max(0, Math.min(100, status.soc));
+}
+
+// 保存から復元
+window.onload = () => {
+  const saved = localStorage.getItem("status");
+  if (saved) status = JSON.parse(saved);
+  init();
+};
 </script>
 </body>
 </html>
