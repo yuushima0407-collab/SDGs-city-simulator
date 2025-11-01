@@ -1,236 +1,71 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SDGs都市経営ゲーム</title>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f0f2f5;
-}
-#game {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-}
-.screen {
-  text-align: center;
-}
-#cities button {
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 1rem;
-}
-#city-image {
-  max-width: 100%;
-  height: auto;
-  margin-bottom: 10px;
-}
-#choices button {
-  display: block;
-  margin: 10px auto;
-  padding: 10px 20px;
-}
-.status-bar {
-  margin: 10px 0;
-}
-.bar {
-  width: 100%;
-  height: 20px;
-  background: #ddd;
-  border-radius: 10px;
-  overflow: hidden;
-}
-.bar div {
-  height: 100%;
-  width: 50%;
-  background: #4caf50;
-  transition: width 0.3s;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDGs City Manager</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="game">
-  <div id="city-selection" class="screen">
-    <h2>都市を選んでください</h2>
-    <div id="cities"></div>
+  <div id="game-container">
+    <!-- 左パネル：都市ビュー + 質問カード -->
+    <div id="left-panel">
+      <div id="city-view">
+        <img id="bg-image" src="" alt="背景" class="city-layer">
+        <img id="mg-image" src="" alt="中景" class="city-layer">
+        <img id="fg-image" src="" alt="前景" class="city-layer">
+      </div>
+
+      <div id="city-ribbon">
+        <h2 id="city-name">都市名</h2>
+        <span id="city-level">Lv.1</span>
+      </div>
+
+      <div id="question-card" aria-live="polite">
+        <h3 id="question-title">質問タイトル</h3>
+        <p id="question-desc">質問内容の説明がここに入ります。</p>
+        <div id="choices"></div>
+        <div id="explainBox"></div>
+        <div id="progress">0/0</div>
+        <div id="question-buttons">
+          <button id="btn-decision">決定</button>
+          <button id="btn-skip">スキップ</button>
+        </div>
+      </div>
+
+      <!-- 特殊イベント表示エリア -->
+      <div id="special-event" class="hidden">
+        <h3>🌪 特殊イベント発生！</h3>
+        <p id="special-desc">世界的な異常気象が発生しています！</p>
+        <button id="btn-event-ok">OK</button>
+      </div>
+    </div>
+
+    <!-- 右パネル：ステータス -->
+    <div id="right-panel">
+      <h3>都市ステータス</h3>
+      <div class="status">
+        <label>🌿 環境</label>
+        <div class="status-bar"><div id="env-bar" class="bar"></div></div>
+      </div>
+      <div class="status">
+        <label>💰 経済</label>
+        <div class="status-bar"><div id="eco-bar" class="bar"></div></div>
+      </div>
+      <div class="status">
+        <label>🤝 社会</label>
+        <div class="status-bar"><div id="soc-bar" class="bar"></div></div>
+      </div>
+
+      <div id="control-buttons">
+        <button id="btn-start">ゲームを始める</button>
+        <button id="btn-reset">リセット</button>
+      </div>
+    </div>
   </div>
 
-  <div id="question-screen" class="screen" style="display:none;">
-    <img id="city-image" src="" alt="都市画像">
-    <h3 id="question-text"></h3>
-    <div id="choices"></div>
-    <div id="effect-text"></div>
-    <button id="next-btn" style="display:none;">次へ</button>
-  </div>
-
-  <div id="status-screen">
-    <h3>都市ステータス</h3>
-    <div class="status-bar">
-      <span>環境</span>
-      <div class="bar"><div id="env-bar"></div></div>
-    </div>
-    <div class="status-bar">
-      <span>経済</span>
-      <div class="bar"><div id="eco-bar"></div></div>
-    </div>
-    <div class="status-bar">
-      <span>社会</span>
-      <div class="bar"><div id="soc-bar"></div></div>
-    </div>
-  </div>
-</div>
-
-<script>
-// 都市データ
-const cities = [
-  {
-    name: "エコ都市",
-    image: "https://picsum.photos/seed/eco/400/200",
-    questions: [
-      { text: "再生可能エネルギーを導入しますか？", choices: [
-        { text: "はい", effect: { env: +20, eco: -5, soc: +5 }, description: "環境が良くなり、経済は少し減少。" },
-        { text: "いいえ", effect: { env: -10, eco: 0, soc: 0 }, description: "環境が悪化しました。" }
-      ]},
-      { text: "公共交通を増やしますか？", choices: [
-        { text: "はい", effect: { env: +15, eco: -5, soc: +10 }, description: "環境と社会が向上。" },
-        { text: "いいえ", effect: { env: -5, eco: 0, soc: -5 }, description: "環境と社会が少し悪化。" }
-      ]},
-      { text: "大規模な工場建設を許可しますか？", choices: [
-        { text: "はい", effect: { env: -20, eco: +20, soc: -5 }, description: "経済は増加、環境は悪化。" },
-        { text: "いいえ", effect: { env: +5, eco: -10, soc: 0 }, description: "環境は少し向上。" }
-      ]}
-    ],
-    specialEvents: [
-      { trigger: 2, text: "台風が直撃しました！", effect: { env: -15, eco: -10, soc: -5 } }
-    ]
-  },
-  {
-    name: "工業都市",
-    image: "https://picsum.photos/seed/ind/400/200",
-    questions: [
-      { text: "新しい工場を誘致しますか？", choices: [
-        { text: "はい", effect: { env: -15, eco: +20, soc: -5 }, description: "経済は増えるが環境が悪化。" },
-        { text: "いいえ", effect: { env: +5, eco: -10, soc: 0 }, description: "環境は少し向上。" }
-      ]},
-      { text: "労働環境を改善しますか？", choices: [
-        { text: "はい", effect: { env: 0, eco: -5, soc: +15 }, description: "社会が大幅に向上。" },
-        { text: "いいえ", effect: { env: 0, eco: 0, soc: -10 }, description: "社会が悪化。" }
-      ]},
-      { text: "汚染対策を強化しますか？", choices: [
-        { text: "はい", effect: { env: +20, eco: -5, soc: +5 }, description: "環境が改善。" },
-        { text: "いいえ", effect: { env: -20, eco: 0, soc: -5 }, description: "環境悪化。" }
-      ]}
-    ],
-    specialEvents: [
-      { trigger: 1, text: "ストライキ発生！", effect: { env: 0, eco: -15, soc: -10 } }
-    ]
-  }
-];
-
-// ステータス初期値
-let status = { env: 50, eco: 50, soc: 50 };
-let currentCity = null;
-let currentQIndex = 0;
-
-// 初期化
-function init() {
-  const citiesDiv = document.getElementById("cities");
-  cities.forEach((city, index) => {
-    const btn = document.createElement("button");
-    btn.textContent = city.name;
-    btn.addEventListener("click", () => startCity(index));
-    citiesDiv.appendChild(btn);
-  });
-  updateStatusBars();
-}
-
-// 都市スタート
-function startCity(index) {
-  currentCity = cities[index];
-  currentQIndex = 0;
-  document.getElementById("city-selection").style.display = "none";
-  document.getElementById("question-screen").style.display = "block";
-  showQuestion();
-}
-
-// 質問表示
-function showQuestion() {
-  const q = currentCity.questions[currentQIndex];
-  document.getElementById("city-image").src = currentCity.image;
-  document.getElementById("question-text").textContent = q.text;
-  const choicesDiv = document.getElementById("choices");
-  choicesDiv.innerHTML = "";
-  q.choices.forEach((choice, i) => {
-    const btn = document.createElement("button");
-    btn.textContent = choice.text;
-    btn.addEventListener("click", () => selectChoice(i));
-    choicesDiv.appendChild(btn);
-  });
-  document.getElementById("effect-text").textContent = "";
-  document.getElementById("next-btn").style.display = "none";
-}
-
-// 選択時
-function selectChoice(i) {
-  const choice = currentCity.questions[currentQIndex].choices[i];
-  status.env += choice.effect.env;
-  status.eco += choice.effect.eco;
-  status.soc += choice.effect.soc;
-  clampStatus();
-  updateStatusBars();
-  document.getElementById("effect-text").textContent = choice.description;
-
-  // 特殊イベント判定
-  const event = currentCity.specialEvents.find(e => e.trigger === currentQIndex);
-  if (event) {
-    status.env += event.effect.env;
-    status.eco += event.effect.eco;
-    status.soc += event.effect.soc;
-    clampStatus();
-    updateStatusBars();
-    document.getElementById("effect-text").textContent += " " + event.text;
-  }
-
-  document.getElementById("next-btn").style.display = "block";
-}
-
-// 次の質問
-document.getElementById("next-btn").addEventListener("click", () => {
-  currentQIndex++;
-  if (currentQIndex >= currentCity.questions.length) {
-    alert("この都市のシナリオは終了です。");
-    localStorage.setItem("status", JSON.stringify(status));
-    document.getElementById("question-screen").style.display = "none";
-    document.getElementById("city-selection").style.display = "block";
-  } else {
-    showQuestion();
-  }
-});
-
-// ステータスバー更新
-function updateStatusBars() {
-  document.getElementById("env-bar").style.width = status.env + "%";
-  document.getElementById("eco-bar").style.width = status.eco + "%";
-  document.getElementById("soc-bar").style.width = status.soc + "%";
-}
-
-// ステータス範囲制限
-function clampStatus() {
-  status.env = Math.max(0, Math.min(100, status.env));
-  status.eco = Math.max(0, Math.min(100, status.eco));
-  status.soc = Math.max(0, Math.min(100, status.soc));
-}
-
-// 保存から復元
-window.onload = () => {
-  const saved = localStorage.getItem("status");
-  if (saved) status = JSON.parse(saved);
-  init();
-};
-</script>
+  <!-- JSファイル -->
+  <script src="data.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
