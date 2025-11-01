@@ -1,0 +1,207 @@
+/* ======== 全体レイアウト ======== */
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  margin: 0;
+  background: #f5f7fa;
+  color: #222;
+  overflow-x: hidden;
+}
+
+#game-container {
+  display: flex;
+  flex-direction: row;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px;
+  gap: 20px;
+}
+
+/* ======== 左パネル ======== */
+#left-panel {
+  flex: 2;
+  position: relative;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+/* 都市画像ビュー */
+#city-view {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.city-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+/* リボン */
+#city-ribbon {
+  background: linear-gradient(90deg, #00b09b, #96c93d);
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 質問カード */
+#question-card {
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+}
+
+#question-title {
+  margin-top: 0;
+  color: #333;
+}
+
+#choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.choice-btn {
+  background: #e6e9ef;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.choice-btn:hover {
+  background: #d2d6dc;
+}
+
+#question-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+#btn-decision, #btn-skip, #btn-start, #btn-reset, #btn-event-ok {
+  background: #00b09b;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+#btn-decision:hover, #btn-skip:hover, #btn-start:hover, #btn-reset:hover, #btn-event-ok:hover {
+  background: #008e7d;
+}
+
+#explainBox {
+  margin-top: 10px;
+  padding: 8px;
+  background: #f0f8e2;
+  border-left: 4px solid #85c47c;
+  display: none;
+}
+
+#progress {
+  margin-top: 8px;
+  text-align: right;
+  font-size: 0.9em;
+  color: #555;
+}
+
+/* ======== 右パネル ======== */
+#right-panel {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  height: fit-content;
+}
+
+.status {
+  margin-bottom: 15px;
+}
+
+.status-bar {
+  width: 100%;
+  height: 14px;
+  background: #eee;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  width: 0%;
+  transition: width 0.6s ease;
+}
+
+#env-bar { background: #4caf50; }  /* 緑 */
+#eco-bar { background: #2196f3; }  /* 青 */
+#soc-bar { background: #f44336; }  /* 赤 */
+
+/* コントロールボタン */
+#control-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ======== 特殊イベント ======== */
+#special-event {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -30%);
+  background: rgba(255,255,255,0.95);
+  border-radius: 12px;
+  padding: 20px;
+  width: 80%;
+  max-width: 400px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  text-align: center;
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+#special-event.hidden {
+  display: none;
+}
+
+/* ======== レスポンシブ ======== */
+@media (max-width: 768px) {
+  #game-container {
+    flex-direction: column;
+    padding: 5px;
+  }
+
+  #city-view {
+    height: 180px;
+  }
+
+  #right-panel {
+    margin-top: 15px;
+  }
+
+  h2, h3 {
+    font-size: 1.1em;
+  }
+
+  .choice-btn {
+    font-size: 0.9em;
+  }
+}
