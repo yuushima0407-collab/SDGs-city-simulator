@@ -1,157 +1,112 @@
-// ===========================
-// SDGs都市経営ゲーム main.js 改良版（15都市対応）
-// ===========================
-(function () {
-  window.addEventListener("DOMContentLoaded", () => {
-    // --- 状態管理 ---
-    let currentQuestionIndex = 0;
-    let status = { env: 50, eco: 50, soc: 50 };
-    let resources = { energy: 0, food: 0, tech: 0, funds: 50, labor: 0, water: 0, recycled: 0 };
-    let cityTypePoints = {
-      eco:0, industry:0, social:0, smart:0, science:0,
-      culture:0, tourism:0, agriculture:0, industryHeavy:0,
-      urban:0, infra:0, housing:0, welfare:0, education:0, transport:0
-    };
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDGs City Manager</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="game-container">
+  <!-- 左パネル：都市ビュー + 問題 -->
+  <div id="left-panel">
+    <!-- 都市ビュー -->
+    <div id="city-view">
+      <div id="city-bg" class="city-layer"></div>
+      <img id="mg-image" src="" alt="中景" class="city-layer">
+      <img id="fg-image" src="" alt="前景" class="city-layer">
+    </div>
 
-    // --- DOM取得 ---
-    const $ = (id) => document.getElementById(id);
-    const startBtn = $("btn-start");
-    const questionTitle = $("question-title");
-    const questionDesc = $("question-desc");
-    const choiceButtons = $("choices");
-    const explainBox = $("explainBox");
-    const progressText = $("progress");
-    const cityBg = $("city-bg");
-    const cityInfoName = $("city-info-name");
-    const cityInfoLevel = $("city-info-level");
-    const cityInfoDesc = $("city-info-desc");
-    const cityInfoResources = $("city-info-resources");
+    <!-- 都市リボン（名前とレベル） -->
+    <div id="city-ribbon">
+      <h2 id="city-info-name">都市名</h2>
+      <span id="city-info-level">Lv.1</span>
+    </div>
 
-    // 右パネルリソース表示
-    const envBar = $("res-env");
-    const ecoBar = $("res-eco");
-    const socBar = $("res-soc");
-    const energyBar = $("res-energy");
-    const foodBar = $("res-food");
+    <!-- 問題カード -->
+    <div id="question-card" aria-live="polite">
+      <h3 id="question-title">質問タイトル</h3>
+      <p id="question-desc">質問内容の説明がここに入ります。</p>
 
-    const cityTypeUI = {
-      eco: $("tp-eco"), industry: $("tp-industry"), social: $("tp-social"), smart: $("tp-smart"),
-      science: $("tp-science"), culture: $("tp-culture"), tourism: $("tp-tourism"), agriculture: $("tp-agriculture"),
-      industryHeavy: $("tp-industryHeavy"), urban: $("tp-urban"), infra: $("tp-infra"), housing: $("tp-housing"),
-      welfare: $("tp-welfare"), education: $("tp-education"), transport: $("tp-transport")
-    };
+      <!-- 選択肢 -->
+      <div id="choices"></div>
 
-    // --- cities は data.js で定義済み ---
-    if (typeof cities === "undefined") {
-      alert("data.js が読み込まれていません。");
-      return;
-    }
+      <!-- 選択後の解説 -->
+      <div id="explainBox"></div>
 
-    // --- ゲーム開始 ---
-    if (startBtn) startBtn.addEventListener("click", startGame);
+      <!-- 進行状況 -->
+      <div id="progress">0 / 0</div>
+    </div>
 
-    function startGame() {
-      currentQuestionIndex = 0;
-      status = { env: 50, eco: 50, soc: 50 };
-      resources = { energy: 0, food: 0, tech: 0, funds: 50, labor: 0, water: 0, recycled: 0 };
-      for (const key in cityTypePoints) cityTypePoints[key] = 0;
-      explainBox.style.display = "none";
-      updateStatusUI();
-      updateCityTypePointsUI();
-      showQuestion();
-    }
+    <!-- 特殊イベント表示 -->
+    <div id="special-event" class="hidden">
+      <h3>🌪 特殊イベント発生！</h3>
+      <p id="special-desc">世界的な異常気象が発生しています！</p>
+      <button id="btn-event-ok">OK</button>
+    </div>
+  </div>
 
-    function showQuestion() {
-      if (currentQuestionIndex >= cities.length) return showResult();
-      const q = cities[currentQuestionIndex];
-      questionTitle.textContent = q.title || "無題の質問";
-      questionDesc.textContent = q.description || "";
-      choiceButtons.innerHTML = "";
+  <!-- 右パネル：都市ステータス・タイプポイント -->
+  <div id="right-panel">
+    <h3>📊 都市データ</h3>
 
-      q.choices.forEach((choice) => {
-        const btn = document.createElement("button");
-        btn.className = "choice-btn";
-        btn.textContent = choice.text;
+    <!-- リソースバー -->
+    <div class="data-section">
+      <h4>リソース値</h4>
+      <div class="status">
+        <label>🌿 環境</label>
+        <div class="status-bar"><div id="res-env" class="bar" style="width:50%;"></div></div>
+      </div>
+      <div class="status">
+        <label>💰 経済</label>
+        <div class="status-bar"><div id="res-eco" class="bar" style="width:50%;"></div></div>
+      </div>
+      <div class="status">
+        <label>🤝 社会</label>
+        <div class="status-bar"><div id="res-soc" class="bar" style="width:50%;"></div></div>
+      </div>
+      <div class="status">
+        <label>⚡ エネルギー</label>
+        <div class="status-bar"><div id="res-energy" class="bar" style="width:0%;"></div></div>
+      </div>
+      <div class="status">
+        <label>🍎 食料</label>
+        <div class="status-bar"><div id="res-food" class="bar" style="width:0%;"></div></div>
+      </div>
+    </div>
 
-        // リソース条件判定
-        let canSelect = true;
-        if (choice.resources) {
-          for (const k in choice.resources) {
-            if (choice.resources[k] < 0 && (resources[k] || 0) < Math.abs(choice.resources[k])) {
-              canSelect = false;
-              btn.title = `${k}不足で選択できません`;
-            }
-          }
-        }
-        if (!canSelect) { btn.disabled = true; btn.style.opacity = 0.5; }
+    <!-- 都市タイプポイント -->
+    <div class="data-section">
+      <h4>都市タイプポイント（15都市）</h4>
+      <ul id="typePoints">
+        <li>🌿 エコ都市：<span id="tp-eco">0</span></li>
+        <li>🏭 産業都市：<span id="tp-industry">0</span></li>
+        <li>🤝 社会都市：<span id="tp-social">0</span></li>
+        <li>💡 スマート都市：<span id="tp-smart">0</span></li>
+        <li>🔬 科学都市：<span id="tp-science">0</span></li>
+        <li>🎭 文化都市：<span id="tp-culture">0</span></li>
+        <li>🗺 観光都市：<span id="tp-tourism">0</span></li>
+        <li>🌾 農業都市：<span id="tp-agriculture">0</span></li>
+        <li>⚙ 工業都市：<span id="tp-industryHeavy">0</span></li>
+        <li>🏙 都市再生都市：<span id="tp-urban">0</span></li>
+        <li>🏗 インフラ都市：<span id="tp-infra">0</span></li>
+        <li>🏠 住宅都市：<span id="tp-housing">0</span></li>
+        <li>🌸 福祉都市：<span id="tp-welfare">0</span></li>
+        <li>📚 教育都市：<span id="tp-education">0</span></li>
+        <li>🚄 交通都市：<span id="tp-transport">0</span></li>
+      </ul>
+    </div>
 
-        btn.onclick = () => selectChoice(choice);
-        choiceButtons.appendChild(btn);
-      });
+    <!-- コントロールボタン -->
+    <div id="control-buttons">
+      <button id="btn-start">▶ ゲームを始める</button>
+      <button id="btn-reset">🔁 リセット</button>
+    </div>
+  </div>
+</div>
 
-      progressText.textContent = `問題 ${currentQuestionIndex + 1}/${cities.length}`;
-    }
-
-    function selectChoice(choice) {
-      applyEffects(choice.effects);
-      applyTypePoints(choice.typePoints);
-      applyResources(choice.resources);
-      updateStatusUI();
-      updateCityTypePointsUI();
-      explainBox.style.display = "block";
-      explainBox.textContent = choice.explanation || "選択結果が反映されました。";
-      currentQuestionIndex++;
-      setTimeout(showQuestion, 1200);
-    }
-
-    function applyEffects(effects) {
-      if (!effects) return;
-      status.env = clamp(status.env + (effects.env || 0), 0, 100);
-      status.eco = clamp(status.eco + (effects.eco || 0), 0, 100);
-      status.soc = clamp(status.soc + (effects.soc || 0), 0, 100);
-    }
-
-    function applyTypePoints(points) {
-      if (!points) return;
-      for (const k in points) cityTypePoints[k.toLowerCase()] = (cityTypePoints[k.toLowerCase()] || 0) + points[k];
-    }
-
-    function applyResources(res) {
-      if (!res) return;
-      for (const k in res) resources[k] = (resources[k] || 0) + res[k];
-    }
-
-    function updateStatusUI() {
-      envBar.textContent = status.env;
-      ecoBar.textContent = status.eco;
-      socBar.textContent = status.soc;
-      energyBar.textContent = resources.energy;
-      foodBar.textContent = resources.food;
-    }
-
-    function updateCityTypePointsUI() {
-      for (const key in cityTypePoints) {
-        if (cityTypeUI[key]) cityTypeUI[key].textContent = `${cityTypePoints[key]}`;
-      }
-    }
-
-    function showResult() {
-      questionTitle.textContent = "🌆都市の最終結果";
-      questionDesc.textContent = "あなたの選択が都市を形作りました。";
-      choiceButtons.innerHTML = "";
-      explainBox.style.display = "block";
-      explainBox.textContent = `
-        🌿環境: ${status.env}
-        💰経済: ${status.eco}
-        🤝社会: ${status.soc}
-        ⚡エネルギー: ${resources.energy}
-        🍎食料: ${resources.food}
-        🧠技術: ${resources.tech}
-      `;
-      progressText.textContent = "全問題終了";
-    }
-
-    function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
-
-  }); // DOMContentLoaded
-})();
+<!-- JSファイル -->
+<script src="data.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
