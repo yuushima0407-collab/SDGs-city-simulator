@@ -1,206 +1,407 @@
-// ===========================
-// SDGs City Manager - data.js (完成版)
-// ===========================
-
-// 🌍 都市データ一覧
-const cities = [
-  // 1. 宇宙港都市
+const questions = [
   {
-    city_id: "spaceport_city",
-    name: "スターゲート・ハーバー",
-    type: "宇宙港都市",
-    level: 1,
-    images: [
-      "https://images.unsplash.com/photo-1531934710580-3fcde0b65d48?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1523430410472-2197e6d0b23f?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1533227268428-3b1de42a5c2c?auto=format&fit=crop&w=1200&q=80"
-    ],
-    questions: [
+    title: "都市の電力をどうする？",
+    description: "環境負荷と経済性のバランスを考えながら発電方法を選ぶ。",
+    choices: [
       {
-        title: "宇宙港拡張による騒音と環境負荷への対応は？",
-        description: "発着数増加で周辺環境への影響が懸念されています。",
-        choices: [
-          { text: "防音・環境対策を徹底", effects: { env: 2, eco: -1, soc: 1 }, explanation: "住民と環境に優しい拡張。" },
-          { text: "制限なしで拡張", effects: { env: -2, eco: 3, soc: -1 }, explanation: "経済は伸びるが環境悪化。" },
-          { text: "発着時間帯を制限", effects: { env: 1, eco: 1, soc: 2 }, explanation: "バランス型の管理策。" }
-        ]
+        text: "太陽光・風力中心にする",
+        effects: { env: 3, eco: -1, soc: 1 },
+        typePoints: { Eco: 3 },
+        resources: { energy: 4, funds: -2 },
+        explanation: "環境には優しいが発電量は控えめ。デンマークの事例ではCO2削減に成功。"
+      },
+      {
+        text: "原子力で大量発電",
+        effects: { env: -3, eco: 3, soc: 1 },
+        typePoints: { Industrial: 2, Science: 1 },
+        resources: { energy: 10, funds: -4 },
+        explanation: "環境にはリスクあるが大量エネルギー確保可能。フランスでは電力の大部分を原子力で賄う。"
+      },
+      {
+        text: "小規模水力で地域限定供給",
+        effects: { env: 2, eco: 0, soc: 2 },
+        typePoints: { Eco: 2, Smart: 1 },
+        resources: { energy: 5, funds: -3 },
+        explanation: "環境負荷少なく地域で安定供給。"
       }
     ]
   },
-
-  // 2. 観光都市
   {
-    city_id: "tourism_city",
-    name: "観光リゾート",
-    type: "観光都市",
-    level: 1,
-    images: [
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1493558103817-58b2924bce98?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=1200&q=80"
-    ],
-    questions: [
+    title: "交通インフラをどうする？",
+    description: "都市の拡大に合わせて交通網を整備。",
+    choices: [
       {
-        title: "観光客が増えて環境負荷が拡大。どうする？",
-        description: "ビーチや自然公園への観光が集中しています。",
-        choices: [
-          { text: "観光税を導入", effects: { env: 2, eco: 1, soc: 0 }, explanation: "資金を環境保全に充てられる。" },
-          { text: "観光ルートを分散", effects: { env: 3, eco: 0, soc: 1 }, explanation: "自然保護と地域バランスに寄与する。" },
-          { text: "無制限に観光客を受け入れる", effects: { env: -2, eco: 3, soc: 0 }, explanation: "短期的経済効果は大きいが環境破壊のリスク。" }
-        ]
+        text: "公共交通中心（鉄道・バス）",
+        effects: { env: 2, eco: 1, soc: 2 },
+        typePoints: { Smart: 2 },
+        resources: { funds: -3 },
+        explanation: "CO2削減と住民利便性向上。オランダ・コペンハーゲンの自転車・公共交通モデルに類似。"
       },
       {
-        title: "地域文化を守るためにどうする？",
-        description: "観光化で伝統文化が薄れています。",
-        choices: [
-          { text: "地元文化体験プログラムを支援", effects: { env: 1, eco: 1, soc: 3 }, explanation: "観光と文化継承を両立できる。" },
-          { text: "テーマパーク化して収益化", effects: { env: -1, eco: 3, soc: -1 }, explanation: "経済は潤うが文化が失われる。" },
-          { text: "観光客を制限", effects: { env: 2, eco: -1, soc: 1 }, explanation: "環境保護と文化維持には有効。" }
-        ]
+        text: "道路拡張で自動車中心",
+        effects: { env: -2, eco: 3, soc: 0 },
+        typePoints: { Industrial: 2 },
+        resources: { funds: -2 },
+        explanation: "経済効率は上がるが環境負荷大。"
+      },
+      {
+        text: "スマート交通システム導入",
+        effects: { env: 1, eco: 2, soc: 2 },
+        typePoints: { Smart: 3 },
+        resources: { funds: -4, tech: 3 },
+        explanation: "AIで最適化し効率化。交通渋滞緩和の実例あり。"
       }
     ]
   },
-
-  // 3. 未来都市
   {
-    city_id: "future_metropolis",
-    name: "ネオ・メトロポリス",
-    type: "未来都市",
-    level: 1,
-    images: [
-      "https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1500336624523-d727130c3328?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1473654729523-203e25dfda10?auto=format&fit=crop&w=1200&q=80"
-    ],
-    questions: [
+    title: "新しい産業を誘致する",
+    description: "経済成長か、環境・社会のバランスか？",
+    choices: [
       {
-        title: "AIによる自動化で失業が増加。どう対応？",
-        description: "高度自動化で人手不足の職が消えています。",
-        choices: [
-          { text: "AI再教育プログラムを提供", effects: { env: 0, eco: 1, soc: 3 }, explanation: "長期的に雇用回復と社会安定を図る。" },
-          { text: "外資企業を誘致して雇用創出", effects: { env: 0, eco: 3, soc: -1 }, explanation: "短期的経済回復だが格差拡大のリスク。" },
-          { text: "市民に副業支援金を配布", effects: { env: 0, eco: 1, soc: 1 }, explanation: "柔軟な働き方を支援する。" }
-        ]
+        text: "ハイテク企業中心",
+        effects: { env: -1, eco: 3, soc: 1 },
+        typePoints: { Science: 3, Smart: 1 },
+        resources: { funds: -2, tech: 3 },
+        explanation: "高付加価値産業で経済・技術向上。米国シリコンバレーの例。"
       },
       {
-        title: "エネルギー需要が急増。どうする？",
-        description: "デジタル産業の成長で電力需要が増加しています。",
-        choices: [
-          { text: "再生可能エネルギー拡大", effects: { env: 3, eco: -1, soc: 1 }, explanation: "環境負荷を減らす長期的安定策。" },
-          { text: "原子力再稼働", effects: { env: -2, eco: 2, soc: -1 }, explanation: "短期的には安定供給可能だがリスク管理が必要。" },
-          { text: "節電キャンペーン", effects: { env: 1, eco: 0, soc: 0 }, explanation: "市民意識を高める効果。" }
-        ]
+        text: "製造業中心で雇用確保",
+        effects: { env: -2, eco: 2, soc: 2 },
+        typePoints: { Industrial: 3 },
+        resources: { funds: -1, labor: 5 },
+        explanation: "雇用は増えるが環境悪化。"
+      },
+      {
+        text: "環境・福祉産業中心",
+        effects: { env: 2, eco: 0, soc: 3 },
+        typePoints: { Eco: 2, Social: 2 },
+        resources: { funds: -2, labor: 2 },
+        explanation: "持続可能な社会を重視する都市設計。"
       }
     ]
   },
-
-  // 4. 海上都市
   {
-    city_id: "aqua_city",
-    name: "アクア・マリーナ",
-    type: "海上都市",
-    level: 1,
-    images: [
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1493558103817-58b2924bce98?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=1200&q=80"
-    ],
-    questions: [
+    title: "教育・人材育成に投資",
+    description: "未来の都市発展に必要なスキルを育てる。",
+    choices: [
       {
-        title: "海面上昇で浸水。どうする？",
-        description: "気候変動の影響が都市に直撃しています。",
-        choices: [
-          { text: "防波堤強化", effects: { env: 0, eco: -1, soc: 2 }, explanation: "物理的安全確保だがコスト高。" },
-          { text: "住民を高台移住", effects: { env: 1, eco: -2, soc: 1 }, explanation: "環境配慮と社会安定。" },
-          { text: "浮体式建築導入", effects: { env: 2, eco: 2, soc: 0 }, explanation: "革新的都市モデル構築。" }
-        ]
+        text: "大学・研究機関中心",
+        effects: { env: -1, eco: 2, soc: 2 },
+        typePoints: { Science: 3, Education: 2 },
+        resources: { tech: 3, funds: -3 },
+        explanation: "技術力・経済力を同時に強化。"
       },
       {
-        title: "海洋ゴミ増加。対策は？",
-        description: "観光客増で廃棄物問題が深刻化。",
-        choices: [
-          { text: "清掃活動強化", effects: { env: 3, eco: -1, soc: 1 }, explanation: "環境改善と地域コミュニティ形成。" },
-          { text: "ゴミ処理税導入", effects: { env: 2, eco: -2, soc: 0 }, explanation: "経済負担はあるが長期改善に効果的。" },
-          { text: "リサイクル事業支援", effects: { env: 2, eco: 1, soc: 1 }, explanation: "経済と環境の両立。" }
-        ]
-      }
-    ]
-  },
-
-  // 5. 工業都市
-  {
-    city_id: "industrial_hub",
-    name: "インダストリアル・ハブ",
-    type: "工業都市",
-    level: 1,
-    images: [
-      "https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1516709977308-02b54be0097d?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80"
-    ],
-    questions: [
-      {
-        title: "工場排水で環境汚染が進む。どうする？",
-        description: "川や土壌への影響が深刻です。",
-        choices: [
-          { text: "排水処理技術を導入", effects: { env: 3, eco: -1, soc: 1 }, explanation: "環境改善と地域安全を両立。" },
-          { text: "規制緩和で経済優先", effects: { env: -2, eco: 3, soc: -1 }, explanation: "短期的経済効果は大きいが環境破壊のリスク。" },
-          { text: "環境税を導入", effects: { env: 2, eco: 0, soc: 0 }, explanation: "企業に改善インセンティブを与える。" }
-        ]
+        text: "学校・職業訓練中心",
+        effects: { env: 0, eco: 1, soc: 3 },
+        typePoints: { Social: 2, Education: 2 },
+        resources: { labor: 3, funds: -2 },
+        explanation: "住民の生活満足度と技能向上。"
       },
       {
-        title: "労働者の健康問題が増加。どうする？",
-        description: "安全対策や労働環境改善が必要です。",
-        choices: [
-          { text: "安全設備を強化", effects: { env: 1, eco: -1, soc: 3 }, explanation: "社会安定と健康確保に寄与。" },
-          { text: "労働時間延長で生産増", effects: { env: 0, eco: 3, soc: -2 }, explanation: "短期経済は伸びるが社会満足度は下がる。" },
-          { text: "健康保険制度を拡充", effects: { env: 0, eco: -1, soc: 3 }, explanation: "社会安全を重視。" }
-        ]
-      }
-    ]
-  },
-
-  // 6. 田舎都市
-  {
-    city_id: "countryside_village",
-    name: "田舎の里",
-    type: "田舎",
-    level: 1,
-    images: [
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1528475106024-5a898b0ceaa7?auto=format&fit=crop&w=1200&q=80"
-    ],
-    questions: [
-      {
-        title: "農業の効率化をどう進める？",
-        description: "少子高齢化で農作業が大変になっています。",
-        choices: [
-          { text: "スマート農業を導入", effects: { env: 2, eco: 1, soc: 1 }, explanation: "技術で効率化し、収入も増やせる。" },
-          { text: "伝統農法を継承", effects: { env: 3, eco: -1, soc: 2 }, explanation: "環境保護と地域文化を守る。" },
-          { text: "大型企業に委託", effects: { env: -1, eco: 3, soc: -1 }, explanation: "経済は活性化するが地元の雇用は減る。" }
-        ]
-      },
-      {
-        title: "人口減少で学校が廃校の危機。どうする？",
-        description: "地域コミュニティを守る必要があります。",
-        choices: [
-          { text: "統合校を作り教育の質を確保", effects: { env: 0, eco: 0, soc: 3 }, explanation: "教育と社会安定を両立。" },
-          { text: "移住者を積極的に受け入れる", effects: { env: 1, eco: 1, soc: 2 }, explanation: "人口増で地域活性化。" },
-          { text: "閉校しオンライン学習に切替", effects: { env: 1, eco: -1, soc: 1 }, explanation: "効率化するが地域結束は弱まる。" }
-        ]
+        text: "教育コスト最小化",
+        effects: { env: 0, eco: 3, soc: -1 },
+        typePoints: { Industrial: 1 },
+        resources: { funds: -1 },
+        explanation: "短期経済効率重視だが社会満足度低下。"
       }
     ]
   }
-]; // ← 配列の最後はカンマなしで閉じる
-
-
-// 🌪 特殊イベント（全都市共通）
-const specialEvents = [
   {
-    id: "global_storm",
-    title: "世界的な異常気象！",
-    description: "強烈な台風や熱波が各地で発生。都市機能が試されます。",
-    effects: { env: -2, eco: -1, soc: -1 }
-  }
+    title: "都市のゴミ処理",
+    description: "持続可能性と効率のバランス。",
+    choices: [
+      {
+        text: "リサイクル中心・環境重視",
+        effects: { env: 3, eco: -1, soc: 2 },
+        typePoints: { Eco: 3 },
+        resources: { funds: -2, recycled: 5 },
+        explanation: "ドイツの循環型都市モデルを参考。"
+      },
+      {
+        text: "焼却で即効処理",
+        effects: { env: -2, eco: 2, soc: 0 },
+        typePoints: { Industrial: 2 },
+        resources: { funds: -1, energy: 2 },
+        explanation: "経済は伸びるが環境悪化。"
+      },
+      {
+        text: "廃棄物発電活用",
+        effects: { env: -1, eco: 2, soc: 1 },
+        typePoints: { Smart: 2 },
+        resources: { energy: 3, funds: -2 },
+        explanation: "エネルギーを生むが多少環境負荷。"
+      }
+    ]
+  },
+  {
+    title: "都市の水資源管理",
+    description: "人口増加に伴い、水不足が懸念される。",
+    choices: [
+      {
+        text: "雨水再利用・節水施策中心",
+        effects: { env: 3, eco: 0, soc: 1 },
+        typePoints: { Eco: 2, Smart: 1 },
+        resources: { water: 5, funds: -2 },
+        explanation: "シンガポールの雨水利用モデル。"
+      },
+      {
+        text: "大規模ダム建設で安定供給",
+        effects: { env: -2, eco: 2, soc: 1 },
+        typePoints: { Industrial: 2 },
+        resources: { water: 10, funds: -4 },
+        explanation: "安定供給だが環境破壊リスク。"
+      },
+      {
+        text: "地下水を無制限に利用",
+        effects: { env: -3, eco: 1, soc: -1 },
+        typePoints: { Industrial: 1 },
+        resources: { water: 8, funds: -1 },
+        explanation: "短期的に経済は上がるが持続不可。"
+      }
+    ]
+  },
+  {
+    title: "都市の緑地・公園整備",
+    description: "住民の健康と都市の環境改善を目指す。",
+    choices: [
+      {
+        text: "都市公園・緑地を積極整備",
+        effects: { env: 3, eco: -1, soc: 2 },
+        typePoints: { Eco: 2, Social: 1 },
+        resources: { funds: -3 },
+        explanation: "住民満足度とCO2吸収に効果。"
+      },
+      {
+        text: "ビル建設を優先、緑地最小化",
+        effects: { env: -2, eco: 2, soc: -1 },
+        typePoints: { Industrial: 2 },
+        resources: { funds: 2 },
+        explanation: "短期経済効率重視。"
+      },
+      {
+        text: "屋上緑化・壁面緑化で効率的に整備",
+        effects: { env: 2, eco: 1, soc: 2 },
+        typePoints: { Smart: 2 },
+        resources: { tech: 2, funds: -2 },
+        explanation: "都市空間を有効活用。環境改善と居住快適性向上。"
+      }
+    ]
+  },
+  {
+    title: "廃棄物・リサイクル政策",
+    description: "ゴミの減量・リサイクルをどう進める？",
+    choices: [
+      {
+        text: "徹底したリサイクル制度",
+        effects: { env: 3, eco: -1, soc: 2 },
+        typePoints: { Eco: 3 },
+        resources: { recycled: 5, funds: -2 },
+        explanation: "スウェーデンのゼロウェイスト運動のように環境改善。"
+      },
+      {
+        text: "焼却で即処理",
+        effects: { env: -2, eco: 2, soc: 0 },
+        typePoints: { Industrial: 2 },
+        resources: { energy: 2, funds: -1 },
+        explanation: "短期効率は高いが環境悪化。"
+      },
+      {
+        text: "廃棄物発電利用",
+        effects: { env: -1, eco: 2, soc: 1 },
+        typePoints: { Smart: 2 },
+        resources: { energy: 3, funds: -2 },
+        explanation: "エネルギー生成と循環型施策。"
+      }
+    ]
+  },
+  {
+    title: "交通渋滞を減らすには？",
+    description: "都市効率とCO2削減のバランスを考える。",
+    choices: [
+      {
+        text: "自転車・徒歩優先の街づくり",
+        effects: { env: 3, eco: 0, soc: 2 },
+        typePoints: { Eco: 2, Smart: 1 },
+        resources: { funds: -2 },
+        explanation: "コペンハーゲン方式。環境改善と健康促進。"
+      },
+      {
+        text: "道路拡張で車優先",
+        effects: { env: -2, eco: 2, soc: 0 },
+        typePoints: { Industrial: 2 },
+        resources: { funds: -1 },
+        explanation: "経済は上がるが環境悪化。"
+      },
+      {
+        text: "AIによるスマート交通制御",
+        effects: { env: 1, eco: 2, soc: 2 },
+        typePoints: { Smart: 3 },
+        resources: { tech: 3, funds: -3 },
+        explanation: "IoTで効率化し渋滞緩和。"
+      }
+    ]
+  },
+  {
+    title: "教育・研究施設への投資",
+    description: "将来の技術力と経済成長に影響。",
+    choices: [
+      {
+        text: "大学・研究所を重点整備",
+        effects: { env: -1, eco: 3, soc: 2 },
+        typePoints: { Science: 3, Smart: 1 },
+        resources: { tech: 4, funds: -3 },
+        explanation: "科学都市・ハイテク都市への道。"
+      },
+      {
+        text: "職業訓練中心",
+        effects: { env: 0, eco: 2, soc: 3 },
+        typePoints: { Social: 2, Education: 2 },
+        resources: { labor: 3, funds: -2 },
+        explanation: "地域社会と生活満足度向上。"
+      },
+      {
+        text: "投資最小化で経費節約",
+        effects: { env: 0, eco: 3, soc: -1 },
+        typePoints: { Industrial: 1 },
+        resources: { funds: -1 },
+        explanation: "短期経済効率重視。"
+      }
+    ]
+  },
+  {
+    title: "防災設備をどう整備する？",
+    description: "災害リスクを下げるための投資。",
+    choices: [
+      {
+        text: "耐震・洪水対策を強化",
+        effects: { env: 1, eco: -1, soc: 3 },
+        typePoints: { Social: 2, Eco: 1 },
+        resources: { funds: -3 },
+        explanation: "日本の防災都市モデルに近い。"
+      },
+      {
+        text: "災害保険や支援制度に依存",
+        effects: { env: 0, eco: 1, soc: 2 },
+        typePoints: { Social: 1 },
+        resources: { funds: -1 },
+        explanation: "直接の建設コストは減るが被害リスク残る。"
+      },
+      {
+        text: "最小コストでインフラ整備",
+        effects: { env: 0, eco: 2, soc: -1 },
+        typePoints: { Industrial: 1 },
+        resources: { funds: -1 },
+        explanation: "コスト削減優先、被害リスク増。"
+      }
+    ]
+  },
+  {
+    title: "医療・福祉への投資",
+    description: "住民の健康と幸福度に直結。",
+    choices: [
+      {
+        text: "病院・介護施設を充実",
+        effects: { env: 0, eco: -1, soc: 3 },
+        typePoints: { Social: 3 },
+        resources: { funds: -3, labor: 2 },
+        explanation: "福祉都市モデル。住民満足度向上。"
+      },
+      {
+        text: "医療は最低限、経済優先",
+        effects: { env: 0, eco: 2, soc: -2 },
+        typePoints: { Industrial: 1 },
+        resources: { funds: -1 },
+        explanation: "短期経済重視だが生活満足度低下。"
+      },
+      {
+        text: "スマート医療で効率化",
+        effects: { env: 1, eco: 1, soc: 2 },
+        typePoints: { Smart: 2 },
+        resources: { tech: 2, funds: -2 },
+        explanation: "AIで効率化し健康管理。"
+      }
+    ]
+  },
+  {
+    title: "都市の食料自給をどうする？",
+    description: "農業・物流・食料安全保障のバランス。",
+    choices: [
+      {
+        text: "都市農業・地産地消",
+        effects: { env: 2, eco: 0, soc: 2 },
+        typePoints: { Eco: 2, Social: 1 },
+        resources: { food: 5, funds: -2 },
+        explanation: "持続可能な農業と地産地消モデル。"
+      },
+      {
+        text: "大量輸入で経済効率優先",
+        effects: { env: -1, eco: 3, soc: 0 },
+        typePoints: { Industrial: 2 },
+        resources: { funds: -1, food: 8 },
+        explanation: "経済効率は高いが輸送コストと環境負荷増。"
+      },
+      {
+        text: "技術農業・水耕栽培導入",
+        effects: { env: 1, eco: 2, soc: 1 },
+        typePoints: { Smart: 2, Science: 1 },
+        resources: { tech: 2, food: 6, funds: -2 },
+        explanation: "都市内で効率的な食料生産。"
+      }
+    ]
+  },
+  {
+    title: "エネルギー多様化戦略",
+    description: "将来の都市運営に必要な安定電力。",
+    choices: [
+      {
+        text: "再生可能エネルギー中心",
+        effects: { env: 3, eco: -1, soc: 1 },
+        typePoints: { Eco: 3 },
+        resources: { energy: 4, funds: -2 },
+        explanation: "CO2削減と持続可能性向上。"
+      },
+      {
+        text: "原子力で安定供給",
+        effects: { env: -2, eco: 3, soc: 1 },
+        typePoints: { Industrial: 2 },
+        resources: { energy: 10, funds: -4 },
+        explanation: "大量エネルギー確保、環境リスクあり。"
+      },
+      {
+        text: "分散型小規模発電",
+        effects: { env: 2, eco: 0, soc: 2 },
+        typePoints: { Smart: 2 },
+        resources: { energy: 5, funds: -3 },
+        explanation: "地域で安定供給、環境負荷少。"
+      }
+    ]
+  },
+  {
+    title: "都市の防犯対策",
+    description: "住民の安全確保をどう進める？",
+    choices: [
+      {
+        text: "監視カメラ・警備増強",
+        effects: { env: -1, eco: 1, soc: 3 },
+        typePoints: { Smart: 2, Social: 1 },
+        resources: { tech: 2, funds: -2 },
+        explanation: "都市安全度向上だがコスト増。"
+      },
+      {
+        text: "コミュニティ見守り中心",
+        effects: { env: 1, eco: 0, soc: 2 },
+        typePoints: { Social: 2 },
+        resources: { labor: 2, funds: -1 },
+        explanation: "住民参加型で安全性向上。"
+      },
+      {
+        text: "防犯投資最小化",
+        effects: { env: 0, eco: 2, soc: -1 },
+        typePoints: { Industrial: 1 },
+        resources: { funds: -1 },
+        explanation: "コスト削減優先、安全性低下。"
+      }
+    ]
+  }  
 ];
