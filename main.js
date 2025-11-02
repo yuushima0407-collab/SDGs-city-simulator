@@ -1,5 +1,5 @@
 // ===========================
-// SDGs都市経営ゲーム main.js（data.js対応完全版）
+// SDGs都市経営ゲーム main.js（資源ポイント対応完全版）
 // ===========================
 (function() {
   window.addEventListener("DOMContentLoaded", () => {
@@ -7,7 +7,7 @@
     let currentQuestionIndex = 0;
     let status = { env: 50, eco: 50, soc: 50 }; // 環境・経済・社会スコア
     let cityTypePoints = { eco: 0, industry: 0, social: 0, smart: 0, science: 0 };
-    let resources = { energy: 0, food: 0, tech: 0, money: 0 };
+    let resources = { energy: 0, food: 0, tech: 0, money: 0, funds: 50 }; // 初期資金50など
 
     // --- DOM取得 ---
     const $ = id => document.getElementById(id);
@@ -29,7 +29,7 @@
       currentQuestionIndex = 0;
       status = { env: 50, eco: 50, soc: 50 };
       cityTypePoints = { eco: 0, industry: 0, social: 0, smart: 0, science: 0 };
-      resources = { energy: 0, food: 0, tech: 0, money: 0 };
+      resources = { energy: 0, food: 0, tech: 0, money: 0, funds: 50 };
       updateStatusUI();
       updateCityVisual();
       showQuestion();
@@ -51,6 +51,24 @@
         const btn = document.createElement("button");
         btn.className = "choice-btn";
         btn.textContent = choice.text;
+
+        // 資源不足で選択不可にする
+        let canSelect = true;
+        if (choice.resources) {
+          if ((choice.resources.funds && resources.funds < Math.abs(choice.resources.funds)) ||
+              (choice.resources.energy && resources.energy < Math.abs(choice.resources.energy)) ||
+              (choice.resources.food && resources.food < Math.abs(choice.resources.food)) ||
+              (choice.resources.tech && resources.tech < Math.abs(choice.resources.tech))) {
+            canSelect = false;
+          }
+        }
+
+        if (!canSelect) {
+          btn.disabled = true;
+          btn.style.opacity = 0.5;
+          btn.title = "資源不足で選択できません";
+        }
+
         btn.onclick = () => selectChoice(choice);
         choiceButtons.appendChild(btn);
       });
@@ -92,7 +110,7 @@
     function applyResources(res) {
       if (!res) return;
       for (const k in res) {
-        resources[k] += res[k] || 0;
+        resources[k] = (resources[k] || 0) + res[k];
       }
     }
 
@@ -130,6 +148,14 @@
       choiceButtons.innerHTML = "";
 
       const finalType = determineCityType();
+
+      // 資源ボーナス説明
+      let bonusDesc = "";
+      if (resources.energy >= 20) bonusDesc += "⚡ エネルギー豊富な都市です。<br>";
+      if (resources.food >= 20) bonusDesc += "🍎 食料自給率が高い都市です。<br>";
+      if (resources.tech >= 10) bonusDesc += "🧠 技術都市として発展しています。<br>";
+      if (resources.funds >= 50) bonusDesc += "💰 豊富な資金で将来の発展が有利です。<br>";
+
       explainBox.innerHTML = `
         🌿 環境: ${status.env}<br>
         💰 経済: ${status.eco}<br>
@@ -137,8 +163,9 @@
         ⚡ エネルギー: ${resources.energy}<br>
         🧠 技術: ${resources.tech}<br>
         🍎 食料: ${resources.food}<br>
-        💰 資金: ${resources.money}<br><br>
-        🏙 最終都市タイプ: <b>${finalType.name}</b>（レベル${finalType.level}）
+        💰 資金: ${resources.funds}<br><br>
+        🏙 最終都市タイプ: <b>${finalType.name}</b>（レベル${finalType.level}）<br>
+        ${bonusDesc}
       `;
       progressText.textContent = "全問題終了";
       updateCityVisual();
@@ -150,7 +177,12 @@
       const mainType = Object.entries(cityTypePoints).sort((a,b)=>b[1]-a[1])[0][0];
 
       let name = "未発展都市";
-      if (mainType === "eco") name = "エコ都市";
+
+      // 資源を考慮した都市タイプ優先判定
+      if (resources.energy >= 20) name = "エネルギー都市";
+      else if (resources.food >= 20) name = "食料自給都市";
+      else if (resources.tech >= 10) name = "技術都市";
+      else if (mainType === "eco") name = "エコ都市";
       else if (mainType === "industry") name = "産業都市";
       else if (mainType === "social") name = "社会都市";
       else if (mainType === "smart") name = "スマート都市";
