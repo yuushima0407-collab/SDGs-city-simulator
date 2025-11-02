@@ -1,111 +1,171 @@
-// main.js（都市経営ゲーム Ver.3：資源・タイプポイント・パラメータ完全対応）
+// ===========================
+// SDGs都市経営ゲーム main.js（data.js対応完全版）
+// ===========================
+(function() {
+  window.addEventListener("DOMContentLoaded", () => {
+    // --- 状態管理 ---
+    let currentQuestionIndex = 0;
+    let status = { env: 50, eco: 50, soc: 50 }; // 環境・経済・社会スコア
+    let cityTypePoints = { eco: 0, industry: 0, social: 0, smart: 0, science: 0 };
+    let resources = { energy: 0, food: 0, tech: 0, money: 0 };
 
-// 各種スコアと資源・タイプポイントの初期値
-let index = 0;
-let env = 0, eco = 0, soc = 0; // 環境・経済・社会パラメータ
-let resources = { funds: 10, energy: 0, tech: 0, labor: 0, water: 0, recycled: 0, food: 0 }; // 資源
-let typePoints = { Eco: 0, Industrial: 0, Smart: 0, Social: 0, Science: 0, Education: 0 }; // 都市タイプポイント
+    // --- DOM取得 ---
+    const $ = id => document.getElementById(id);
+    const startBtn = $("btn-start");
+    const questionTitle = $("question-title");
+    const questionDesc = $("question-desc");
+    const choiceButtons = $("choices");
+    const explainBox = $("explainBox");
+    const envBar = $("env-bar");
+    const ecoBar = $("eco-bar");
+    const socBar = $("soc-bar");
+    const progressText = $("progress");
+    const cityView = $("city-view");
 
-const questionContainer = document.getElementById("question-container");
-const resultContainer = document.getElementById("result-container");
-const nextButton = document.getElementById("next-btn");
-const restartButton = document.getElementById("restart-btn");
+    // --- ゲーム開始 ---
+    if (startBtn) startBtn.addEventListener("click", startGame);
 
-// ゲーム開始
-function startGame() {
-  index = 0;
-  env = eco = soc = 0;
-  for (let k in resources) resources[k] = 0;
-  resources.funds = 10; // 初期資金
-  for (let k in typePoints) typePoints[k] = 0;
-  resultContainer.style.display = "none";
-  questionContainer.style.display = "block";
-  showQuestion();
-}
+    function startGame() {
+      currentQuestionIndex = 0;
+      status = { env: 50, eco: 50, soc: 50 };
+      cityTypePoints = { eco: 0, industry: 0, social: 0, smart: 0, science: 0 };
+      resources = { energy: 0, food: 0, tech: 0, money: 0 };
+      updateStatusUI();
+      updateCityVisual();
+      showQuestion();
+    }
 
-// 問題を表示
-function showQuestion() {
-  const city = cities[index];
-  const html = `
-    <h2>${index + 1}. ${city.title}</h2>
-    <p>${city.description}</p>
-    ${city.choices.map((c, i) => `
-      <button class="choice" onclick="choose(${i})">${c.text}</button>
-    `).join("")}
-  `;
-  questionContainer.innerHTML = html;
-}
+    // --- 質問表示 ---
+    function showQuestion() {
+      if (currentQuestionIndex >= cities.length) {
+        showResult();
+        return;
+      }
 
-// 選択肢を選んだときの処理
-function choose(choiceIndex) {
-  const city = cities[index];
-  const choice = city.choices[choiceIndex];
+      const q = cities[currentQuestionIndex];
+      questionTitle.textContent = q.title || "無題の質問";
+      questionDesc.textContent = q.description || "";
+      choiceButtons.innerHTML = "";
 
-  // パラメータ加算
-  env += choice.effects.env;
-  eco += choice.effects.eco;
-  soc += choice.effects.soc;
+      q.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.className = "choice-btn";
+        btn.textContent = choice.text;
+        btn.onclick = () => selectChoice(choice);
+        choiceButtons.appendChild(btn);
+      });
 
-  // 資源変動
-  for (let key in choice.resources) {
-    if (!resources[key]) resources[key] = 0;
-    resources[key] += choice.resources[key];
-  }
+      progressText.textContent = `問題 ${currentQuestionIndex + 1} / ${cities.length}`;
+    }
 
-  // タイプポイント加算
-  for (let key in choice.typePoints) {
-    if (!typePoints[key]) typePoints[key] = 0;
-    typePoints[key] += choice.typePoints[key];
-  }
+    // --- 選択肢を選んだときの処理 ---
+    function selectChoice(choice) {
+      applyEffects(choice.effects);
+      applyTypePoints(choice.typePoints);
+      applyResources(choice.resources);
 
-  // 選択説明を表示
-  questionContainer.innerHTML = `
-    <h2>${city.title}</h2>
-    <p>あなたの選択：<b>${choice.text}</b></p>
-    <p>${choice.explanation}</p>
-    <button id="next-btn">次へ</button>
-  `;
-  document.getElementById("next-btn").onclick = nextQuestion;
-}
+      updateStatusUI();
+      updateCityVisual();
 
-// 次の質問へ
-function nextQuestion() {
-  index++;
-  if (index < cities.length) {
-    showQuestion();
-  } else {
-    showResult();
-  }
-}
+      explainBox.style.display = "block";
+      explainBox.textContent = choice.explanation || "選択結果が反映されました。";
 
-// 結果発表
-function showResult() {
-  questionContainer.style.display = "none";
-  resultContainer.style.display = "block";
+      currentQuestionIndex++;
+      setTimeout(showQuestion, 1200);
+    }
 
-  // 都市タイプ決定
-  const topType = Object.entries(typePoints).sort((a, b) => b[1] - a[1])[0][0];
+    // --- 各種反映処理 ---
+    function applyEffects(effects) {
+      if (!effects) return;
+      status.env = clamp(status.env + (effects.env || 0), 0, 100);
+      status.eco = clamp(status.eco + (effects.eco || 0), 0, 100);
+      status.soc = clamp(status.soc + (effects.soc || 0), 0, 100);
+    }
 
-  const summary = `
-    <h2>🌆 あなたの都市の最終結果</h2>
-    <p>環境：${env}　経済：${eco}　社会：${soc}</p>
-    <h3>📊 資源</h3>
-    <ul>
-      ${Object.entries(resources).map(([k, v]) => `<li>${k}: ${v}</li>`).join("")}
-    </ul>
-    <h3>🏙 都市タイプ</h3>
-    <p>${topType}都市（${typePoints[topType]}pt）</p>
-    <h3>詳細ポイント</h3>
-    <ul>
-      ${Object.entries(typePoints).map(([k, v]) => `<li>${k}: ${v}</li>`).join("")}
-    </ul>
-    <button id="restart-btn">もう一度プレイ</button>
-  `;
-  resultContainer.innerHTML = summary;
+    function applyTypePoints(points) {
+      if (!points) return;
+      for (const k in points) {
+        cityTypePoints[k] += points[k] || 0;
+      }
+    }
 
-  // 再スタートボタン
-  document.getElementById("restart-btn").onclick = startGame;
-}
+    function applyResources(res) {
+      if (!res) return;
+      for (const k in res) {
+        resources[k] += res[k] || 0;
+      }
+    }
 
-// 起動時にゲーム開始
-window.onload = startGame;
+    // --- ゲージ更新 ---
+    function updateStatusUI() {
+      envBar.style.width = `${status.env}%`;
+      ecoBar.style.width = `${status.eco}%`;
+      socBar.style.width = `${status.soc}%`;
+    }
+
+    // --- 都市の見た目を変化（リアルタイム） ---
+    function updateCityVisual() {
+      if (!cityView) return;
+
+      let brightness = (status.env + status.eco + status.soc) / 3;
+      let color;
+      if (status.env > status.eco && status.env > status.soc) {
+        color = "rgba(80, 200, 120, 0.6)"; // 緑っぽい → エコ都市
+      } else if (status.eco > status.env && status.eco > status.soc) {
+        color = "rgba(255, 215, 0, 0.6)"; // 金色 → 産業都市
+      } else if (status.soc > status.env && status.soc > status.eco) {
+        color = "rgba(100, 150, 255, 0.6)"; // 青 → 社会都市
+      } else {
+        color = "rgba(200, 200, 200, 0.6)";
+      }
+
+      cityView.style.background = color;
+      cityView.style.filter = `brightness(${0.6 + brightness / 200})`;
+    }
+
+    // --- 結果画面 ---
+    function showResult() {
+      questionTitle.textContent = "🌆 都市の最終結果";
+      questionDesc.textContent = "あなたの選択が都市を形作りました。";
+      choiceButtons.innerHTML = "";
+
+      const finalType = determineCityType();
+      explainBox.innerHTML = `
+        🌿 環境: ${status.env}<br>
+        💰 経済: ${status.eco}<br>
+        🤝 社会: ${status.soc}<br>
+        ⚡ エネルギー: ${resources.energy}<br>
+        🧠 技術: ${resources.tech}<br>
+        🍎 食料: ${resources.food}<br>
+        💰 資金: ${resources.money}<br><br>
+        🏙 最終都市タイプ: <b>${finalType.name}</b>（レベル${finalType.level}）
+      `;
+      progressText.textContent = "全問題終了";
+      updateCityVisual();
+    }
+
+    // --- 都市タイプ判定 ---
+    function determineCityType() {
+      const sum = status.env + status.eco + status.soc;
+      const mainType = Object.entries(cityTypePoints).sort((a,b)=>b[1]-a[1])[0][0];
+
+      let name = "未発展都市";
+      if (mainType === "eco") name = "エコ都市";
+      else if (mainType === "industry") name = "産業都市";
+      else if (mainType === "social") name = "社会都市";
+      else if (mainType === "smart") name = "スマート都市";
+      else if (mainType === "science") name = "科学都市";
+
+      let level = 1;
+      if (sum > 220) level = 3;
+      else if (sum > 150) level = 2;
+
+      return { name, level };
+    }
+
+    // --- 補助 ---
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
+  });
+})();
