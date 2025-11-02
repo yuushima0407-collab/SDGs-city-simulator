@@ -1,5 +1,5 @@
 // ===========================
-// SDGs都市経営ゲーム main.js（資源ポイント対応＋都市情報パネル＋リアル街並み版）
+// SDGs都市経営ゲーム main.js（資源ポイント対応＋都市情報パネル＋リアル背景版）
 // ===========================
 (function() {
   window.addEventListener("DOMContentLoaded", () => {
@@ -21,9 +21,15 @@
     const socBar = $("soc-bar");
     const progressText = $("progress");
     const cityView = $("city-view");
-    const cityNameLabel = $("city-name");
-    const cityLevelLabel = $("city-level");
-    const cityInfoPanel = $("city-info-panel"); // 右下パネル
+
+    // --- 右下都市情報パネル DOM ---
+    const cityInfoName = $("city-info-name");
+    const cityInfoLevel = $("city-info-level");
+    const cityInfoDesc = $("city-info-desc");
+    const cityInfoResources = $("city-info-resources");
+
+    // --- 背景画像レイヤー ---
+    const cityBg = $("city-bg");
 
     // --- ゲーム開始 ---
     if (startBtn) startBtn.addEventListener("click", startGame);
@@ -33,9 +39,9 @@
       status = { env: 50, eco: 50, soc: 50 };
       cityTypePoints = { eco: 0, industry: 0, social: 0, smart: 0, science: 0 };
       resources = { energy: 0, food: 0, tech: 0, money: 0, funds: 50 };
+      explainBox.style.display = "none";
       updateStatusUI();
       updateCityVisual();
-      updateCityInfoPanel();
       showQuestion();
     }
 
@@ -56,14 +62,15 @@
         btn.className = "choice-btn";
         btn.textContent = choice.text;
 
-        // 資源不足で選択不可にする
+        // 資源不足で選択不可にする（消費がある場合のみ）
         let canSelect = true;
         let reason = "";
         if (choice.resources) {
           for (const k in choice.resources) {
-            if ((resources[k] || 0) < Math.abs(choice.resources[k])) {
+            const val = choice.resources[k];
+            if (val < 0 && (resources[k] || 0) < Math.abs(val)) {
               canSelect = false;
-              reason = `${k}不足で選択不可`;
+              reason = `${k}不足で選択できません`;
             }
           }
         }
@@ -71,17 +78,7 @@
         if (!canSelect) {
           btn.disabled = true;
           btn.style.opacity = 0.5;
-          btn.title = reason || "資源不足で選択できません";
-        } else {
-          // 選択前に得られる資源を表示
-          let tooltip = [];
-          if (choice.resources) {
-            for (const k in choice.resources) {
-              const val = choice.resources[k];
-              if (val !== 0) tooltip.push(`${k} ${val > 0 ? "+" : ""}${val}`);
-            }
-          }
-          btn.title = tooltip.join(" / ");
+          btn.title = reason;
         }
 
         btn.onclick = () => selectChoice(choice);
@@ -102,28 +99,8 @@
       updateCityInfoPanel();
 
       explainBox.style.display = "block";
-      // 資源変化・都市傾向を詳しく表示
-      let desc = [];
-      if (choice.effects) {
-        for (const k in choice.effects) {
-          const val = choice.effects[k];
-          if (val !== 0) {
-            const emoji = k === "env" ? "🌿" : k === "eco" ? "💰" : "🤝";
-            desc.push(`${emoji} ${k} ${val > 0 ? "+" : ""}${val}`);
-          }
-        }
-      }
-      if (choice.resources) {
-        for (const k in choice.resources) {
-          const val = choice.resources[k];
-          if (val !== 0) {
-            const emoji = k === "energy" ? "⚡" : k === "food" ? "🍎" : k === "tech" ? "🧠" : "💰";
-            desc.push(`${emoji} ${k} ${val > 0 ? "+" : ""}${val}`);
-          }
-        }
-      }
-      explainBox.innerHTML = desc.join("<br>") + "<br>" + (choice.explanation || "");
-      
+      explainBox.textContent = choice.explanation || "選択結果が反映されました。";
+
       currentQuestionIndex++;
       setTimeout(showQuestion, 1200);
     }
@@ -157,52 +134,65 @@
       socBar.style.width = `${status.soc}%`;
     }
 
-    // --- 都市の見た目を変化（リアル街並み） ---
+    // --- 都市の見た目を変化（リアルタイム） ---
     function updateCityVisual() {
       if (!cityView) return;
 
-      // 都市タイプ判定
-      const mainType = Object.entries(cityTypePoints).sort((a,b)=>b[1]-a[1])[0][0];
-      const imgMap = {
-        eco: "images/eco_city.jpg",
-        industry: "images/industry_city.jpg",
-        social: "images/social_city.jpg",
-        smart: "images/smart_city.jpg",
-        science: "images/science_city.jpg"
-      };
-      cityView.style.backgroundImage = `url(${imgMap[mainType] || "images/default_city.jpg"})`;
-      cityView.style.backgroundSize = "cover";
-      cityView.style.backgroundPosition = "center";
-
-      // 明るさで都市の雰囲気
-      const brightness = (status.env + status.eco + status.soc) / 3;
-      cityView.style.filter = `brightness(${0.6 + brightness / 200})`;
+      const city = determineCityType();
+      // 背景画像を都市タイプに応じて差し替え
+      if (cityBg) {
+        let imgUrl = "";
+        switch(city.name){
+          case "エネルギー都市": imgUrl = "images/energy_city.jpg"; break;
+          case "食料自給都市": imgUrl = "images/food_city.jpg"; break;
+          case "技術都市": imgUrl = "images/tech_city.jpg"; break;
+          case "エコ都市": imgUrl = "images/eco_city.jpg"; break;
+          case "産業都市": imgUrl = "images/industry_city.jpg"; break;
+          case "社会都市": imgUrl = "images/social_city.jpg"; break;
+          case "スマート都市": imgUrl = "images/smart_city.jpg"; break;
+          case "科学都市": imgUrl = "images/science_city.jpg"; break;
+          default: imgUrl = "images/default_city.jpg"; break;
+        }
+        cityBg.style.backgroundImage = `url(${imgUrl})`;
+        cityBg.style.backgroundSize = "cover";
+        cityBg.style.backgroundPosition = "center";
+      }
     }
 
-    // --- 右下パネル更新 ---
+    // --- 都市情報パネル更新 ---
     function updateCityInfoPanel() {
-      if (!cityInfoPanel) return;
-      const finalType = determineCityType();
-      let strengths = [];
-      let weaknesses = [];
-      if (status.env > status.eco && status.env > status.soc) strengths.push("環境重視"); else weaknesses.push("環境が弱い");
-      if (status.eco > status.env && status.eco > status.soc) strengths.push("経済発展"); else weaknesses.push("経済が弱い");
-      if (status.soc > status.env && status.soc > status.eco) strengths.push("社会重視"); else weaknesses.push("社会が弱い");
+      const city = determineCityType();
+      if (cityInfoName) cityInfoName.textContent = city.name;
+      if (cityInfoLevel) cityInfoLevel.textContent = `Lv.${city.level}`;
 
-      cityNameLabel.textContent = finalType.name;
-      cityLevelLabel.textContent = `Lv.${finalType.level}`;
-      cityInfoPanel.innerHTML = `
-        <b>${finalType.name}（Lv.${finalType.level}）</b><br>
-        🌿 環境: ${status.env}<br>
-        💰 経済: ${status.eco}<br>
-        🤝 社会: ${status.soc}<br>
-        ⚡ エネルギー: ${resources.energy}<br>
-        🧠 技術: ${resources.tech}<br>
-        🍎 食料: ${resources.food}<br>
-        💰 資金: ${resources.funds}<br>
-        <b>強み:</b> ${strengths.join(", ")}<br>
-        <b>弱み:</b> ${weaknesses.join(", ")}
-      `;
+      if (cityInfoDesc) {
+        let desc = "";
+        desc += `🌿 環境: ${status.env}  💰 経済: ${status.eco}  🤝 社会: ${status.soc}\n`;
+        desc += `⚡ エネルギー: ${resources.energy}  🧠 技術: ${resources.tech}  🍎 食料: ${resources.food}  💰 資金: ${resources.funds}\n`;
+
+        // 強み・弱み
+        desc += "💡 強み: ";
+        const strengths = [];
+        if (resources.energy >= 20) strengths.push("エネルギー豊富");
+        if (resources.food >= 20) strengths.push("食料自給");
+        if (resources.tech >= 10) strengths.push("技術都市");
+        if (status.env > status.eco && status.env > status.soc) strengths.push("自然豊か");
+        desc += strengths.join(", ") || "なし";
+
+        desc += "\n⚠ 弱み: ";
+        const weaknesses = [];
+        if (resources.funds < 10) weaknesses.push("資金不足");
+        if (status.env < 30) weaknesses.push("環境悪化");
+        if (status.eco < 30) weaknesses.push("経済停滞");
+        if (status.soc < 30) weaknesses.push("社会問題");
+        desc += weaknesses.join(", ") || "なし";
+
+        cityInfoDesc.textContent = desc;
+      }
+
+      if (cityInfoResources) {
+        cityInfoResources.textContent = `資源 - ⚡:${resources.energy}  🍎:${resources.food}  🧠:${resources.tech}  💰:${resources.funds}`;
+      }
     }
 
     // --- 結果画面 ---
@@ -213,6 +203,7 @@
 
       const finalType = determineCityType();
 
+      // 資源ボーナス説明
       let bonusDesc = "";
       if (resources.energy >= 20) bonusDesc += "⚡ エネルギー豊富な都市です。<br>";
       if (resources.food >= 20) bonusDesc += "🍎 食料自給率が高い都市です。<br>";
@@ -231,6 +222,7 @@
         ${bonusDesc}
       `;
       progressText.textContent = "全問題終了";
+
       updateCityVisual();
       updateCityInfoPanel();
     }
@@ -241,6 +233,8 @@
       const mainType = Object.entries(cityTypePoints).sort((a,b)=>b[1]-a[1])[0][0];
 
       let name = "未発展都市";
+
+      // 資源を考慮した都市タイプ優先判定
       if (resources.energy >= 20) name = "エネルギー都市";
       else if (resources.food >= 20) name = "食料自給都市";
       else if (resources.tech >= 10) name = "技術都市";
