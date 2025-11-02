@@ -11,26 +11,31 @@
     <!-- 左パネル：都市ビュー + 質問カード -->
     <div id="left-panel">
       <div id="city-view">
-        <img id="bg-image" src="" alt="背景" class="city-layer">
+        <!-- 背景は main.js の city-bg が操作 -->
+        <div id="city-bg" class="city-layer"></div>
         <img id="mg-image" src="" alt="中景" class="city-layer">
         <img id="fg-image" src="" alt="前景" class="city-layer">
       </div>
 
+      <!-- 都市リボン -->
       <div id="city-ribbon">
-        <h2 id="city-name">都市名</h2>
-        <span id="city-level">Lv.1</span>
+        <h2 id="city-info-name">都市名</h2>
+        <span id="city-info-level">Lv.1</span>
       </div>
 
+      <!-- 都市情報パネル -->
+      <div id="city-info-panel">
+        <pre id="city-info-desc"></pre>
+        <div id="city-info-resources"></div>
+      </div>
+
+      <!-- 質問カード -->
       <div id="question-card" aria-live="polite">
         <h3 id="question-title">質問タイトル</h3>
         <p id="question-desc">質問内容の説明がここに入ります。</p>
         <div id="choices"></div>
         <div id="explainBox"></div>
         <div id="progress">0/0</div>
-        <div id="question-buttons">
-          <button id="btn-decision">決定</button>
-          <button id="btn-skip">スキップ</button>
-        </div>
       </div>
 
       <!-- 特殊イベント表示エリア -->
@@ -56,7 +61,6 @@
         <label>🤝 社会</label>
         <div class="status-bar"><div id="soc-bar" class="bar"></div></div>
       </div>
-
       <div id="control-buttons">
         <button id="btn-start">ゲームを始める</button>
         <button id="btn-reset">リセット</button>
