@@ -10,8 +10,8 @@
   <div id="game-container">
     <!-- 左パネル：都市ビュー + 質問カード -->
     <div id="left-panel">
+      <!-- 都市ビュー -->
       <div id="city-view">
-        <!-- 背景は main.js の city-bg が操作 -->
         <div id="city-bg" class="city-layer"></div>
         <img id="mg-image" src="" alt="中景" class="city-layer">
         <img id="fg-image" src="" alt="前景" class="city-layer">
@@ -27,6 +27,20 @@
       <div id="city-info-panel">
         <pre id="city-info-desc"></pre>
         <div id="city-info-resources"></div>
+
+        <!-- 都市タイプポイント表示 -->
+        <div id="city-type-points">
+          <h4>都市タイプポイント</h4>
+          <p id="ctp-eco">環境: 0</p>
+          <p id="ctp-industry">産業: 0</p>
+          <p id="ctp-social">社会: 0</p>
+          <p id="ctp-smart">スマート: 0</p>
+          <p id="ctp-science">科学: 0</p>
+          <p id="ctp-culture">文化: 0</p>
+          <p id="ctp-tourism">観光: 0</p>
+          <p id="ctp-agriculture">農業: 0</p>
+          <p id="ctp-industryHeavy">工業: 0</p>
+        </div>
       </div>
 
       <!-- 質問カード -->
@@ -61,6 +75,8 @@
         <label>🤝 社会</label>
         <div class="status-bar"><div id="soc-bar" class="bar"></div></div>
       </div>
+
+      <!-- コントロールボタン -->
       <div id="control-buttons">
         <button id="btn-start">ゲームを始める</button>
         <button id="btn-reset">リセット</button>
