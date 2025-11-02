@@ -13,14 +13,14 @@ const cities = [
       {
         text: "原子力で大量発電",
         effects: { env: -3, eco: 3, soc: 1 },
-        typePoints: { industrial: 2, Science: 1 },
+        typePoints: { industrial: 2, science: 1 },
         resources: { energy: 10, funds: -4 },
         explanation: "環境にはリスクあるが大量エネルギー確保可能。フランスでは電力の大部分を原子力で賄う。"
       },
       {
         text: "小規模水力で地域限定供給",
         effects: { env: 2, eco: 0, soc: 2 },
-        typePoints: { eco: 2, Smart: 1 },
+        typePoints: { eco: 2, smart: 1 },
         resources: { energy: 5, funds: -3 },
         explanation: "環境負荷少なく地域で安定供給。"
       }
@@ -60,7 +60,7 @@ const cities = [
       {
         text: "ハイテク企業中心",
         effects: { env: -1, eco: 3, soc: 1 },
-        typePoints: { science: 3, Smart: 1 },
+        typePoints: { science: 3, smart: 1 },
         resources: { funds: -2, tech: 3 },
         explanation: "高付加価値産業で経済・技術向上。米国シリコンバレーの例。"
       },
@@ -74,7 +74,7 @@ const cities = [
       {
         text: "環境・福祉産業中心",
         effects: { env: 2, eco: 0, soc: 3 },
-        typePoints: { eco: 2, Social: 2 },
+        typePoints: { eco: 2, social: 2 },
         resources: { funds: -2, labor: 2 },
         explanation: "持続可能な社会を重視する都市設計。"
       }
@@ -87,14 +87,14 @@ const cities = [
       {
         text: "大学・研究機関中心",
         effects: { env: -1, eco: 2, soc: 2 },
-        typePoints: { science: 3, Education: 2 },
+        typePoints: { science: 3, education: 2 },
         resources: { tech: 3, funds: -3 },
         explanation: "技術力・経済力を同時に強化。"
       },
       {
         text: "学校・職業訓練中心",
         effects: { env: 0, eco: 1, soc: 3 },
-        typePoints: { social: 2, Education: 2 },
+        typePoints: { social: 2, education: 2 },
         resources: { labor: 3, funds: -2 },
         explanation: "住民の生活満足度と技能向上。"
       },
@@ -141,7 +141,7 @@ const cities = [
       {
         text: "雨水再利用・節水施策中心",
         effects: { env: 3, eco: 0, soc: 1 },
-        typePoints: { eco: 2, Smart: 1 },
+        typePoints: { eco: 2, smart: 1 },
         resources: { water: 5, funds: -2 },
         explanation: "シンガポールの雨水利用モデル。"
       },
@@ -168,7 +168,7 @@ const cities = [
       {
         text: "都市公園・緑地を積極整備",
         effects: { env: 3, eco: -1, soc: 2 },
-        typePoints: { eco: 2, Social: 1 },
+        typePoints: { eco: 2, social: 1 },
         resources: { funds: -3 },
         explanation: "住民満足度とCO2吸収に効果。"
       },
@@ -222,7 +222,7 @@ const cities = [
       {
         text: "自転車・徒歩優先の街づくり",
         effects: { env: 3, eco: 0, soc: 2 },
-        typePoints: { eco: 2, Smart: 1 },
+        typePoints: { eco: 2, smart: 1 },
         resources: { funds: -2 },
         explanation: "コペンハーゲン方式。環境改善と健康促進。"
       },
@@ -249,14 +249,14 @@ const cities = [
       {
         text: "大学・研究所を重点整備",
         effects: { env: -1, eco: 3, soc: 2 },
-        typePoints: { science: 3, Smart: 1 },
+        typePoints: { science: 3, smart: 1 },
         resources: { tech: 4, funds: -3 },
         explanation: "科学都市・ハイテク都市への道。"
       },
       {
         text: "職業訓練中心",
         effects: { env: 0, eco: 2, soc: 3 },
-        typePoints: { social: 2, Education: 2 },
+        typePoints: { social: 2, education: 2 },
         resources: { labor: 3, funds: -2 },
         explanation: "地域社会と生活満足度向上。"
       },
@@ -330,7 +330,7 @@ const cities = [
       {
         text: "都市農業・地産地消",
         effects: { env: 2, eco: 0, soc: 2 },
-        typePoints: { eco: 2, Social: 1 },
+        typePoints: { eco: 2, social: 1 },
         resources: { food: 5, funds: -2 },
         explanation: "持続可能な農業と地産地消モデル。"
       },
@@ -344,7 +344,7 @@ const cities = [
       {
         text: "技術農業・水耕栽培導入",
         effects: { env: 1, eco: 2, soc: 1 },
-        typePoints: { smart: 2, Science: 1 },
+        typePoints: { smart: 2, science: 1 },
         resources: { tech: 2, food: 6, funds: -2 },
         explanation: "都市内で効率的な食料生産。"
       }
@@ -384,7 +384,7 @@ const cities = [
       {
         text: "監視カメラ・警備増強",
         effects: { env: -1, eco: 1, soc: 3 },
-        typePoints: { smart: 2, Social: 1 },
+        typePoints: { smart: 2, social: 1 },
         resources: { tech: 2, funds: -2 },
         explanation: "都市安全度向上だがコスト増。"
       },
