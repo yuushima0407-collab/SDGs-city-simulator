@@ -8,7 +8,8 @@
 </head>
 <body>
   <div id="game-container">
-    <!-- 左パネル：都市ビュー + 質問カード -->
+
+    <!-- 左パネル：都市ビュー + 問題 -->
     <div id="left-panel">
       <!-- 都市ビュー -->
       <div id="city-view">
@@ -17,42 +18,28 @@
         <img id="fg-image" src="" alt="前景" class="city-layer">
       </div>
 
-      <!-- 都市リボン -->
+      <!-- 都市リボン（名前とレベル） -->
       <div id="city-ribbon">
         <h2 id="city-info-name">都市名</h2>
         <span id="city-info-level">Lv.1</span>
       </div>
 
-      <!-- 都市情報パネル -->
-      <div id="city-info-panel">
-        <pre id="city-info-desc"></pre>
-        <div id="city-info-resources"></div>
-
-        <!-- 都市タイプポイント表示 -->
-        <div id="city-type-points">
-          <h4>都市タイプポイント</h4>
-          <p id="ctp-eco">環境: 0</p>
-          <p id="ctp-industry">産業: 0</p>
-          <p id="ctp-social">社会: 0</p>
-          <p id="ctp-smart">スマート: 0</p>
-          <p id="ctp-science">科学: 0</p>
-          <p id="ctp-culture">文化: 0</p>
-          <p id="ctp-tourism">観光: 0</p>
-          <p id="ctp-agriculture">農業: 0</p>
-          <p id="ctp-industryHeavy">工業: 0</p>
-        </div>
-      </div>
-
-      <!-- 質問カード -->
+      <!-- 問題カード -->
       <div id="question-card" aria-live="polite">
         <h3 id="question-title">質問タイトル</h3>
         <p id="question-desc">質問内容の説明がここに入ります。</p>
+
+        <!-- 選択肢 -->
         <div id="choices"></div>
+
+        <!-- 選択後の解説 -->
         <div id="explainBox"></div>
-        <div id="progress">0/0</div>
+
+        <!-- 進行状況 -->
+        <div id="progress">0 / 0</div>
       </div>
 
-      <!-- 特殊イベント表示エリア -->
+      <!-- 特殊イベント表示 -->
       <div id="special-event" class="hidden">
         <h3>🌪 特殊イベント発生！</h3>
         <p id="special-desc">世界的な異常気象が発生しています！</p>
@@ -60,28 +47,51 @@
       </div>
     </div>
 
-    <!-- 右パネル：ステータス -->
+    <!-- 右パネル：都市ステータス・タイプポイント -->
     <div id="right-panel">
-      <h3>都市ステータス</h3>
-      <div class="status">
-        <label>🌿 環境</label>
-        <div class="status-bar"><div id="env-bar" class="bar"></div></div>
+      <h3>📊 都市データ</h3>
+
+      <!-- リソース値 -->
+      <div class="data-section">
+        <h4>リソース値</h4>
+        <ul id="resources">
+          <li>🌿 環境：<span id="res-env">0</span></li>
+          <li>💰 経済：<span id="res-eco">0</span></li>
+          <li>🤝 社会：<span id="res-soc">0</span></li>
+          <li>⚡ エネルギー：<span id="res-energy">0</span></li>
+          <li>🍎 食料：<span id="res-food">0</span></li>
+        </ul>
       </div>
-      <div class="status">
-        <label>💰 経済</label>
-        <div class="status-bar"><div id="eco-bar" class="bar"></div></div>
-      </div>
-      <div class="status">
-        <label>🤝 社会</label>
-        <div class="status-bar"><div id="soc-bar" class="bar"></div></div>
+
+      <!-- 都市タイプポイント -->
+      <div class="data-section">
+        <h4>都市タイプポイント（15都市）</h4>
+        <ul id="typePoints">
+          <li>🌿 エコ都市：<span id="tp-eco">0</span></li>
+          <li>🏭 産業都市：<span id="tp-industry">0</span></li>
+          <li>🤝 社会都市：<span id="tp-social">0</span></li>
+          <li>💡 スマート都市：<span id="tp-smart">0</span></li>
+          <li>🔬 科学都市：<span id="tp-science">0</span></li>
+          <li>🎭 文化都市：<span id="tp-culture">0</span></li>
+          <li>🗺 観光都市：<span id="tp-tourism">0</span></li>
+          <li>🌾 農業都市：<span id="tp-agriculture">0</span></li>
+          <li>⚙ 工業都市：<span id="tp-industryHeavy">0</span></li>
+          <li>🏙 都市再生都市：<span id="tp-urban">0</span></li>
+          <li>🏗 インフラ都市：<span id="tp-infra">0</span></li>
+          <li>🏠 住宅都市：<span id="tp-housing">0</span></li>
+          <li>🌸 福祉都市：<span id="tp-welfare">0</span></li>
+          <li>📚 教育都市：<span id="tp-education">0</span></li>
+          <li>🚄 交通都市：<span id="tp-transport">0</span></li>
+        </ul>
       </div>
 
       <!-- コントロールボタン -->
       <div id="control-buttons">
-        <button id="btn-start">ゲームを始める</button>
-        <button id="btn-reset">リセット</button>
+        <button id="btn-start">▶ ゲームを始める</button>
+        <button id="btn-reset">🔁 リセット</button>
       </div>
     </div>
+
   </div>
 
   <!-- JSファイル -->
@@ -89,3 +99,4 @@
   <script src="main.js"></script>
 </body>
 </html>
+
