@@ -1,48 +1,63 @@
-/* ==========================
-   SDGs City Manager style.css
-   ========================== */
+/* ============================= */
+/* SDGs都市経営ゲーム style.css */
+/* ============================= */
 
-/* ベース設定 */
-body {
+/* --- リセット・基本設定 --- */
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', 'Noto Sans JP', sans-serif;
-  background: linear-gradient(135deg, #e9f5ec, #f0f7fb);
-  color: #222;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
+  font-family: "Noto Sans JP", sans-serif;
 }
 
-/* ゲーム全体レイアウト */
+body {
+  background-color: #f0f4f8;
+  color: #333;
+  line-height: 1.5;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* --- ゲーム全体レイアウト --- */
 #game-container {
   display: flex;
-  width: 100%;
-  height: 100vh;
+  flex-wrap: wrap;
+  max-width: 1400px;
+  margin: 20px auto;
+  gap: 20px;
+  padding: 10px;
 }
 
-/* ==========================
-   左パネル：都市 + 質問
-   ========================== */
+/* --- 左パネル --- */
 #left-panel {
-  flex: 2;
+  flex: 1.5;
+  min-width: 600px;
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border-right: 4px solid #cde0d0;
-  box-shadow: 4px 0 8px rgba(0,0,0,0.1);
-  position: relative;
+  gap: 15px;
 }
 
-/* 都市ビュー */
+/* --- 都市ビュー --- */
 #city-view {
   position: relative;
-  height: 45%;
+  width: 100%;
+  height: 350px;
+  border-radius: 12px;
   overflow: hidden;
-  border-bottom: 3px solid #cde0d0;
-  background: #d9eae0;
+  background-color: #cce6ff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .city-layer {
@@ -50,241 +65,99 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: opacity 1s ease, transform 1.5s ease;
 }
 
-/* 都市リボン（都市名・レベル） */
+/* --- 都市リボン --- */
 #city-ribbon {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(90deg, #4caf50, #81c784);
-  color: #fff;
-  padding: 10px 20px;
-  font-size: 1.3em;
-  font-weight: bold;
-  letter-spacing: 1px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  background-color: #ffffff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 #city-info-name {
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  font-size: 1.3rem;
+  font-weight: bold;
 }
 
 #city-info-level {
-  background: rgba(255,255,255,0.25);
-  padding: 3px 10px;
+  font-size: 1rem;
+  background-color: #ffdd57;
+  padding: 4px 10px;
   border-radius: 12px;
-  font-size: 0.9em;
+  font-weight: bold;
 }
 
-/* 質問カード */
+/* --- 問題カード --- */
 #question-card {
-  flex: 1;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  background: #f8fafb;
-  overflow-y: auto;
-  transition: all 0.3s ease;
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 #question-title {
-  font-size: 1.3em;
-  color: #333;
-  margin-bottom: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 8px;
 }
 
 #question-desc {
-  font-size: 1em;
-  line-height: 1.6;
+  margin-bottom: 12px;
   color: #555;
-  margin-bottom: 20px;
 }
 
 #choices {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-bottom: 12px;
 }
 
 .choice-btn {
-  background: #fff;
-  border: 2px solid #4caf50;
-  color: #2e7d32;
-  padding: 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: 500;
-  transition: all 0.25s ease;
+  background-color: #4caf50;
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: background 0.2s ease;
 }
 
 .choice-btn:hover:not(:disabled) {
-  background: #4caf50;
-  color: #fff;
-  transform: scale(1.03);
+  background-color: #45a049;
 }
 
 .choice-btn:disabled {
-  background: #ddd;
-  border-color: #bbb;
-  color: #777;
+  background-color: #ccc;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
-/* 解説ボックス */
 #explainBox {
-  background: #e8f5e9;
-  border-left: 5px solid #4caf50;
-  margin-top: 20px;
-  padding: 10px 15px;
-  border-radius: 8px;
-  color: #2e7d32;
-  font-size: 0.95em;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-left: 4px solid #4caf50;
+  border-radius: 6px;
+  margin-bottom: 10px;
   display: none;
 }
 
-/* 進捗表示 */
 #progress {
-  margin-top: auto;
-  font-size: 0.9em;
-  text-align: right;
+  font-size: 0.9rem;
   color: #777;
-  padding-top: 10px;
+  text-align: right;
 }
 
-/* ==========================
-   右パネル：ステータス＆タイプ
-   ========================== */
-#right-panel {
-  flex: 1;
-  background: #f7fbf9;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 20px 25px;
-  overflow-y: auto;
-}
-
-#right-panel h3 {
-  text-align: center;
-  font-size: 1.3em;
-  color: #2e7d32;
-  border-bottom: 2px solid #a5d6a7;
-  padding-bottom: 6px;
-  margin-bottom: 10px;
-}
-
-/* ステータスバー */
-.status {
-  margin: 10px 0;
-}
-
-.status label {
-  font-weight: bold;
-  display: block;
-  margin-bottom: 5px;
-}
-
-.status-bar {
-  height: 15px;
-  background: #e0e0e0;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.bar {
-  height: 100%;
-  transition: width 0.6s ease;
-  border-radius: 8px;
-}
-
-#env-bar {
-  background: linear-gradient(90deg, #81c784, #4caf50);
-}
-#eco-bar {
-  background: linear-gradient(90deg, #ffd54f, #ffb300);
-}
-#soc-bar {
-  background: linear-gradient(90deg, #64b5f6, #1e88e5);
-}
-
-/* 都市リソース情報 */
-#city-info-panel {
-  background: #ffffffcc;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 15px;
-  font-size: 0.9em;
-  line-height: 1.5;
-}
-
-#city-info-desc {
-  white-space: pre-wrap;
-  color: #333;
-}
-
-/* タイプポイント表示 */
-#city-type-points {
-  background: #f0fdf4;
-  border: 1px solid #c8e6c9;
-  border-radius: 10px;
-  padding: 10px 15px;
-  margin-top: 10px;
-  font-size: 0.9em;
-}
-
-#city-type-points h4 {
-  text-align: center;
-  color: #2e7d32;
-  margin-bottom: 8px;
-  font-weight: bold;
-}
-
-#city-type-points p {
-  margin: 2px 0;
-  display: flex;
-  justify-content: space-between;
-  color: #444;
-}
-
-/* コントロールボタン */
-#control-buttons {
-  text-align: center;
-  margin-top: 10px;
-}
-
-#control-buttons button {
-  background: #4caf50;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 18px;
-  font-size: 1em;
-  margin: 5px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-#control-buttons button:hover {
-  background: #388e3c;
-  transform: translateY(-2px);
-}
-
-/* 特殊イベント表示 */
+/* --- 特殊イベント --- */
 #special-event {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
+  background-color: #ffe6e6;
+  padding: 15px;
+  border-radius: 10px;
   text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 #special-event.hidden {
@@ -292,56 +165,108 @@ body {
 }
 
 #special-event h3 {
-  font-size: 1.8em;
-  margin-bottom: 15px;
+  color: #d32f2f;
+  margin-bottom: 8px;
 }
 
-#special-event p {
-  font-size: 1.1em;
-  margin-bottom: 25px;
-}
-
-#btn-event-ok {
-  background: #4caf50;
+#special-event button {
+  background-color: #d32f2f;
   color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: 0.25s;
+  padding: 6px 14px;
 }
 
-#btn-event-ok:hover {
-  background: #66bb6a;
+/* --- 右パネル --- */
+#right-panel {
+  flex: 0.8;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* スクロールカスタマイズ */
-::-webkit-scrollbar {
-  width: 8px;
+/* --- データセクション --- */
+.data-section {
+  background-color: #ffffff;
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-::-webkit-scrollbar-thumb {
-  background-color: #b2dfdb;
-  border-radius: 4px;
+.data-section h4 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: #80cbc4;
+/* --- リソースバー --- */
+.status {
+  margin-bottom: 10px;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 1000px) {
+.status label {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.status-bar {
+  width: 100%;
+  height: 18px;
+  background-color: #eee;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+#res-env { background-color: #4caf50; }
+#res-eco { background-color: #ff9800; }
+#res-soc { background-color: #2196f3; }
+#res-energy { background-color: #ffeb3b; }
+#res-food { background-color: #8bc34a; }
+
+/* --- 都市タイプポイント --- */
+#typePoints {
+  list-style: none;
+}
+
+#typePoints li {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* --- コントロールボタン --- */
+#control-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+#control-buttons button#btn-start {
+  background-color: #2196f3;
+  color: #fff;
+}
+
+#control-buttons button#btn-reset {
+  background-color: #f44336;
+  color: #fff;
+}
+
+/* --- レスポンシブ --- */
+@media (max-width: 1100px) {
   #game-container {
     flex-direction: column;
   }
   #left-panel, #right-panel {
-    flex: none;
-    width: 100%;
-    height: 50%;
-  }
-  #city-view {
-    height: 40%;
+    min-width: 100%;
   }
 }
 
