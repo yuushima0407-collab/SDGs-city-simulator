@@ -1,272 +1,138 @@
-/* ============================= */
-/* SDGs都市経営ゲーム style.css */
-/* ============================= */
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDGs City Manager - 資源連動型都市経営シミュレーター</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container">
 
-/* --- リセット・基本設定 --- */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: "Noto Sans JP", sans-serif;
-}
+    <!-- ============================= -->
+    <!-- 左パネル：都市ビジュアル・質問表示 -->
+    <!-- ============================= -->
+    <div id="left-panel">
 
-body {
-  background-color: #f0f4f8;
-  color: #333;
-  line-height: 1.5;
-}
+      <!-- 都市ビジュアル -->
+      <div id="city-view">
+        <div id="city-bg" class="city-layer"></div>
+        <img id="mg-image" src="" alt="中景" class="city-layer">
+        <img id="fg-image" src="" alt="前景" class="city-layer">
+      </div>
 
-button {
-  cursor: pointer;
-  border: none;
-  outline: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-}
+      <!-- 都市リボン（都市名・レベル） -->
+      <div id="city-ribbon">
+        <h2 id="city-info-name">未発展都市</h2>
+        <span id="city-info-level">Lv.1</span>
+      </div>
 
-button:hover {
-  opacity: 0.9;
-}
+      <!-- 都市情報パネル -->
+      <div id="city-info-panel">
+        <div id="city-info-desc">都市の状況がここに表示されます。</div>
+        <div id="city-info-resources">資源情報 - ⚡:0 🍎:0 🧠:0 💰:0 💧:0 👷:0 ♻:0</div>
+      </div>
 
-/* --- ゲーム全体レイアウト --- */
-#game-container {
-  display: flex;
-  flex-wrap: wrap;
-  max-width: 1400px;
-  margin: 20px auto;
-  gap: 20px;
-  padding: 10px;
-}
+      <!-- 質問カード -->
+      <div id="question-card" aria-live="polite">
+        <h3 id="question-title">政策選択の時間です</h3>
+        <p id="question-desc">この都市の未来を左右する選択をしましょう。</p>
 
-/* --- 左パネル --- */
-#left-panel {
-  flex: 1.5;
-  min-width: 600px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
+        <!-- 選択肢ボタン -->
+        <div id="choices"></div>
 
-/* --- 都市ビュー --- */
-#city-view {
-  position: relative;
-  width: 100%;
-  height: 350px;
-  border-radius: 12px;
-  overflow: hidden;
-  background-color: #cce6ff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
+        <!-- 解説エリア -->
+        <div id="explainBox" class="hidden"></div>
 
-.city-layer {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+        <!-- 進行状況 -->
+        <div id="progress">0 / 0</div>
+      </div>
 
-/* --- 都市リボン --- */
-#city-ribbon {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #ffffff;
-  padding: 10px 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
+      <!-- 特殊イベント -->
+      <div id="special-event" class="hidden">
+        <h3>🌪 特殊イベント発生！</h3>
+        <p id="special-desc">異常気象が発生し、都市に影響が出ています！</p>
+        <button id="btn-event-ok">OK</button>
+      </div>
+    </div>
 
-#city-info-name {
-  font-size: 1.3rem;
-  font-weight: bold;
-}
+    <!-- ============================= -->
+    <!-- 右パネル：リソース・都市タイプ -->
+    <!-- ============================= -->
+    <div id="right-panel">
+      <h3>📊 都市データ</h3>
 
-#city-info-level {
-  font-size: 1rem;
-  background-color: #ffdd57;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: bold;
-}
+      <!-- リソースステータス -->
+      <div class="data-section">
+        <h4>リソース状況</h4>
 
-/* --- 問題カード --- */
-#question-card {
-  background-color: #ffffff;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
+        <div class="status">
+          <label>🌿 環境</label>
+          <div class="status-bar"><div id="res-env" class="bar" style="width:50%;"></div></div>
+        </div>
+        <div class="status">
+          <label>💰 経済</label>
+          <div class="status-bar"><div id="res-eco" class="bar" style="width:50%;"></div></div>
+        </div>
+        <div class="status">
+          <label>🤝 社会</label>
+          <div class="status-bar"><div id="res-soc" class="bar" style="width:50%;"></div></div>
+        </div>
+        <div class="status">
+          <label>⚡ エネルギー</label>
+          <div class="status-bar"><div id="res-energy" class="bar" style="width:0%;"></div></div>
+        </div>
+        <div class="status">
+          <label>🍎 食料</label>
+          <div class="status-bar"><div id="res-food" class="bar" style="width:0%;"></div></div>
+        </div>
+      </div>
 
-#question-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
+      <!-- 都市タイプポイント -->
+      <div class="data-section">
+        <h4>都市タイプポイント（全15タイプ）</h4>
+        <ul id="typePoints">
+          <li>🌿 エコ都市：<span id="tp-eco">0</span></li>
+          <li>🏭 産業都市：<span id="tp-industry">0</span></li>
+          <li>🤝 社会都市：<span id="tp-social">0</span></li>
+          <li>💡 スマート都市：<span id="tp-smart">0</span></li>
+          <li>🔬 科学都市：<span id="tp-science">0</span></li>
+          <li>🎭 文化都市：<span id="tp-culture">0</span></li>
+          <li>🗺 観光都市：<span id="tp-tourism">0</span></li>
+          <li>🌾 農業都市：<span id="tp-agriculture">0</span></li>
+          <li>⚙ 工業都市：<span id="tp-industryHeavy">0</span></li>
+          <li>🏙 都市再生都市：<span id="tp-urban">0</span></li>
+          <li>🏗 インフラ都市：<span id="tp-infra">0</span></li>
+          <li>🏠 住宅都市：<span id="tp-housing">0</span></li>
+          <li>🌸 福祉都市：<span id="tp-welfare">0</span></li>
+          <li>📚 教育都市：<span id="tp-education">0</span></li>
+          <li>🚄 交通都市：<span id="tp-transport">0</span></li>
+        </ul>
+      </div>
 
-#question-desc {
-  margin-bottom: 12px;
-  color: #555;
-}
+      <!-- コントロールボタン -->
+      <div id="control-buttons">
+        <button id="btn-start">▶ ゲームを始める</button>
+        <button id="btn-reset">🔁 リセット</button>
+      </div>
 
-#choices {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 12px;
-}
+      <!-- チュートリアル / 補足説明 -->
+      <div class="data-section">
+        <h4>🎓 プレイガイド</h4>
+        <p>
+          ・選択肢には資源条件が設定されています。<br>
+          ・例えば「⚡エネルギーが20以上」でないと選べない政策もあります。<br>
+          ・また、🧠技術レベルが高いとボーナス効果が発動することも。<br>
+          ・資源をどう配分するかが都市の未来を決めます！
+        </p>
+      </div>
+    </div>
+  </div>
 
-.choice-btn {
-  background-color: #4caf50;
-  color: #fff;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: background 0.2s ease;
-}
-
-.choice-btn:hover:not(:disabled) {
-  background-color: #45a049;
-}
-
-.choice-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-#explainBox {
-  background-color: #f9f9f9;
-  padding: 10px;
-  border-left: 4px solid #4caf50;
-  border-radius: 6px;
-  margin-bottom: 10px;
-  display: none;
-}
-
-#progress {
-  font-size: 0.9rem;
-  color: #777;
-  text-align: right;
-}
-
-/* --- 特殊イベント --- */
-#special-event {
-  background-color: #ffe6e6;
-  padding: 15px;
-  border-radius: 10px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-#special-event.hidden {
-  display: none;
-}
-
-#special-event h3 {
-  color: #d32f2f;
-  margin-bottom: 8px;
-}
-
-#special-event button {
-  background-color: #d32f2f;
-  color: #fff;
-  padding: 6px 14px;
-}
-
-/* --- 右パネル --- */
-#right-panel {
-  flex: 0.8;
-  min-width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* --- データセクション --- */
-.data-section {
-  background-color: #ffffff;
-  padding: 12px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.data-section h4 {
-  font-size: 1.1rem;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 4px;
-}
-
-/* --- リソースバー --- */
-.status {
-  margin-bottom: 10px;
-}
-
-.status label {
-  font-weight: 500;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.status-bar {
-  width: 100%;
-  height: 18px;
-  background-color: #eee;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.bar {
-  height: 100%;
-  width: 0%;
-  border-radius: 10px;
-  transition: width 0.5s ease;
-}
-
-#res-env { background-color: #4caf50; }
-#res-eco { background-color: #ff9800; }
-#res-soc { background-color: #2196f3; }
-#res-energy { background-color: #ffeb3b; }
-#res-food { background-color: #8bc34a; }
-
-/* --- 都市タイプポイント --- */
-#typePoints {
-  list-style: none;
-}
-
-#typePoints li {
-  margin-bottom: 6px;
-  font-size: 0.95rem;
-  display: flex;
-  justify-content: space-between;
-}
-
-/* --- コントロールボタン --- */
-#control-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-#control-buttons button#btn-start {
-  background-color: #2196f3;
-  color: #fff;
-}
-
-#control-buttons button#btn-reset {
-  background-color: #f44336;
-  color: #fff;
-}
-
-/* --- レスポンシブ --- */
-@media (max-width: 1100px) {
-  #game-container {
-    flex-direction: column;
-  }
-  #left-panel, #right-panel {
-    min-width: 100%;
-  }
-}
-
+  <!-- ============================= -->
+  <!-- スクリプト読み込み -->
+  <!-- ============================= -->
+  <script src="data.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
