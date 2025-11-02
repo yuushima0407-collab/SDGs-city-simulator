@@ -1,4 +1,4 @@
-const questions = [
+const cities = [
   {
     title: "都市の電力をどうする？",
     description: "環境負荷と経済性のバランスを考えながら発電方法を選ぶ。",
