@@ -106,7 +106,7 @@ const cities = [
         explanation: "短期経済効率重視だが社会満足度低下。"
       }
     ]
-  }
+  },
   {
     title: "都市のゴミ処理",
     description: "持続可能性と効率のバランス。",
