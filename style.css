@@ -1,243 +1,252 @@
-/* ======== 全体レイアウト ======== */
-body {
-  font-family: "Segoe UI", Arial, sans-serif;
-  margin: 0;
-  background: #f5f7fa;
-  color: #222;
-  overflow-x: hidden;
-}
-
-#game-container {
-  display: flex;
-  flex-direction: row;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 10px;
-  gap: 20px;
-}
-
-/* ======== 左パネル ======== */
-#left-panel {
-  flex: 2;
-  position: relative;
-  background: #fff;
-  border-radius: 12px;
-  padding: 10px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.1);
-  overflow: hidden;
-}
-
-/* 都市画像ビュー */
-#city-view {
-  position: relative;
-  height: 250px;
-  overflow: hidden;
-  border-radius: 12px;
-  margin-bottom: 10px;
-}
-
-.city-layer {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: opacity 1s ease, transform 1s ease;
-}
-
-/* 背景レイヤー（city-bg） */
-#city-bg {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  border-radius: 12px;
-  background-size: cover;
-  background-position: center;
-  transition: background-image 0.6s ease, filter 0.6s ease;
-}
-
-/* リボン */
-#city-ribbon {
-  background: linear-gradient(90deg, #00b09b, #96c93d);
-  color: #fff;
-  padding: 10px 15px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* 都市情報パネル */
-#city-info-panel {
-  background: #f9f9f9;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 10px;
-  box-shadow: 0 0 6px rgba(0,0,0,0.1);
-  font-size: 0.9em;
-  white-space: pre-wrap;
-}
-
-#city-info-resources {
-  margin-top: 5px;
-  font-weight: bold;
-}
-
-/* 質問カード */
-#question-card {
-  background: #fafafa;
-  border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 0 6px rgba(0,0,0,0.1);
-}
-
-#question-title {
-  margin-top: 0;
-  color: #333;
-}
-
-#choices {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.choice-btn {
-  background: #e6e9ef;
-  border: none;
-  border-radius: 6px;
-  padding: 8px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-.choice-btn:hover {
-  background: #d2d6dc;
-}
-
-/* 選択肢が無効のとき */
-.choice-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* 質問ボタン */
-#question-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 12px;
-}
-
-#btn-decision, #btn-skip, #btn-start, #btn-reset, #btn-event-ok {
-  background: #00b09b;
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background 0.3s;
-}
-#btn-decision:hover, #btn-skip:hover, #btn-start:hover, #btn-reset:hover, #btn-event-ok:hover {
-  background: #008e7d;
-}
-
-#explainBox {
-  margin-top: 10px;
-  padding: 8px;
-  background: #f0f8e2;
-  border-left: 4px solid #85c47c;
-  display: none;
-}
-
-#progress {
-  margin-top: 8px;
-  text-align: right;
-  font-size: 0.9em;
-  color: #555;
-}
-
-/* ======== 右パネル ======== */
-#right-panel {
-  flex: 1;
-  background: #fff;
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.1);
-  height: fit-content;
-}
-
-.status {
-  margin-bottom: 15px;
-}
-
-.status-bar {
-  width: 100%;
-  height: 14px;
-  background: #eee;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.bar {
-  height: 100%;
-  width: 0%;
-  transition: width 0.6s ease;
-}
-
-#env-bar { background: #4caf50; }  /* 緑 */
-#eco-bar { background: #2196f3; }  /* 青 */
-#soc-bar { background: #f44336; }  /* 赤 */
-
-/* コントロールボタン */
-#control-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* ======== 特殊イベント ======== */
-#special-event {
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -30%);
-  background: rgba(255,255,255,0.95);
-  border-radius: 12px;
-  padding: 20px;
-  width: 80%;
-  max-width: 400px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.3);
-  text-align: center;
-  z-index: 100;
-  transition: all 0.3s ease;
-}
-#special-event.hidden {
-  display: none;
-}
-
-/* ======== レスポンシブ ======== */
-@media (max-width: 768px) {
-  #game-container {
-    flex-direction: column;
-    padding: 5px;
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDGs都市経営ゲーム 完全版</title>
+<style>
+  body {
+    font-family: "Segoe UI", sans-serif;
+    background: linear-gradient(to bottom, #e6f2ff, #ffffff);
+    margin: 0;
+    padding: 0;
   }
 
-  #city-view {
-    height: 180px;
+  header {
+    background: #3a7bd5;
+    color: white;
+    text-align: center;
+    padding: 12px;
+    font-size: 20px;
+    letter-spacing: 1px;
   }
 
-  #right-panel {
-    margin-top: 15px;
+  #main {
+    max-width: 700px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   }
 
-  h2, h3 {
-    font-size: 1.1em;
+  .question {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
   }
 
-  .choice-btn {
-    font-size: 0.9em;
+  .option {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .option:hover {
+    background: #dcefff;
+  }
+
+  .option.disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+
+  #result {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 20px;
+  }
+
+  /* 都市情報パネル */
+  #city-info-panel {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 260px;
+    background: rgba(255,255,255,0.95);
+    border: 2px solid #3a7bd5;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    padding: 15px;
+    font-size: 14px;
+  }
+
+  #city-info-panel h4 {
+    margin: 0 0 6px 0;
+    color: #3a7bd5;
+    text-align: center;
+  }
+
+  #city-info-name {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  #city-info-level {
+    text-align: center;
+    font-size: 14px;
+    color: #777;
+  }
+
+  .city-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 5px 0;
+  }
+
+  .city-info-row img {
+    width: 22px;
+    height: 22px;
+  }
+
+  #city-info-resources {
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  #city-info-desc {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #444;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>🌏 SDGs都市経営ゲーム</header>
+
+<div id="main">
+  <div id="question-container">
+    <div class="question" id="question-text">都市の発展方針を選ぼう！</div>
+    <div id="options"></div>
+  </div>
+
+  <div id="result"></div>
+</div>
+
+<!-- 都市情報パネル -->
+<div id="city-info-panel">
+  <h4>都市情報</h4>
+  <div id="city-info-name">エコ都市</div>
+  <div id="city-info-level">Lv.1</div>
+
+  <div class="city-info-row">
+    <img src="images/icon_env.png" alt="環境">
+    <span class="city-info-label">環境</span>
+    <span id="env-value">70</span>
+  </div>
+
+  <div class="city-info-row">
+    <img src="images/icon_eco.png" alt="経済">
+    <span class="city-info-label">経済</span>
+    <span id="eco-value">60</span>
+  </div>
+
+  <div class="city-info-row">
+    <img src="images/icon_soc.png" alt="社会">
+    <span class="city-info-label">社会</span>
+    <span id="soc-value">80</span>
+  </div>
+
+  <div id="city-info-resources">
+    ⚡エネルギー 20　🍎食料 15　🧠技術 10　💰資金 50
+  </div>
+
+  <div id="city-info-desc">
+    🌿自然が豊かで、持続可能な発展を目指す都市です。
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    text: "エネルギー政策を選択しよう",
+    options: [
+      { text: "再生可能エネルギーを推進", effect: { env: +10, eco: -5, soc: +5 } },
+      { text: "火力発電に依存", effect: { env: -10, eco: +10, soc: -5 } },
+      { text: "原子力を活用", effect: { env: -5, eco: +15, soc: -5 } },
+    ]
+  },
+  {
+    text: "経済成長の方針を選択しよう",
+    options: [
+      { text: "観光業を強化", effect: { env: -5, eco: +10, soc: +5 } },
+      { text: "工業を発展", effect: { env: -15, eco: +20, soc: -5 } },
+      { text: "スタートアップ支援", effect: { env: 0, eco: +15, soc: +10 } },
+    ]
+  },
+  {
+    text: "社会政策を選択しよう",
+    options: [
+      { text: "教育投資を増やす", effect: { env: 0, eco: +5, soc: +15 } },
+      { text: "福祉を充実", effect: { env: 0, eco: -5, soc: +20 } },
+      { text: "治安を強化", effect: { env: -5, eco: -5, soc: +10 } },
+    ]
+  }
+];
+
+let currentQuestion = 0;
+let city = { env: 70, eco: 60, soc: 80 };
+
+function updateCityPanel() {
+  document.getElementById("env-value").textContent = city.env;
+  document.getElementById("eco-value").textContent = city.eco;
+  document.getElementById("soc-value").textContent = city.soc;
+}
+
+function showQuestion() {
+  const q = questions[currentQuestion];
+  document.getElementById("question-text").textContent = q.text;
+
+  const optionsDiv = document.getElementById("options");
+  optionsDiv.innerHTML = "";
+  q.options.forEach((opt, idx) => {
+    const div = document.createElement("div");
+    div.className = "option";
+    div.textContent = opt.text;
+    div.onclick = () => selectOption(opt.effect);
+    optionsDiv.appendChild(div);
+  });
+}
+
+function selectOption(effect) {
+  city.env += effect.env;
+  city.eco += effect.eco;
+  city.soc += effect.soc;
+  updateCityPanel();
+
+  currentQuestion++;
+  if (currentQuestion < questions.length) {
+    showQuestion();
+  } else {
+    showResult();
   }
 }
+
+function showResult() {
+  const total = city.env + city.eco + city.soc;
+  let result = "";
+
+  if (city.env > 90 && city.eco > 80 && city.soc > 85) result = "🌈理想都市";
+  else if (city.env < 30 && city.eco < 30) result = "💀荒廃都市";
+  else if (city.env > 80 && city.eco < 50) result = "🌿エコ都市";
+  else if (city.eco > 85 && city.env < 50) result = "🏭工業都市";
+  else if (city.soc > 90) result = "🏙文化都市";
+  else result = "🏘発展途上都市";
+
+  document.getElementById("result").textContent = `最終結果：${result}`;
+}
+
+showQuestion();
+updateCityPanel();
+</script>
+
+</body>
+</html>
