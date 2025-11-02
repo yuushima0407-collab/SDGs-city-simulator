@@ -403,5 +403,4 @@ const cities = [
         explanation: "コスト削減優先、安全性低下。"
       }
     ]
-  }  
-];
+  }];
