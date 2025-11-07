@@ -1,67 +1,58 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>SDGs City Manager Ver.11</title>
-<link rel="stylesheet" href="style.css"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDGs City Manager Ver.11.5</title>
+<link rel="stylesheet" href="style.css">
 </head>
-<body data-city-type="start">
-  <header class="topbar">
-    <h1>🌏 SDGs City Manager</h1>
-    <div id="city-header">
-      <span id="city-name">スタート都市</span>
-      <span id="city-level" class="pill">Lv.1</span>
-    </div>
+<body>
+  <header id="header">
+    <h1 id="city-name">スタート都市</h1>
+    <div id="city-level">Lv.1</div>
   </header>
 
-  <!-- 都市ビジュアル（背景ではなく中央に大きく表示） -->
-  <section id="city-visual">
-    <figure class="city-card">
-      <img id="city-photo" src="images/start_city.png" alt="都市画像" />
-      <figcaption id="city-caption">はじめにスタート都市の写真が表示されます</figcaption>
-    </figure>
-  </section>
-
-  <!-- ステータス＆資源 -->
-  <section id="status-and-resources">
-    <div id="status-bars">
-      <div class="bar"><label>🌿 環境</label><div class="gauge"><div id="bar-env"></div></div></div>
-      <div class="bar"><label>💰 経済</label><div class="gauge"><div id="bar-eco"></div></div></div>
-      <div class="bar"><label>🤝 社会</label><div class="gauge"><div id="bar-soc"></div></div></div>
+  <main id="main">
+    <div id="photo-area">
+      <img id="city-photo" src="images/start_city.png" alt="City Photo">
+      <div id="city-caption">スタート都市</div>
     </div>
-    <ul id="res-chips">
-      <li>⚡ <b id="res-energy">0</b></li>
-      <li>🍎 <b id="res-food">0</b></li>
-      <li>🧠 <b id="res-tech">0</b></li>
-      <li>💰 <b id="res-funds">50</b></li>
-      <li>💧 <b id="res-water">0</b></li>
-      <li>👷 <b id="res-labor">0</b></li>
-      <li>♻ <b id="res-recycled">0</b></li>
-    </ul>
-  </section>
 
-  <!-- 説得力パネル（判定根拠を見える化） -->
-  <section id="evidence-panel">
-    <h3>📈 判定の根拠</h3>
+    <section id="status">
+      <div class="bar"><label>環境</label><div class="gauge"><div id="bar-env"></div></div></div>
+      <div class="bar"><label>経済</label><div class="gauge"><div id="bar-eco"></div></div></div>
+      <div class="bar"><label>社会</label><div class="gauge"><div id="bar-soc"></div></div></div>
+    </section>
+
+    <section id="resources">
+      <ul>
+        <li>⚡ <span id="res-energy">0</span></li>
+        <li>🍎 <span id="res-food">0</span></li>
+        <li>🧠 <span id="res-tech">0</span></li>
+        <li>💰 <span id="res-funds">50</span></li>
+        <li>💧 <span id="res-water">0</span></li>
+        <li>👷 <span id="res-labor">0</span></li>
+        <li>♻️ <span id="res-recycled">0</span></li>
+      </ul>
+    </section>
+
+    <section id="question">
+      <h2 id="question-title">SDGs都市経営ゲーム</h2>
+      <p id="question-desc">スタートボタンを押して開始！</p>
+      <div id="choices"></div>
+      <div id="explainBox" class="hidden"></div>
+      <div id="progress"></div>
+    </section>
+
     <div id="evidence"></div>
-  </section>
 
-  <!-- メインQA -->
-  <section id="main-panel">
-    <h2 id="question-title">SDGs都市経営ゲーム</h2>
-    <p id="question-desc">スタートボタンを押して開始！</p>
-    <div id="choices"></div>
-    <div id="explainBox" class="hidden"></div>
     <div id="buttons">
-      <button id="btn-start">ゲーム開始</button>
+      <button id="btn-start">スタート</button>
       <button id="btn-reset">リセット</button>
     </div>
-    <p id="progress"></p>
-  </section>
+  </main>
 
   <script src="data.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
-
