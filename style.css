@@ -1,130 +1,118 @@
-/* ========== 全体レイアウト ========== */
-html, body {
+body {
+  font-family: "Noto Sans JP", sans-serif;
+  background: #f5f7f9;
+  color: #222;
+  text-align: center;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* ← スクロール禁止 */
-  height: 100%;
-  font-family: "Noto Sans JP", sans-serif;
 }
 
-/* 背景画像（常に固定） */
-#city-bg {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background-color: #dfeeea;
-  background-size: cover;
-  background-position: center;
-  transition: background-image 1s ease-in-out;
-  z-index: -2;
-}
-
-/* 半透明オーバーレイ */
-#overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(255,255,255,0.3);
-  z-index: -1;
-}
-
-/* メインUI全体（画面中央寄せ） */
-#game-ui {
-  position: relative;
-  z-index: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+header {
+  background: #2b7a78;
+  color: white;
   padding: 10px 0;
 }
 
-/* ヘッダー */
-header {
-  text-align: center;
-  color: #2b7a78;
+#city-status-header {
+  font-size: 1.2em;
+  margin-top: 5px;
 }
 
-/* 都市情報パネル */
-#city-info-panel {
-  background: rgba(255,255,255,0.8);
+#city-visual {
+  margin: 10px auto;
+  max-width: 800px;
+}
+#city-photo {
+  width: 100%;
   border-radius: 10px;
-  width: 90%;
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 10px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
 
-/* ステータスゲージ */
-#status {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+#status-bars {
+  width: 80%;
+  max-width: 600px;
+  margin: 15px auto;
+  text-align: left;
 }
 .bar {
-  width: 80%;
   display: flex;
   align-items: center;
-  margin: 4px 0;
+  margin: 5px 0;
 }
 .bar label {
-  width: 60px;
+  width: 70px;
+  font-weight: bold;
 }
 .gauge {
   flex: 1;
+  height: 16px;
+  border-radius: 8px;
   background: #ddd;
-  border-radius: 10px;
   overflow: hidden;
 }
 .gauge div {
-  height: 16px;
-  background: linear-gradient(90deg,#4caf50,#81c784);
+  height: 100%;
   width: 0%;
-  transition: width 0.4s ease;
+  background: linear-gradient(90deg, #4caf50, #81c784);
+  transition: width 0.4s;
 }
 
-/* 問題パネル */
+/* Main panel */
 #main-panel {
-  background: rgba(255,255,255,0.85);
-  border-radius: 12px;
+  background: #fff;
+  margin: 15px auto;
+  padding: 15px;
   width: 90%;
-  max-width: 600px;
-  margin: 0 auto 10px;
-  padding: 10px;
-  box-shadow: 0 0 6px rgba(0,0,0,0.15);
+  max-width: 700px;
+  border-radius: 10px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.2);
 }
-
 .choice-btn {
   display: block;
   width: 90%;
-  margin: 6px auto;
+  margin: 10px auto;
   padding: 10px;
-  border-radius: 8px;
   font-size: 1em;
-  background: #4caf50;
-  color: white;
   border: none;
+  border-radius: 8px;
+  background: #4caf50;
+  color: #fff;
   cursor: pointer;
 }
 .choice-btn:hover { background: #43a047; }
 
-#buttons {
-  margin-top: 8px;
+/* エフェクト */
+.level-up, .city-change {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  font-weight: bold;
+  text-shadow: 0 0 10px #fff;
 }
-#buttons button {
-  background: #008cba;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
-  margin: 0 5px;
-  cursor: pointer;
+.level-up {
+  top: 40%;
+  font-size: 3em;
+  color: gold;
+  animation: levelFlash 1.5s ease-out;
 }
-#buttons button:hover { background: #0074a6; }
-
-/* フェードアニメ */
-.fade-in { animation: fadeIn 1.5s ease forwards; }
-.fade-out { animation: fadeOut 0.4s ease forwards; }
-@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-@keyframes fadeOut { from{opacity:1;} to{opacity:0;} }
+.city-change {
+  bottom: 10%;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 20px;
+  animation: changeFlash 2.5s ease;
+}
+@keyframes levelFlash {
+  0% {opacity: 0; transform: scale(0.6);}
+  30% {opacity: 1; transform: scale(1.2);}
+  100% {opacity: 0; transform: scale(1.5);}
+}
+@keyframes changeFlash {
+  0% {opacity: 0;}
+  20% {opacity: 1;}
+  80% {opacity: 1;}
+  100% {opacity: 0;}
+}
+.hidden { display: none; }
