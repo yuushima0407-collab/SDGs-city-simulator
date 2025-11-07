@@ -1,30 +1,23 @@
 // ===========================
-// SDGs都市経営ゲーム main.js Ver.7（安定 + 背景フェード）
+// SDGs都市経営ゲーム main.js Ver.8
+// (AIアーキタイプ判定 + 背景フェード + レイアウト安定版)
 // ===========================
 (function () {
   window.addEventListener("DOMContentLoaded", () => {
 
-    // --------------------
-    // 状態管理
-    // --------------------
+    // ---------- 状態 ----------
     let currentQuestionIndex = 0;
-    let status = { env: 50, eco: 50, soc: 50 }; // 0-100
-    let resources = {
-      energy: 0, food: 0, tech: 0, funds: 50,
-      labor: 0, water: 0, recycled: 0
-    };
+    let status = { env: 50, eco: 50, soc: 50 };
+    let resources = { energy: 0, food: 0, tech: 0, funds: 50, labor: 0, water: 0, recycled: 0 };
     let cityTypePoints = {
       eco:0, industry:0, social:0, smart:0, science:0,
       culture:0, tourism:0, agriculture:0, urban:0, infra:0,
       housing:0, education:0, transport:0, welfare:0, industryHeavy:0
     };
-
     let prevTypeKey = null;
     let prevLevel = 1;
 
-    // --------------------
-    // DOM
-    // --------------------
+    // ---------- DOM ----------
     const $ = (id) => document.getElementById(id);
     const startBtn = $("btn-start");
     const resetBtn = $("btn-reset");
@@ -39,9 +32,7 @@
     const cityInfoDesc = $("city-info-desc");
     const cityInfoResources = $("city-info-resources");
 
-    const statusUI = {
-      env: $("res-env"), eco: $("res-eco"), soc: $("res-soc"),
-    };
+    const statusUI = { env: $("res-env"), eco: $("res-eco"), soc: $("res-soc") };
     const cityTypeUI = {
       eco: $("tp-eco"), industry: $("tp-industry"), social: $("tp-social"), smart: $("tp-smart"),
       science: $("tp-science"), culture: $("tp-culture"), tourism: $("tp-tourism"), agriculture: $("tp-agriculture"),
@@ -49,21 +40,15 @@
       welfare: $("tp-welfare"), education: $("tp-education"), transport: $("tp-transport")
     };
 
-    // --------------------
-    // cities (data.js)
-    // --------------------
     if (typeof cities === "undefined") {
       alert("data.js が読み込まれていません。");
       return;
     }
 
-    // --------------------
-    // 背景画像フェード関数
-    // --------------------
+    // ---------- 背景フェード ----------
     let currentBg = "";
     function setBackground(url) {
-      if (!cityBg) return;
-      if (currentBg === url) return; // 同じならスキップ
+      if (!cityBg || currentBg === url) return;
       cityBg.classList.remove("fade-in");
       cityBg.classList.add("fade-out");
       setTimeout(() => {
@@ -74,9 +59,25 @@
       }, 400);
     }
 
-    // --------------------
-    // ゲーム開始 / リセット
-    // --------------------
+    // ---------- アーキタイプ定義 ----------
+    const ARCHETYPES = {
+      eco:{v:[0.9,0.35,0.65],resPref:{recycled:1,energy:0.5,water:0.5},disp:"エコ都市"},
+      industry:{v:[0.35,0.9,0.45],resPref:{funds:1,labor:0.7,energy:0.5},disp:"産業都市"},
+      social:{v:[0.45,0.45,0.95],resPref:{labor:0.6,water:0.4},disp:"社会都市"},
+      smart:{v:[0.6,0.8,0.55],resPref:{tech:1,energy:0.6,funds:0.5},disp:"スマート都市"},
+      science:{v:[0.55,0.85,0.55],resPref:{tech:1,funds:0.6},disp:"科学都市"},
+      culture:{v:[0.65,0.55,0.75],resPref:{funds:0.4},disp:"文化都市"},
+      tourism:{v:[0.55,0.75,0.65],resPref:{funds:0.5,water:0.4},disp:"観光都市"},
+      agriculture:{v:[0.8,0.55,0.6],resPref:{food:1,water:0.6},disp:"農業都市"},
+      urban:{v:[0.55,0.75,0.65],resPref:{funds:0.8},disp:"再生都市"},
+      infra:{v:[0.45,0.85,0.55],resPref:{funds:0.9,energy:0.5},disp:"インフラ都市"},
+      housing:{v:[0.6,0.55,0.8],resPref:{funds:0.5,labor:0.4},disp:"住宅都市"},
+      education:{v:[0.55,0.7,0.75],resPref:{tech:0.7,funds:0.4},disp:"教育都市"},
+      welfare:{v:[0.45,0.45,0.9],resPref:{labor:0.5,funds:0.4},disp:"福祉都市"},
+      transport:{v:[0.55,0.8,0.6],resPref:{funds:0.6,energy:0.5},disp:"交通都市"}
+    };
+
+    // ---------- ゲーム開始 ----------
     if (startBtn) startBtn.addEventListener("click", startGame);
     if (resetBtn) resetBtn.addEventListener("click", startGame);
 
@@ -90,164 +91,112 @@
       explainBox.style.display = "none";
       updateAllUI();
       showQuestion();
-      setBackground("images/eco_lv1.png"); // 初期背景
+      setBackground("images/eco_lv1.png");
     }
 
-    // --------------------
-    // 問題表示
-    // --------------------
+    // ---------- 質問表示 ----------
     function showQuestion() {
       if (currentQuestionIndex >= cities.length) return showResult();
       const q = cities[currentQuestionIndex];
-      questionTitle.textContent = q.title || "無題の質問";
-      questionDesc.textContent  = q.description || "";
-      choiceButtons.innerHTML   = "";
-
-      q.choices.forEach(choice => {
-        const btn = document.createElement("button");
-        btn.className = "choice-btn";
-        btn.textContent = choice.text;
-
-        // 必要資源チェック
-        let canSelect = true;
-        if (choice.resources) {
-          for (const k in choice.resources) {
-            if (choice.resources[k] < 0 && (resources[k] || 0) < Math.abs(choice.resources[k])) {
-              canSelect = false;
-              btn.title = `${k}が不足しています`;
-            }
-          }
-        }
-        if (!canSelect) {
-          btn.disabled = true;
-          btn.style.opacity = 0.5;
-        }
-        btn.onclick = () => selectChoice(choice);
+      questionTitle.textContent = q.title;
+      questionDesc.textContent = q.description;
+      choiceButtons.innerHTML = "";
+      q.choices.forEach(choice=>{
+        const btn=document.createElement("button");
+        btn.className="choice-btn";
+        btn.textContent=choice.text;
+        btn.onclick=()=>selectChoice(choice);
         choiceButtons.appendChild(btn);
       });
-
-      progressText.textContent = `問題 ${currentQuestionIndex + 1}/${cities.length}`;
+      progressText.textContent=`問題 ${currentQuestionIndex+1}/${cities.length}`;
     }
 
-    // --------------------
-    // 選択肢選択
-    // --------------------
+    // ---------- 選択処理 ----------
     function selectChoice(choice) {
       applyEffects(choice.effects);
       applyTypePoints(choice.typePoints);
       applyResources(choice.resources);
       updateAllUI();
-
-      explainBox.style.display = "block";
-      explainBox.textContent = choice.explanation || "選択結果が反映されました。";
-
+      explainBox.style.display="block";
+      explainBox.textContent=choice.explanation;
       currentQuestionIndex++;
-      setTimeout(showQuestion, 900);
+      setTimeout(showQuestion,1000);
     }
 
-    // --------------------
-    // 効果適用
-    // --------------------
-    function applyEffects(effects) {
-      if (!effects) return;
-      for (const k in effects) {
-        if (status[k] !== undefined) status[k] = clamp(status[k] + effects[k], 0, 100);
+    // ---------- 効果反映 ----------
+    function applyEffects(effects){
+      if(!effects)return;
+      for(const k in effects){
+        if(status[k]!=null) status[k]=clamp(status[k]+effects[k],0,100);
       }
     }
-    function applyTypePoints(points) {
-      if (!points) return;
-      for (const k in points) {
-        if (cityTypePoints[k] === undefined) continue;
-        cityTypePoints[k] += points[k];
+    function applyTypePoints(points){
+      if(!points)return;
+      for(const k in points){
+        if(cityTypePoints[k]!=null) cityTypePoints[k]+=points[k];
       }
     }
-    function applyResources(res) {
-      if (!res) return;
-      for (const k in res) {
-        resources[k] = (resources[k] || 0) + res[k];
-        if (resources[k] < 0) resources[k] = 0;
+    function applyResources(res){
+      if(!res)return;
+      for(const k in res){
+        resources[k]=(resources[k]||0)+res[k];
+        if(resources[k]<0)resources[k]=0;
       }
     }
 
-    // --------------------
-    // UI更新
-    // --------------------
-    function updateAllUI() {
-      for (const k in statusUI) {
-        if (statusUI[k]) {
-          const v = clamp(status[k], 0, 100);
-          statusUI[k].style.width = `${v}%`;
-        }
+    // ---------- UI ----------
+    function updateAllUI(){
+      for(const k in statusUI){
+        const v=clamp(status[k],0,100);
+        statusUI[k].style.width=`${v}%`;
       }
-      for (const k in cityTypePoints) {
-        if (cityTypeUI[k]) cityTypeUI[k].textContent = cityTypePoints[k];
+      for(const k in cityTypeUI){
+        if(cityTypeUI[k]) cityTypeUI[k].textContent=cityTypePoints[k];
       }
       updateCityInfoPanel();
       updateCityVisual();
     }
 
-    // --------------------
-    // 都市情報更新
-    // --------------------
-    function updateCityInfoPanel() {
-      if (!cityInfoName) return;
-      const city = determineCityType();
-      cityInfoName.textContent = city.name;
-      cityInfoLevel.textContent = `Lv.${city.level}`;
-      cityInfoDesc.textContent = `🌿環境:${status.env} 💰経済:${status.eco} 🤝社会:${status.soc}`;
-      cityInfoResources.textContent = `⚡:${resources.energy} 🧠:${resources.tech} 🍎:${resources.food} 💰:${resources.funds}`;
+    function updateCityInfoPanel(){
+      const city=determineCityType();
+      cityInfoName.textContent=city.name;
+      cityInfoLevel.textContent=`Lv.${city.level}`;
+      cityInfoDesc.textContent=`🌿環境:${status.env} 💰経済:${status.eco} 🤝社会:${status.soc}`;
+      cityInfoResources.textContent=`⚡:${resources.energy} 🍎:${resources.food} 🧠:${resources.tech} 💰:${resources.funds}`;
     }
 
-    // --------------------
-    // 結果
-    // --------------------
-    function showResult() {
-      questionTitle.textContent = "🌆 都市の最終結果";
-      questionDesc.textContent = "あなたの選択が都市を形作りました。";
-      choiceButtons.innerHTML = "";
-      const finalCity = determineCityType();
-      explainBox.innerHTML = `🏙最終都市タイプ: <b>${finalCity.name}</b> (Lv.${finalCity.level})`;
-      updateAllUI();
-      progressText.textContent = "全問題終了";
+    // ---------- 判定 ----------
+    function determineCityType(){
+      const S=norm3([status.env/100,status.eco/100,status.soc/100]);
+      let best={key:"eco",name:"エコ都市",score:-1};
+      for(const k in ARCHETYPES){
+        const arch=ARCHETYPES[k];
+        const cos=cosine(S,norm3(arch.v));
+        let resAff=0;
+        for(const rk in arch.resPref){
+          resAff+=arch.resPref[rk]*(clamp(resources[rk],0,100)/100);
+        }
+        resAff/=Object.keys(arch.resPref).length;
+        const score=cos*0.6+resAff*0.3+(cityTypePoints[k]||0)*0.01;
+        if(score>best.score)best={key:k,name:arch.disp,score};
+      }
+      const avg=(status.env+status.eco+status.soc)/3;
+      const rawLevel=avg>75?3:avg>55?2:1;
+      const level=prevTypeKey===best.key?Math.min(prevLevel+1,rawLevel):rawLevel;
+      prevTypeKey=best.key; prevLevel=level;
+      return {key:best.key,name:best.name,level};
     }
 
-    // --------------------
-    // 都市タイプ判定（簡略＋安定）
-    // --------------------
-    function determineCityType() {
-      const avg = (status.env + status.eco + status.soc) / 3;
-      const key = avg > 66 ? "smart" : avg > 45 ? "eco" : "industry";
-      const level = avg > 80 ? 3 : avg > 60 ? 2 : 1;
-      return { key, name: typeName(key), level };
-    }
-
-    function typeName(k) {
-      const map = {
-        eco: "エコ都市", industry: "産業都市", social: "社会都市",
-        smart: "スマート都市", science: "科学都市", culture: "文化都市",
-        tourism: "観光都市", agriculture: "農業都市", urban: "再生都市",
-        infra: "インフラ都市", housing: "住宅都市", education: "教育都市",
-        welfare: "福祉都市", transport: "交通都市", industryHeavy: "重工業都市"
-      };
-      return map[k] || "都市";
-    }
-
-    // --------------------
-    // 背景更新（フェード付き）
-    // --------------------
-    function updateCityVisual() {
-      const city = determineCityType();
-      let url = "";
-      if (city.key === "collapse") url = "images/collapse.png";
-      else if (city.key === "wasteland") url = "images/wasteland.png";
-      else url = `images/${city.key}_lv${city.level}.png`;
+    // ---------- 背景更新 ----------
+    function updateCityVisual(){
+      const city=determineCityType();
+      let url=`images/${city.key}_lv${city.level}.png`;
       setBackground(url);
     }
 
-    // --------------------
-    // ヘルパー
-    // --------------------
-    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
-
+    // ---------- ヘルパ ----------
+    function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
+    function norm3(v){const n=Math.hypot(...v)||1;return v.map(x=>x/n);}
+    function cosine(a,b){return clamp(a[0]*b[0]+a[1]*b[1]+a[2]*b[2],0,1);}
   });
 })();
