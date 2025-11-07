@@ -1,10 +1,11 @@
 // ===========================
-// SDGs City Manager Ver.11
-//  - AI判定（アーキタイプ＋制約＋ヒステリシス）復活
-//  - 都市名・レベルを常時ヘッダー更新
-//  - 画像は中央カードにPNGで表示（start_city.pngから開始）
-//  - 崩壊ルートは低スコアのときのみ出題
-//  - 判定の根拠を evidence パネルに表示
+// SDGs City Manager Ver.11.2
+//  - urbanナーフ & バランス再調整
+//  - 都市変化/レベルアップ時は自動で最上部へスクロール
+//  - 判定関数は状態を更新しない（UI側で演出→最後に状態更新）
+//  - 画像は中央カードPNG（start_city.pngから開始）
+//  - 崩壊ルートは低スコア時のみ出題
+//  - evidenceに内訳表示
 // ===========================
 
 (function(){
@@ -19,9 +20,9 @@
     housing:0, education:0, transport:0, industryHeavy:0, welfare:0
   };
 
-  // ヒステリシス用
+  // ヒステリシス用（UI側で更新する）
   let prevTypeKey = "start";
-  let prevLevel = 1;
+  let prevLevel   = 1;
 
   // DOM helpers
   const $ = id => document.getElementById(id);
@@ -33,49 +34,47 @@
   const progressEl = $("progress");
   const choicesEl = $("choices");
   const qTitle = $("question-title");
-  const qDesc = $("question-desc");
+  const qDesc  = $("question-desc");
   const evidenceEl = $("evidence");
 
-  // bars & chips
   const bars = { env:$("bar-env"), eco:$("bar-eco"), soc:$("bar-soc") };
   const chips = {
     energy:$("res-energy"), food:$("res-food"), tech:$("res-tech"),
     funds:$("res-funds"), water:$("res-water"), labor:$("res-labor"), recycled:$("res-recycled")
   };
 
-  // guards
   if (typeof cities === "undefined") {
     alert("data.js が読み込まれていません。");
     return;
   }
 
-  // --------- Archetypes ----------
+  // --------- Archetypes (ナーフ適用) ----------
   const ARCHETYPES = {
-    eco:         { v:[0.90,0.35,0.65], resPref:{recycled:1, energy:0.5, water:0.5}, disp:"エコ都市" },
-    industry:    { v:[0.35,0.90,0.45], resPref:{funds:1, labor:0.7, energy:0.5},  disp:"産業都市" },
-    social:      { v:[0.45,0.45,0.95], resPref:{labor:0.6, water:0.4},           disp:"共生都市" },
-    smart:       { v:[0.60,0.80,0.55], resPref:{tech:1, energy:0.6, funds:0.5},   disp:"スマート都市" },
-    science:     { v:[0.55,0.85,0.55], resPref:{tech:1, funds:0.6},               disp:"科学都市" },
-    culture:     { v:[0.65,0.55,0.75], resPref:{funds:0.4},                       disp:"文化都市" },
+    eco:         { v:[0.95,0.25,0.55], resPref:{recycled:1, energy:0.5, water:0.5}, disp:"エコ都市" },
+    industry:    { v:[0.25,0.95,0.40], resPref:{funds:1, labor:0.7, energy:0.5},  disp:"産業都市" },
+    social:      { v:[0.40,0.35,0.95], resPref:{labor:0.6, water:0.4},           disp:"共生都市" },
+    smart:       { v:[0.55,0.85,0.55], resPref:{tech:1, energy:0.6, funds:0.5},   disp:"スマート都市" },
+    science:     { v:[0.55,0.90,0.55], resPref:{tech:1, funds:0.6},               disp:"科学都市" },
+    culture:     { v:[0.65,0.50,0.80], resPref:{funds:0.4},                       disp:"文化都市" },
     tourism:     { v:[0.55,0.75,0.65], resPref:{funds:0.5, water:0.4},            disp:"観光都市" },
-    agriculture: { v:[0.80,0.55,0.60], resPref:{food:1, water:0.6},               disp:"農業都市" },
-    urban:       { v:[0.55,0.75,0.65], resPref:{funds:0.8},                        disp:"都市再生都市" },
-    infra:       { v:[0.45,0.85,0.55], resPref:{funds:0.9, energy:0.5},           disp:"インフラ都市" },
-    housing:     { v:[0.60,0.55,0.80], resPref:{funds:0.5, labor:0.4},            disp:"住宅都市" },
-    education:   { v:[0.55,0.70,0.75], resPref:{tech:0.7, funds:0.4},             disp:"教育都市" },
+    agriculture: { v:[0.85,0.45,0.50], resPref:{food:1, water:0.6},               disp:"農業都市" },
+    urban:       { v:[0.45,0.70,0.55], resPref:{funds:0.5},                        disp:"都市再生都市" }, // ←ナーフ
+    infra:       { v:[0.40,0.85,0.55], resPref:{funds:0.9, energy:0.5},           disp:"インフラ都市" },
+    housing:     { v:[0.55,0.55,0.85], resPref:{funds:0.5, labor:0.4},            disp:"住宅都市" },
+    education:   { v:[0.55,0.65,0.80], resPref:{tech:0.7, funds:0.4},             disp:"教育都市" },
     transport:   { v:[0.55,0.80,0.60], resPref:{funds:0.6, energy:0.5},           disp:"交通都市" }
   };
   const TYPE_ALIAS = { industryHeavy:"industry" };
 
-  // Weights
+  // 重み（バランス再調整）
   const W = {
-    alpha: 0.62,  // 類似度
-    beta:  0.28,  // 資源嗜好
-    gamma: 0.10,  // シナジー（typePoints）
+    alpha: 0.50,  // 類似度やや弱め
+    beta:  0.35,  // 資源整合を強化
+    gamma: 0.15,  // シナジー
     delta: 0.12,  // コンフリクト
     zeta:  0.20,  // リスク
-    hysteresisType: 0.08,
-    hysteresisLv:   0.06
+    hysteresisType: 0.07,
+    hysteresisLv:   0.05
   };
 
   // ---------- Init ----------
@@ -91,15 +90,15 @@
     prevTypeKey="start"; prevLevel=1;
 
     // ヘッダー
-    cityNameEl.textContent = "スタート都市";
-    cityLevelEl.textContent = "Lv.1";
+    safeSet(cityNameEl, "スタート都市");
+    safeSet(cityLevelEl, "Lv.1");
     document.body.dataset.cityType = "start";
 
-    // 画像
+    // 画像（スタート）
     setPhoto("images/start_city.png", "スタート都市");
 
-    qTitle.textContent = "SDGs都市経営ゲーム";
-    qDesc.textContent  = "スタートボタンを押して開始！";
+    safeSet(qTitle, "SDGs都市経営ゲーム");
+    safeSet(qDesc, "スタートボタンを押して開始！");
     choicesEl.innerHTML = "";
     explainBox.classList.add("hidden");
     progressEl.textContent = "";
@@ -110,8 +109,6 @@
 
   function startGame(){
     showQuestion();
-    // 最初に一度判定→ヘッダーと写真（start→実タイプ）に切替必要なし
-    // （選択後に動的に切替）
   }
 
   // ---------- Question ----------
@@ -124,8 +121,8 @@
     const q = cities[currentQuestionIndex];
     if (!q){ return endGame(); }
 
-    qTitle.textContent = q.title || "無題";
-    qDesc.textContent  = q.description || "";
+    safeSet(qTitle, q.title || "無題");
+    safeSet(qDesc,  q.description || "");
     choicesEl.innerHTML = "";
 
     q.choices.forEach(choice=>{
@@ -158,6 +155,9 @@
   }
 
   function selectChoice(choice){
+    // 🔻 過去の偏りを弱める（正則化）
+    for (const k in cityTypePoints) cityTypePoints[k] *= 0.98;
+
     // effects
     if (choice.effects){
       for (const k in choice.effects){
@@ -187,7 +187,6 @@
       for (const k in choice.bonusResources){
         const b = choice.bonusResources[k];
         if ((resources[k]||0) >= b.threshold){
-          // apply bonus
           if (b.typePoints){
             for (const t in b.typePoints){
               const key=(TYPE_ALIAS[t]||t).toLowerCase();
@@ -208,9 +207,13 @@
       `<b>${choice.label||""}</b><br>${choice.explanation||"選択を反映しました。"}<br><small>${choice.example||""}</small>`;
     explainBox.classList.remove("hidden");
 
-    // 都市状態更新→UI反映
+    // 都市状態（※ここでは prev を更新しない）
     const evalResult = determineCityType(); // {key,name,level,metrics}
+
+    // ヘッダー＆写真＆演出（ここで初めて prev と比較→更新）
     applyCityHeader(evalResult);
+
+    // 数値UI
     updateBarsAndChips();
     updateEvidence(evalResult);
 
@@ -251,13 +254,9 @@
     ].filter(Boolean).length;
 
     if (avgStatus < 25 && criticalRes >= 3){
-      prevTypeKey = "collapse"; prevLevel = 1;
-      setPhotoSafely("collapse");
       return { key:"collapse", name:"崩壊都市", level:1, metrics:null };
     }
     if (avgStatus < 35 && criticalRes >= 2){
-      prevTypeKey = "wasteland"; prevLevel = 1;
-      setPhotoSafely("wasteland");
       return { key:"wasteland", name:"荒廃都市", level:1, metrics:null };
     }
 
@@ -290,10 +289,15 @@
     const maxTP = Math.max(1, ...Object.keys(ARCHETYPES).map(k => cityTypePoints[k]||0));
     const synergyOf = (key)=> (cityTypePoints[key]||0) / maxTP;
 
+    // 崩壊寄りのときは urban を候補から除外（ナーフ補助）
+    const nearCollapse = avgStatus < 40 && (resources.funds < 20 || resources.energy < 5);
+
     let best = { key:"eco", name:"エコ都市", score:-Infinity, parts:null };
     const ranking = [];
 
     for (const key of Object.keys(ARCHETYPES)){
+      if (nearCollapse && key === "urban") continue;
+
       const arch = ARCHETYPES[key];
       const A = norm3(arch.v);
       const cos = cosine(S,A); // 0..1
@@ -335,54 +339,57 @@
     ), 0, 1);
     let rawLevel = Math.round(clamp((devIdx*0.65 + resIdx*0.35)*2 + 1, 1, 3));
 
-    // ヒステリシス：急変抑制
-    if (prevTypeKey === best.key){
-      if (rawLevel > prevLevel) rawLevel = prevLevel + 1;
-      if (rawLevel < prevLevel) rawLevel = prevLevel - 1;
-    }
-
-    prevTypeKey = best.key;
-    prevLevel = rawLevel;
-
-    setPhotoSafely(`${best.key}_lv${rawLevel}`);
-    return { key:best.key, name:ARCHETYPES[best.key].disp, level:rawLevel, metrics:{ best, ranking } };
+    // ここでは prev を更新しない（UI側で演出を出すため）
+    return {
+      key: best.key,
+      name: ARCHETYPES[best.key].disp,
+      level: rawLevel,
+      metrics: { best, ranking }
+    };
   }
 
   // ---------- UI helpers ----------
   function applyCityHeader(city){
-    cityNameEl.textContent = city.name;
-    cityLevelEl.textContent = `Lv.${city.level}`;
-    document.body.dataset.cityType = city.key; // テーマ色切替
+    // タイプ／レベルの変化検出（今のprevと比較）
+    const typeChanged  = city.key   !== prevTypeKey && prevTypeKey !== "start";
+    const levelUpgraded = city.level >  prevLevel;
+
+    // 画像切替（ここで初めて実行）
+    setPhotoSafely(city.key, city.level);
+
+    // テキスト更新
+    safeSet(cityNameEl, city.name);
+    safeSet(cityLevelEl, `Lv.${city.level}`);
+    document.body.dataset.cityType = city.key;
 
     // 演出
-    if (city.key !== "start"){
-      // レベルアップ / タイプ変更は determine 内でヒステリシス考慮済み
-      // ここではタイプ変化演出のみ（同タイプ更新時は出さない）
-      if (city.key !== prevTypeKey && prevTypeKey !== "start"){
-        showCityChange(city.name);
-      }
-      // レベルアップは level 比較で
-      if (city.level > prevLevel){
-        showLevelUp();
-      }
-    }
+    if (typeChanged) showCityChange(city.name);
+    if (levelUpgraded) showLevelUp();
+
+    // 変化を見せるために自動スクロール
+    scrollToTopSmooth();
+
+    // ⬅️ 最後に prev を更新（ここが重要！）
+    prevTypeKey = city.key;
+    prevLevel   = city.level;
   }
 
   function updateBarsAndChips(){
-    bars.env.style.width = `${status.env}%`;
-    bars.eco.style.width = `${status.eco}%`;
-    bars.soc.style.width = `${status.soc}%`;
+    if (bars.env) bars.env.style.width = `${status.env}%`;
+    if (bars.eco) bars.eco.style.width = `${status.eco}%`;
+    if (bars.soc) bars.soc.style.width = `${status.soc}%`;
 
-    chips.energy.textContent   = resources.energy;
-    chips.food.textContent     = resources.food;
-    chips.tech.textContent     = resources.tech;
-    chips.funds.textContent    = resources.funds;
-    chips.water.textContent    = resources.water;
-    chips.labor.textContent    = resources.labor;
-    chips.recycled.textContent = resources.recycled;
+    if (chips.energy)   chips.energy.textContent   = resources.energy;
+    if (chips.food)     chips.food.textContent     = resources.food;
+    if (chips.tech)     chips.tech.textContent     = resources.tech;
+    if (chips.funds)    chips.funds.textContent    = resources.funds;
+    if (chips.water)    chips.water.textContent    = resources.water;
+    if (chips.labor)    chips.labor.textContent    = resources.labor;
+    if (chips.recycled) chips.recycled.textContent = resources.recycled;
   }
 
   function updateEvidence(result){
+    if (!evidenceEl) return;
     if (!result){
       evidenceEl.innerHTML = `<span class="tag">まだ判定はありません</span>`;
       return;
@@ -434,21 +441,27 @@
     `;
   }
 
-  // ---------- Image helpers ----------
+  // ---------- Image & Scroll helpers ----------
   function setPhoto(src, caption){
-    photoEl.onerror = null; // 直前のonerrorをクリア
+    if (!photoEl) return;
+    photoEl.onerror = null;
     photoEl.src = src;
-    captionEl.textContent = caption || "";
+    if (captionEl) captionEl.textContent = caption || "";
   }
-  function setPhotoSafely(keyOrName){
-    // city key / "collapse" / "wasteland" / "<type>_lv<1..3>"
+  function setPhotoSafely(typeOrKey, level){
+    // typeOrKey: "collapse" / "wasteland" / "<type>"
     let path = "";
-    if (keyOrName==="collapse") path = "images/collapse.png";
-    else if (keyOrName==="wasteland") path = "images/wasteland.png";
-    else path = `images/${keyOrName}.png`;
+    if (typeOrKey==="collapse") path = "images/collapse.png";
+    else if (typeOrKey==="wasteland") path = "images/wasteland.png";
+    else path = `images/${typeOrKey}_lv${level}.png`;
 
-    photoEl.onerror = ()=> setPhoto("images/start_city.png","（画像が見つからないためスタート画像を表示）");
+    if (photoEl){
+      photoEl.onerror = ()=> setPhoto("images/start_city.png","（画像が見つからないためスタート画像を表示）");
+    }
     setPhoto(path, "");
+  }
+  function scrollToTopSmooth(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   // ---------- Effects ----------
@@ -469,18 +482,21 @@
 
   // ---------- End ----------
   function endGame(){
-    const final = determineCityType(); // 最終確定
-    applyCityHeader(final);
+    const final = determineCityType(); // 最終確定（ここでもprevを更新しない）
+    applyCityHeader(final);            // ここで初めてprev更新
     updateBarsAndChips();
     updateEvidence(final);
 
-    qTitle.textContent = "🏁 ゲーム終了";
-    qDesc.textContent = `あなたの都市は「${final.name}」Lv.${final.level} に発展しました！`;
+    safeSet(qTitle, "🏁 ゲーム終了");
+    safeSet(qDesc, `あなたの都市は「${final.name}」Lv.${final.level} に発展しました！`);
     choicesEl.innerHTML = "";
     progressEl.textContent = "おつかれさま！";
   }
 
-  // ---------- Math utils ----------
+  // ---------- Utils ----------
+  function safeSet(el, text){
+    if (el) el.textContent = text;
+  }
   function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
   function norm3(v){ const n = Math.hypot(v[0],v[1],v[2])||1; return [v[0]/n, v[1]/n, v[2]/n]; }
   function cosine(a,b){ return clamp(a[0]*b[0]+a[1]*b[1]+a[2]*b[2], 0, 1); }
