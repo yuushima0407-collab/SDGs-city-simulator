@@ -3,90 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SDGs City Manager Ver.6</title>
+<title>SDGs City Manager Ver.8</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <h1>🌏 SDGs City Manager</h1>
+  <!-- 背景：常に最背面に固定 -->
+  <div id="city-bg"></div>
 
-  <!-- メイン背景 -->
-  <div id="city-bg" class="fade-in">
-    <div id="overlay"></div>
-  </div>
+  <!-- オーバーレイ：画面全体に白半透明 -->
+  <div id="overlay"></div>
 
-  <!-- ゲームパネル -->
-  <section id="main-panel">
-    <h2 id="question-title">SDGs都市経営ゲーム</h2>
-    <p id="question-desc">スタートボタンを押して開始！</p>
+  <!-- メインUI -->
+  <main id="game-ui">
 
-    <div id="choices"></div>
+    <header>
+      <h1>🌏 SDGs City Manager</h1>
+      <p id="progress">スタートを押してね！</p>
+    </header>
 
-    <div id="explainBox" class="hidden"></div>
+    <!-- 都市情報 -->
+    <section id="city-info-panel">
+      <div id="city-info-name">都市名</div>
+      <div id="city-info-level">Lv.1</div>
+      <p id="city-info-desc">環境・経済・社会の状況を表示</p>
+      <p id="city-info-resources"></p>
+    </section>
 
-    <div id="buttons">
-      <button id="btn-start">ゲーム開始</button>
-      <button id="btn-reset">リセット</button>
-    </div>
+    <!-- ステータス -->
+    <section id="status">
+      <div class="bar"><label>環境</label><div class="gauge"><div id="res-env"></div></div></div>
+      <div class="bar"><label>経済</label><div class="gauge"><div id="res-eco"></div></div></div>
+      <div class="bar"><label>社会</label><div class="gauge"><div id="res-soc"></div></div></div>
+    </section>
 
-    <p id="progress"></p>
-  </section>
+    <!-- 問題と選択肢 -->
+    <section id="main-panel">
+      <h2 id="question-title">SDGs都市経営ゲーム</h2>
+      <p id="question-desc">スタートボタンを押して開始！</p>
+      <div id="choices"></div>
+      <div id="explainBox" class="hidden"></div>
+      <div id="buttons">
+        <button id="btn-start">ゲーム開始</button>
+        <button id="btn-reset">リセット</button>
+      </div>
+    </section>
 
-  <!-- ステータスバー -->
-  <section id="status">
-    <h3>🌿 状況</h3>
-    <div class="bar"><label>環境</label><div class="gauge"><div id="res-env"></div></div></div>
-    <div class="bar"><label>経済</label><div class="gauge"><div id="res-eco"></div></div></div>
-    <div class="bar"><label>社会</label><div class="gauge"><div id="res-soc"></div></div></div>
-  </section>
-
-  <!-- 資源表示 -->
-  <section id="resources">
-    <h3>⚙️ 資源</h3>
-    <ul>
-      <li>⚡ <span id="res-energy">0</span></li>
-      <li>🍎 <span id="res-food">0</span></li>
-      <li>🧠 <span id="res-tech">0</span></li>
-      <li>💰 <span id="res-funds">0</span></li>
-      <li>💧 <span id="res-water">0</span></li>
-      <li>👷 <span id="res-labor">0</span></li>
-      <li>♻ <span id="res-recycled">0</span></li>
-    </ul>
-  </section>
-
-  <!-- 都市情報 -->
-  <section id="city-info-panel">
-    <h3>🏙 都市情報</h3>
-    <div id="city-info-name">エコ都市</div>
-    <div id="city-info-level">Lv.1</div>
-    <p id="city-info-desc"></p>
-    <p id="city-info-resources"></p>
-  </section>
-
-  <!-- 都市タイプポイント -->
-  <section id="type-points">
-    <h3>📊 都市タイプポイント</h3>
-    <div class="grid">
-      <div>🌳Eco:<span id="tp-eco">0</span></div>
-      <div>⚙Industry:<span id="tp-industry">0</span></div>
-      <div>🤝Social:<span id="tp-social">0</span></div>
-      <div>💻Smart:<span id="tp-smart">0</span></div>
-      <div>🔬Science:<span id="tp-science">0</span></div>
-      <div>🎭Culture:<span id="tp-culture">0</span></div>
-      <div>🏖Tourism:<span id="tp-tourism">0</span></div>
-      <div>🌾Agri:<span id="tp-agriculture">0</span></div>
-      <div>🏙Urban:<span id="tp-urban">0</span></div>
-      <div>🚧Infra:<span id="tp-infra">0</span></div>
-      <div>🏘Housing:<span id="tp-housing">0</span></div>
-      <div>🎓Edu:<span id="tp-education">0</span></div>
-      <div>🚆Transport:<span id="tp-transport">0</span></div>
-      <div>🏭Industry+:<span id="tp-industryHeavy">0</span></div>
-    </div>
-  </section>
+  </main>
 
   <script src="data.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
-
-
