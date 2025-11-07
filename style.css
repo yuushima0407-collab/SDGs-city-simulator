@@ -1,185 +1,256 @@
-:root{
+:root {
   --bg:#f5f7f9;
   --text:#222;
   --card:#ffffff;
-  --muted:#778;
-  --accent:#2b7a78; /* default / start */
+  --muted:#667;
+  --accent:#2b7a78; /* start default */
   --accent-weak:#bfe3e1;
 }
 
-body{
-  font-family:"Noto Sans JP",system-ui,Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  margin:0;
+/* ======================
+   基本
+====================== */
+body {
+  font-family: "Noto Sans JP", "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  text-align: center;
+  transition: background 0.5s ease;
 }
 
-/* テーマ切替（都市タイプで色が変わる） */
-body[data-city-type="eco"]{ --accent:#2e7d32; --accent-weak:#c8e6c9; }
-body[data-city-type="industry"]{ --accent:#455a64; --accent-weak:#cfd8dc; }
-body[data-city-type="social"]{ --accent:#f57c00; --accent-weak:#ffe0b2; }
-body[data-city-type="smart"]{ --accent:#1565c0; --accent-weak:#bbdefb; }
-body[data-city-type="science"]{ --accent:#6a1b9a; --accent-weak:#e1bee7; }
-body[data-city-type="culture"]{ --accent:#8d6e63; --accent-weak:#d7ccc8; }
-body[data-city-type="tourism"]{ --accent:#00796b; --accent-weak:#b2dfdb; }
-body[data-city-type="agriculture"]{ --accent:#558b2f; --accent-weak:#dcedc8; }
-body[data-city-type="infra"]{ --accent:#37474f; --accent-weak:#cfd8dc; }
-body[data-city-type="housing"]{ --accent:#5d4037; --accent-weak:#d7ccc8; }
-body[data-city-type="education"]{ --accent:#283593; --accent-weak:#c5cae9; }
-body[data-city-type="transport"]{ --accent:#00695c; --accent-weak:#b2dfdb; }
-body[data-city-type="industryHeavy"]{ --accent:#263238; --accent-weak:#cfd8dc; }
-body[data-city-type="collapse"]{ --accent:#b71c1c; --accent-weak:#ffcdd2; }
-body[data-city-type="wasteland"]{ --accent:#6d4c41; --accent-weak:#d7ccc8; }
+/* テーマ色（都市タイプ別） */
+body[data-city-type="eco"]         { --accent:#2e7d32; --accent-weak:#c8e6c9; background:#f4faf4; }
+body[data-city-type="industry"]    { --accent:#455a64; --accent-weak:#cfd8dc; background:#f5f7f9; }
+body[data-city-type="social"]      { --accent:#f57c00; --accent-weak:#ffe0b2; background:#fff9f2; }
+body[data-city-type="smart"]       { --accent:#1565c0; --accent-weak:#bbdefb; background:#f3f7fb; }
+body[data-city-type="science"]     { --accent:#6a1b9a; --accent-weak:#e1bee7; background:#f8f4fa; }
+body[data-city-type="culture"]     { --accent:#8d6e63; --accent-weak:#d7ccc8; background:#faf7f4; }
+body[data-city-type="tourism"]     { --accent:#00796b; --accent-weak:#b2dfdb; background:#f3fbf9; }
+body[data-city-type="agriculture"] { --accent:#558b2f; --accent-weak:#dcedc8; background:#f6faf3; }
+body[data-city-type="infra"]       { --accent:#37474f; --accent-weak:#cfd8dc; background:#f4f6f7; }
+body[data-city-type="housing"]     { --accent:#5d4037; --accent-weak:#d7ccc8; background:#faf6f4; }
+body[data-city-type="education"]   { --accent:#283593; --accent-weak:#c5cae9; background:#f5f6fb; }
+body[data-city-type="transport"]   { --accent:#00695c; --accent-weak:#b2dfdb; background:#f3fbfa; }
+body[data-city-type="collapse"]    { --accent:#b71c1c; --accent-weak:#ffcdd2; background:#fef4f4; }
+body[data-city-type="wasteland"]   { --accent:#6d4c41; --accent-weak:#d7ccc8; background:#f8f4f2; }
 
-.topbar{
-  background:var(--accent);
-  color:#fff;
-  padding:12px 16px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
+/* ======================
+   ヘッダー（常時表示）
+====================== */
+header {
+  background: var(--accent);
+  color: white;
+  padding: 12px 0;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
-.topbar h1{
-  margin:0;
-  font-size:1.2rem;
-}
-#city-header{
-  display:flex; gap:8px; align-items:center;
-  font-weight:700;
-}
-.pill{
-  background:#fff; color:var(--accent);
-  padding:2px 10px; border-radius:999px;
-  font-weight:700;
-}
+#city-name { font-size: 1.4em; margin: 0; font-weight:700; }
+#city-level { font-size: 1em; opacity:0.9; }
 
-/* 都市写真カード */
-#city-visual{
-  padding:14px 12px;
+/* ======================
+   写真カード
+====================== */
+#photo-area {
+  position: relative;
+  width: min(900px, 95%);
+  margin: 20px auto 10px auto;
+  background: var(--card);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  border: 3px solid var(--accent-weak);
 }
-.city-card{
-  width:min(920px,95vw);
-  margin:0 auto;
-  background:var(--card);
-  border-radius:16px;
-  box-shadow:0 8px 24px rgba(0,0,0,.12);
-  overflow:hidden;
-  border:2px solid var(--accent-weak);
+#city-photo {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+  background: #ddd;
 }
-#city-photo{
-  width:100%; display:block;
-  aspect-ratio: 16/9; object-fit:cover;
-  background:#ddd;
-}
-#city-caption{
-  margin:0; padding:10px 14px;
-  color:var(--muted);
-  font-size:.9rem;
+#city-caption {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 5px 10px;
+  border-radius: 8px;
 }
 
-/* ステータス＆資源 */
-#status-and-resources{
-  width:min(920px,95vw);
-  margin:6px auto 0 auto;
-  display:grid; gap:10px;
-  grid-template-columns:1.1fr .9fr;
-}
-@media (max-width:900px){
-  #status-and-resources{ grid-template-columns:1fr; }
-}
-#status-bars .bar{
-  display:flex; align-items:center; gap:10px; margin:6px 0;
-}
-#status-bars label{ width:80px; font-weight:700; color:#334; }
-.gauge{ flex:1; height:16px; background:#e3e7ea; border-radius:10px; overflow:hidden; }
-.gauge div{
-  height:100%; width:0%;
-  background:linear-gradient(90deg,var(--accent),#66bb6a);
-  transition:width .35s ease;
-}
-#res-chips{
-  list-style:none; padding:0; margin:0;
-  display:flex; flex-wrap:wrap; gap:8px;
-  align-content:flex-start;
-}
-#res-chips li{
-  background:var(--card);
-  border:1px solid var(--accent-weak);
-  border-radius:10px; padding:6px 10px;
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
+/* ======================
+   ステータス＋資源
+====================== */
+#status {
+  width: min(900px,95%);
+  margin: 12px auto;
+  background: var(--card);
+  border-radius: 12px;
+  padding: 10px 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 1px solid var(--accent-weak);
 }
 
-/* 説得力パネル */
-#evidence-panel{
-  width:min(920px,95vw);
-  margin:10px auto 0 auto;
-  background:var(--card);
-  border:1px solid var(--accent-weak);
-  border-radius:12px;
-  padding:12px;
-  box-shadow:0 4px 14px rgba(0,0,0,.08);
+.bar { display: flex; align-items: center; margin: 6px 0; }
+.bar label { width: 80px; font-weight:700; color:#334; }
+.gauge { flex: 1; height: 14px; background: #e6eaed; border-radius: 8px; overflow: hidden; }
+.gauge div { height: 100%; width: 0%; background: linear-gradient(90deg,var(--accent),#66bb6a); transition: width .4s ease; }
+
+#resources ul {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  list-style: none; padding: 0; margin: 8px auto;
+  gap: 8px;
 }
-#evidence{ text-align:left; color:#333; line-height:1.6; }
-#evidence .kv{ display:flex; gap:10px; flex-wrap:wrap; }
-#evidence .tag{
-  background:var(--accent-weak); color:#222; border-radius:8px;
-  padding:4px 8px; font-size:.85rem; display:inline-block;
+#resources li {
+  background: var(--card);
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--accent-weak);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  font-size: 0.9rem;
 }
 
-/* 質問パネル */
-#main-panel{
-  width:min(920px,95vw);
-  margin:12px auto 24px auto;
-  background:#fff;
-  border-radius:12px;
-  border:1px solid #e6e9ec;
-  box-shadow:0 6px 16px rgba(0,0,0,.08);
-  padding:16px;
-  text-align:center;
+/* ======================
+   質問セクション
+====================== */
+#question {
+  background: var(--card);
+  width: min(900px,95%);
+  margin: 16px auto 24px auto;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  border: 1px solid #e4e8ec;
+  padding: 16px;
 }
-#question-title{ margin:6px 0 6px; color:#223; }
-#question-desc{ margin:0 0 12px; color:#445; }
+#question-title {
+  font-size: 1.2rem;
+  margin: 0 0 6px 0;
+  color: var(--accent);
+}
+#question-desc { margin: 0 0 10px; color: #444; }
 
-.choice-btn{
-  display:block; width:min(760px,92%); margin:10px auto;
-  padding:12px 14px; border-radius:10px; border:none;
-  background:var(--accent); color:#fff; font-size:1rem;
-  cursor:pointer; transition:.2s;
-  box-shadow:0 4px 12px rgba(0,0,0,.12);
+.choice-btn {
+  display: block;
+  width: min(720px, 90%);
+  margin: 10px auto;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
-.choice-btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
-.choice-btn:disabled{ background:#cfd8dc; color:#777; cursor:not-allowed; }
+.choice-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.choice-btn:disabled { background: #cfd8dc; color: #777; cursor: not-allowed; }
 
-#explainBox{
-  background:#f1fbf8; border-left:4px solid var(--accent);
-  padding:10px; margin:10px auto; width:min(760px,92%);
-  border-radius:8px; color:#224;
+#explainBox {
+  background: #f3fbf7;
+  border-left: 4px solid var(--accent);
+  padding: 10px;
+  margin: 10px auto;
+  width: min(720px, 90%);
+  border-radius: 8px;
+  color: #224;
+  text-align: left;
 }
-.hidden{ display:none; }
+.hidden { display: none; }
 
-#buttons{ margin-top:10px; display:flex; gap:8px; justify-content:center; }
-#buttons button{
-  background:#1565c0; color:#fff; border:none;
-  padding:8px 14px; border-radius:8px; cursor:pointer;
+/* ======================
+   根拠パネル
+====================== */
+#evidence {
+  width: min(900px,95%);
+  background: var(--card);
+  border-radius: 12px;
+  margin: 10px auto 24px auto;
+  padding: 12px;
+  font-size: 0.9rem;
+  text-align: left;
+  border: 1px solid var(--accent-weak);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  color:#222;
+  line-height:1.6;
 }
-#buttons button:hover{ filter:brightness(1.05); }
+#evidence .kv { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom:6px; }
+#evidence .tag {
+  background: var(--accent-weak);
+  color: #222;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
 
-/* 演出 */
-.level-up, .city-change{
-  position:fixed; left:50%; transform:translateX(-50%); z-index:1000;
-  font-weight:800; text-shadow:0 0 10px #fff;
+/* ======================
+   ボタン
+====================== */
+#buttons {
+  margin: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
-.level-up{
-  top:40%; font-size:3em; color:gold;
-  animation:pop .9s ease-out, fade 1.6s ease-in forwards;
+#buttons button {
+  background: #1976d2;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: 0.2s;
 }
-.city-change{
-  bottom:10%; background:rgba(0,0,0,.72); color:#fff;
-  padding:10px 18px; border-radius:18px; font-size:1.05rem;
-  animation:slideIn .3s ease-out, fade 2.2s ease-in forwards;
-}
-@keyframes pop{0%{transform:translateX(-50%) scale(.6);opacity:0;} 40%{transform:translateX(-50%) scale(1.12);opacity:1;} 100%{transform:translateX(-50%) scale(1.0);} }
-@keyframes slideIn{from{opacity:0; transform:translate(-50%, 16px);} to{opacity:1; transform:translate(-50%,0);} }
-@keyframes fade{to{opacity:0;} }
+#buttons button:hover { filter: brightness(1.08); }
 
+/* ======================
+   演出
+====================== */
+.level-up, .city-change {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  font-weight: 800;
+  text-shadow: 0 0 10px #fff;
+  animation: fadeOut 2.4s ease-in forwards;
+}
+.level-up {
+  top: 40%;
+  font-size: 3em;
+  color: gold;
+  animation: pop 0.9s ease-out, fadeOut 1.8s ease-in forwards;
+}
+.city-change {
+  bottom: 10%;
+  background: rgba(0,0,0,0.72);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 18px;
+  font-size: 1.05rem;
+  border: 2px solid var(--accent);
+  animation: slideIn .3s ease-out, fadeOut 2.4s ease-in forwards;
+}
+@keyframes pop {
+  0% { transform: translateX(-50%) scale(0.6); opacity: 0; }
+  40% { transform: translateX(-50%) scale(1.1); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1.0); }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translate(-50%, 16px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes fadeOut { to { opacity: 0; } }
+
+/* ======================
+   メディア調整
+====================== */
+@media (max-width: 700px) {
+  #city-caption { font-size: 0.8rem; }
+  .choice-btn { font-size: 0.9rem; padding: 10px; }
+  #question-title { font-size: 1.1rem; }
+}
