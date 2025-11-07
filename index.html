@@ -3,137 +3,90 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SDGs City Manager - 資源連動型都市経営シミュレーター</title>
+<title>SDGs City Manager Ver.6</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="game-container">
 
-    <!-- ============================= -->
-    <!-- 左パネル：都市ビジュアル・質問表示 -->
-    <!-- ============================= -->
-    <div id="left-panel">
+  <h1>🌏 SDGs City Manager</h1>
 
-      <!-- 都市ビジュアル -->
-      <div id="city-view">
-        <div id="city-bg" class="city-layer"></div>
-        <img id="mg-image" src="" alt="中景" class="city-layer">
-        <img id="fg-image" src="" alt="前景" class="city-layer">
-      </div>
-
-      <!-- 都市リボン（都市名・レベル） -->
-      <div id="city-ribbon">
-        <h2 id="city-info-name">未発展都市</h2>
-        <span id="city-info-level">Lv.1</span>
-      </div>
-
-      <!-- 都市情報パネル -->
-      <div id="city-info-panel">
-        <div id="city-info-desc">都市の状況がここに表示されます。</div>
-        <div id="city-info-resources">資源情報 - ⚡:0 🍎:0 🧠:0 💰:0 💧:0 👷:0 ♻:0</div>
-      </div>
-
-      <!-- 質問カード -->
-      <div id="question-card" aria-live="polite">
-        <h3 id="question-title">政策選択の時間です</h3>
-        <p id="question-desc">この都市の未来を左右する選択をしましょう。</p>
-
-        <!-- 選択肢ボタン -->
-        <div id="choices"></div>
-
-        <!-- 解説エリア -->
-        <div id="explainBox" class="hidden"></div>
-
-        <!-- 進行状況 -->
-        <div id="progress">0 / 0</div>
-      </div>
-
-      <!-- 特殊イベント -->
-      <div id="special-event" class="hidden">
-        <h3>🌪 特殊イベント発生！</h3>
-        <p id="special-desc">異常気象が発生し、都市に影響が出ています！</p>
-        <button id="btn-event-ok">OK</button>
-      </div>
-    </div>
-
-    <!-- ============================= -->
-    <!-- 右パネル：リソース・都市タイプ -->
-    <!-- ============================= -->
-    <div id="right-panel">
-      <h3>📊 都市データ</h3>
-
-      <!-- リソースステータス -->
-      <div class="data-section">
-        <h4>リソース状況</h4>
-
-        <div class="status">
-          <label>🌿 環境</label>
-          <div class="status-bar"><div id="res-env" class="bar" style="width:50%;"></div></div>
-        </div>
-        <div class="status">
-          <label>💰 経済</label>
-          <div class="status-bar"><div id="res-eco" class="bar" style="width:50%;"></div></div>
-        </div>
-        <div class="status">
-          <label>🤝 社会</label>
-          <div class="status-bar"><div id="res-soc" class="bar" style="width:50%;"></div></div>
-        </div>
-        <div class="status">
-          <label>⚡ エネルギー</label>
-          <div class="status-bar"><div id="res-energy" class="bar" style="width:0%;"></div></div>
-        </div>
-        <div class="status">
-          <label>🍎 食料</label>
-          <div class="status-bar"><div id="res-food" class="bar" style="width:0%;"></div></div>
-        </div>
-      </div>
-
-      <!-- 都市タイプポイント -->
-      <div class="data-section">
-        <h4>都市タイプポイント（全15タイプ）</h4>
-        <ul id="typePoints">
-          <li>🌿 エコ都市：<span id="tp-eco">0</span></li>
-          <li>🏭 産業都市：<span id="tp-industry">0</span></li>
-          <li>🤝 社会都市：<span id="tp-social">0</span></li>
-          <li>💡 スマート都市：<span id="tp-smart">0</span></li>
-          <li>🔬 科学都市：<span id="tp-science">0</span></li>
-          <li>🎭 文化都市：<span id="tp-culture">0</span></li>
-          <li>🗺 観光都市：<span id="tp-tourism">0</span></li>
-          <li>🌾 農業都市：<span id="tp-agriculture">0</span></li>
-          <li>⚙ 工業都市：<span id="tp-industryHeavy">0</span></li>
-          <li>🏙 都市再生都市：<span id="tp-urban">0</span></li>
-          <li>🏗 インフラ都市：<span id="tp-infra">0</span></li>
-          <li>🏠 住宅都市：<span id="tp-housing">0</span></li>
-          <li>🌸 福祉都市：<span id="tp-welfare">0</span></li>
-          <li>📚 教育都市：<span id="tp-education">0</span></li>
-          <li>🚄 交通都市：<span id="tp-transport">0</span></li>
-        </ul>
-      </div>
-
-      <!-- コントロールボタン -->
-      <div id="control-buttons">
-        <button id="btn-start">▶ ゲームを始める</button>
-        <button id="btn-reset">🔁 リセット</button>
-      </div>
-
-      <!-- チュートリアル / 補足説明 -->
-      <div class="data-section">
-        <h4>🎓 プレイガイド</h4>
-        <p>
-          ・選択肢には資源条件が設定されています。<br>
-          ・例えば「⚡エネルギーが20以上」でないと選べない政策もあります。<br>
-          ・また、🧠技術レベルが高いとボーナス効果が発動することも。<br>
-          ・資源をどう配分するかが都市の未来を決めます！
-        </p>
-      </div>
-    </div>
+  <!-- メイン背景 -->
+  <div id="city-bg" class="fade-in">
+    <div id="overlay"></div>
   </div>
 
-  <!-- ============================= -->
-  <!-- スクリプト読み込み -->
-  <!-- ============================= -->
+  <!-- ゲームパネル -->
+  <section id="main-panel">
+    <h2 id="question-title">SDGs都市経営ゲーム</h2>
+    <p id="question-desc">スタートボタンを押して開始！</p>
+
+    <div id="choices"></div>
+
+    <div id="explainBox" class="hidden"></div>
+
+    <div id="buttons">
+      <button id="btn-start">ゲーム開始</button>
+      <button id="btn-reset">リセット</button>
+    </div>
+
+    <p id="progress"></p>
+  </section>
+
+  <!-- ステータスバー -->
+  <section id="status">
+    <h3>🌿 状況</h3>
+    <div class="bar"><label>環境</label><div class="gauge"><div id="res-env"></div></div></div>
+    <div class="bar"><label>経済</label><div class="gauge"><div id="res-eco"></div></div></div>
+    <div class="bar"><label>社会</label><div class="gauge"><div id="res-soc"></div></div></div>
+  </section>
+
+  <!-- 資源表示 -->
+  <section id="resources">
+    <h3>⚙️ 資源</h3>
+    <ul>
+      <li>⚡ <span id="res-energy">0</span></li>
+      <li>🍎 <span id="res-food">0</span></li>
+      <li>🧠 <span id="res-tech">0</span></li>
+      <li>💰 <span id="res-funds">0</span></li>
+      <li>💧 <span id="res-water">0</span></li>
+      <li>👷 <span id="res-labor">0</span></li>
+      <li>♻ <span id="res-recycled">0</span></li>
+    </ul>
+  </section>
+
+  <!-- 都市情報 -->
+  <section id="city-info-panel">
+    <h3>🏙 都市情報</h3>
+    <div id="city-info-name">エコ都市</div>
+    <div id="city-info-level">Lv.1</div>
+    <p id="city-info-desc"></p>
+    <p id="city-info-resources"></p>
+  </section>
+
+  <!-- 都市タイプポイント -->
+  <section id="type-points">
+    <h3>📊 都市タイプポイント</h3>
+    <div class="grid">
+      <div>🌳Eco:<span id="tp-eco">0</span></div>
+      <div>⚙Industry:<span id="tp-industry">0</span></div>
+      <div>🤝Social:<span id="tp-social">0</span></div>
+      <div>💻Smart:<span id="tp-smart">0</span></div>
+      <div>🔬Science:<span id="tp-science">0</span></div>
+      <div>🎭Culture:<span id="tp-culture">0</span></div>
+      <div>🏖Tourism:<span id="tp-tourism">0</span></div>
+      <div>🌾Agri:<span id="tp-agriculture">0</span></div>
+      <div>🏙Urban:<span id="tp-urban">0</span></div>
+      <div>🚧Infra:<span id="tp-infra">0</span></div>
+      <div>🏘Housing:<span id="tp-housing">0</span></div>
+      <div>🎓Edu:<span id="tp-education">0</span></div>
+      <div>🚆Transport:<span id="tp-transport">0</span></div>
+      <div>🏭Industry+:<span id="tp-industryHeavy">0</span></div>
+    </div>
+  </section>
+
   <script src="data.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
+
 
