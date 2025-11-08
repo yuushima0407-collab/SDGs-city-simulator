@@ -254,3 +254,84 @@ header {
   .choice-btn { font-size: 0.9rem; padding: 10px; }
   #question-title { font-size: 1.1rem; }
 }
+/* ======================
+   フィードバック（褒め・課題）
+====================== */
+#feedback {
+  width: min(900px, 95%);
+  margin: 20px auto;
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 1px solid var(--accent-weak);
+  padding: 14px;
+  text-align: left;
+}
+#feedback.hidden { display: none; }
+#feedback h3 {
+  margin-top: 0;
+  color: var(--accent);
+  border-left: 6px solid var(--accent);
+  padding-left: 8px;
+}
+
+.feedback-box {
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 0.95em;
+  line-height: 1.6;
+}
+.feedback-box.good {
+  background: #e6f4ea;
+  border-left: 6px solid #34a853;
+}
+.feedback-box.bad {
+  background: #fce8e6;
+  border-left: 6px solid #ea4335;
+}
+
+/* ======================
+   データ振り返り（Summary）
+====================== */
+#summary {
+  width: min(900px, 95%);
+  margin: 20px auto;
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 1px solid var(--accent-weak);
+  padding: 14px;
+  text-align: center;
+}
+#summary.hidden { display: none; }
+#summary h3 {
+  margin-top: 0;
+  color: var(--accent);
+  border-left: 6px solid var(--accent);
+  padding-left: 8px;
+  text-align: left;
+}
+#summary canvas {
+  margin-top: 10px;
+  max-width: 100%;
+}
+#summary-data {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* ======================
+   表示調和・調整
+====================== */
+@media (max-width: 700px) {
+  #feedback, #summary {
+    padding: 10px;
+  }
+  .feedback-box {
+    font-size: 0.9rem;
+  }
+}
+
