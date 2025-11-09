@@ -11,7 +11,7 @@
   // --------- State ----------
   let currentQuestionIndex = 0;
   let status = { env: 50, eco: 50, soc: 50 };
-  let resources = { energy: 0, food: 0, tech: 0, funds: 100, labor: 0, water: 0, recycled: 0 };
+  let resources = { energy: 0, food: 0, tech: 0, funds: 70, labor: 0, water: 0, recycled: 0 };
 
   const cityTypePoints = {
     eco: 0, industry: 0, social: 0, smart: 0, science: 0,
@@ -89,7 +89,7 @@
   function initGame() {
     currentQuestionIndex = 0;
     status = { env: 50, eco: 50, soc: 50 };
-    resources = { energy: 0, food: 0, tech: 0, funds: 100, labor: 0, water: 0, recycled: 0 };
+    resources = { energy: 0, food: 0, tech: 0, funds: 70, labor: 0, water: 0, recycled: 0 };
     for (const k in cityTypePoints) cityTypePoints[k] = 0;
     prevTypeKey = "start"; prevLevel = 1; history = [];
 
