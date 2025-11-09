@@ -58,7 +58,7 @@
     culture:     { v:[0.65,0.50,0.80], resPref:{funds:0.4},                       disp:"文化都市" },
     tourism:     { v:[0.55,0.75,0.65], resPref:{funds:0.5, water:0.4},            disp:"観光都市" },
     agriculture: { v:[0.85,0.45,0.50], resPref:{food:1, water:0.6},               disp:"農業都市" },
-    urban:　　　　{  v:[0.40,0.65,0.55],  resPref:{funds:0.25, recycled:0.3, tech:0.25, labor:0.2},  disp:"都市再生都市" },
+    urban:       { v:[0.40,0.60,0.50], resPref:{funds:0.25, recycled:0.3, tech:0.25, labor:0.2}, disp:"都市再生都市" },
     infra:       { v:[0.40,0.85,0.55], resPref:{funds:0.9, energy:0.5},           disp:"インフラ都市" },
     housing:     { v:[0.55,0.55,0.85], resPref:{funds:0.5, labor:0.4},            disp:"住宅都市" },
     education:   { v:[0.55,0.65,0.80], resPref:{tech:0.7, funds:0.4},             disp:"教育都市" },
