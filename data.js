@@ -10,6 +10,7 @@ const cities = [
         effects: { env: +3, eco: -1, soc: +1 },
         resources: { funds: -5, energy: +2 },
         example: "デンマークの風力発電政策",
+        typePoints: { eco: +1, smart: +0.5 }
       },
       {
         text: "⚙️ 火力発電を増設して供給を安定化（🔸）",
@@ -18,6 +19,7 @@ const cities = [
         effects: { env: -2, eco: +3, soc: 0 },
         resources: { funds: -4, energy: +5 },
         example: "中国の石炭火力発電依存",
+        typePoints: { industry: +1, infra: +0.5 }
       },
       {
         text: "💡 省エネキャンペーンを実施（🔹）",
@@ -26,6 +28,7 @@ const cities = [
         effects: { env: +1, eco: +1, soc: +1 },
         resources: { funds: 0, energy: +1 },
         example: "日本のクールビズ運動",
+        typePoints: { social: +0.5, eco: +0.5 }
       },
     ],
   },
@@ -39,6 +42,7 @@ const cities = [
         sdgs: [8, 9],
         effects: { env: -2, eco: +4, soc: +1 },
         resources: { funds: -8, labor: +2 },
+        typePoints: { industry: +1, infra: +0.5 }
       },
       {
         text: "👩‍🏫 職業訓練学校を設立（🔸）",
@@ -46,6 +50,7 @@ const cities = [
         sdgs: [4, 8],
         effects: { env: 0, eco: +2, soc: +3 },
         resources: { funds: -6, tech: +1 },
+        typePoints: { education: +1, social: +0.5 }
       },
       {
         text: "🤝 既存企業に雇用維持を要請（🔹）",
@@ -53,6 +58,7 @@ const cities = [
         sdgs: [8],
         effects: { env: 0, eco: +1, soc: +1 },
         resources: { funds: -2, labor: +1 },
+        typePoints: { social: +0.5, industry: +0.3 }
       },
     ],
   },
@@ -66,6 +72,7 @@ const cities = [
         sdgs: [2, 12],
         effects: { env: -1, eco: +2, soc: +2 },
         resources: { funds: -5, food: +6 },
+        typePoints: { agriculture: +1, eco: +0.3 }
       },
       {
         text: "🤝 食品ロスを減らすキャンペーン（🔹）",
@@ -73,6 +80,7 @@ const cities = [
         sdgs: [12, 13],
         effects: { env: +3, eco: 0, soc: +1 },
         resources: { funds: 0, food: +2 },
+        typePoints: { eco: +1, social: +0.5 }
       },
       {
         text: "📦 海外からの安価な輸入に頼る（🔸）",
@@ -80,6 +88,7 @@ const cities = [
         sdgs: [8],
         effects: { env: -2, eco: +3, soc: -1 },
         resources: { funds: -2, food: +3 },
+        typePoints: { industry: +1 }
       },
     ],
   },
@@ -93,6 +102,7 @@ const cities = [
         sdgs: [9, 11],
         effects: { env: +1, eco: +2, soc: +2 },
         resources: { funds: -6, energy: -1 },
+        typePoints: { transport: +1, social: +0.5 }
       },
       {
         text: "🚗 高速道路を延伸して流通強化（🔺）",
@@ -100,6 +110,7 @@ const cities = [
         sdgs: [8, 9],
         effects: { env: -2, eco: +3, soc: +1 },
         resources: { funds: -8, energy: -2 },
+        typePoints: { industry: +1, infra: +1 }
       },
       {
         text: "🚶 徒歩・自転車通勤を推進（🔹）",
@@ -107,6 +118,7 @@ const cities = [
         sdgs: [3, 11],
         effects: { env: +3, eco: 0, soc: +1 },
         resources: { funds: -1, energy: 0 },
+        typePoints: { eco: +1, transport: +0.5 }
       },
     ],
   },
@@ -120,6 +132,7 @@ const cities = [
         sdgs: [4, 9],
         effects: { env: 0, eco: +2, soc: +3 },
         resources: { funds: -5, tech: +3 },
+        typePoints: { education: +1, smart: +0.5 }
       },
       {
         text: "📚 奨学金制度を拡充（🔹）",
@@ -127,6 +140,7 @@ const cities = [
         sdgs: [4, 10],
         effects: { env: 0, eco: 0, soc: +2 },
         resources: { funds: -3, labor: +1 },
+        typePoints: { social: +1, education: +0.5 }
       },
       {
         text: "⏸ 教育支出を一時凍結（🔹）",
@@ -134,6 +148,7 @@ const cities = [
         sdgs: [8],
         effects: { env: 0, eco: +1, soc: -2 },
         resources: { funds: +3 },
+        typePoints: { industry: +0.5 }
       },
     ],
   },
@@ -147,6 +162,7 @@ const cities = [
         sdgs: [6, 11],
         effects: { env: +2, eco: 0, soc: +1 },
         resources: { funds: -1, water: +2 },
+        typePoints: { social: +1, eco: +0.5 }
       },
       {
         text: "🚰 ダムを新設して貯水量確保（🔸）",
@@ -154,6 +170,7 @@ const cities = [
         sdgs: [6, 9],
         effects: { env: -1, eco: +2, soc: +1 },
         resources: { funds: -6, water: +4 },
+        typePoints: { infra: +1, industry: +0.3 }
       },
       {
         text: "🌦️ 雨水再利用システム導入（🔸）",
@@ -161,6 +178,7 @@ const cities = [
         sdgs: [6, 13],
         effects: { env: +3, eco: +1, soc: 0 },
         resources: { funds: -5, tech: +2 },
+        typePoints: { smart: +1, eco: +0.5 }
       },
     ],
   },
@@ -174,6 +192,7 @@ const cities = [
         sdgs: [12, 13],
         effects: { env: +3, eco: +1, soc: +1 },
         resources: { funds: -6, recycled: +4 },
+        typePoints: { eco: +1, infra: +0.3 }
       },
       {
         text: "🔥 焼却施設を大型化（🔸）",
@@ -181,6 +200,7 @@ const cities = [
         sdgs: [8, 9],
         effects: { env: -3, eco: +3, soc: 0 },
         resources: { funds: -5, energy: +2 },
+        typePoints: { industry: +1, infra: +0.3 }
       },
       {
         text: "🗑️ ごみ削減の啓発を行う（🔹）",
@@ -188,6 +208,7 @@ const cities = [
         sdgs: [11, 12],
         effects: { env: +2, eco: 0, soc: +2 },
         resources: { funds: -1, recycled: +1 },
+        typePoints: { social: +1, eco: +0.5 }
       },
     ],
   },
@@ -201,6 +222,7 @@ const cities = [
         sdgs: [9, 16],
         effects: { env: +1, eco: +3, soc: +1 },
         resources: { funds: -8, tech: +3 },
+        typePoints: { smart: +1, governance: +0.5 }
       },
       {
         text: "📱 一部窓口だけデジタル化（🔸）",
@@ -208,6 +230,7 @@ const cities = [
         sdgs: [9, 11],
         effects: { env: 0, eco: +1, soc: +1 },
         resources: { funds: -4, tech: +1 },
+        typePoints: { smart: +0.5, social: +0.3 }
       },
       {
         text: "🧓 高齢者向け講習会を開催（🔹）",
@@ -215,6 +238,7 @@ const cities = [
         sdgs: [10, 11],
         effects: { env: 0, eco: 0, soc: +2 },
         resources: { funds: -2 },
+        typePoints: { social: +1, education: +0.3 }
       },
     ],
   },
@@ -228,6 +252,7 @@ const cities = [
         sdgs: [8, 11],
         effects: { env: +1, eco: +3, soc: +2 },
         resources: { funds: -6, labor: +1 },
+        typePoints: { culture: +1, tourism: +0.5 }
       },
       {
         text: "🎢 大型リゾートを建設（🔺）",
@@ -235,6 +260,7 @@ const cities = [
         sdgs: [8, 9],
         effects: { env: -3, eco: +5, soc: +1 },
         resources: { funds: -10, energy: -3 },
+        typePoints: { industry: +1, tourism: +0.5 }
       },
       {
         text: "🚶‍♀️ エコツーリズムを推進（🔹）",
@@ -242,6 +268,7 @@ const cities = [
         sdgs: [13, 15],
         effects: { env: +3, eco: +1, soc: +2 },
         resources: { funds: -3, energy: 0 },
+        typePoints: { eco: +1, tourism: +0.5 }
       },
     ],
   },
@@ -255,6 +282,7 @@ const cities = [
         sdgs: [9, 11],
         effects: { env: +1, eco: +4, soc: -1 },
         resources: { funds: -8, tech: +4 },
+        typePoints: { smart: +1, industry: +0.5 }
       },
       {
         text: "👥 人とAIの共存ガイドライン策定（🔸）",
@@ -262,6 +290,7 @@ const cities = [
         sdgs: [8, 10],
         effects: { env: 0, eco: +2, soc: +2 },
         resources: { funds: -4, tech: +1 },
+        typePoints: { social: +1, governance: +0.3 }
       },
       {
         text: "🧑‍🏫 AIリテラシー教育を実施（🔹）",
@@ -269,6 +298,7 @@ const cities = [
         sdgs: [4, 9],
         effects: { env: 0, eco: +1, soc: +2 },
         resources: { funds: -3, tech: +1 },
+        typePoints: { education: +1, smart: +0.5 }
       },
     ],
   },
@@ -282,6 +312,7 @@ const cities = [
         sdgs: [9, 11],
         effects: { env: -2, eco: +3, soc: +2 },
         resources: { funds: -7, labor: +1 },
+        typePoints: { industry: +1, infra: +0.5 }
       },
       {
         text: "🌳 郊外にエコ住宅を整備（🔸）",
@@ -289,6 +320,7 @@ const cities = [
         sdgs: [11, 13],
         effects: { env: +2, eco: +1, soc: +1 },
         resources: { funds: -6, energy: -1 },
+        typePoints: { eco: +1, social: +0.3 }
       },
       {
         text: "🏠 空き家再利用促進（🔹）",
@@ -296,6 +328,7 @@ const cities = [
         sdgs: [11, 12],
         effects: { env: +2, eco: +1, soc: +2 },
         resources: { funds: -2 },
+        typePoints: { social: +1, eco: +0.3 }
       },
     ],
   },
@@ -309,6 +342,7 @@ const cities = [
         sdgs: [7, 13],
         effects: { env: +3, eco: +1, soc: +1 },
         resources: { funds: -5, energy: -1 },
+        typePoints: { eco: +1, smart: +0.5 }
       },
       {
         text: "⛽ 石油産業を保護して雇用維持（🔹）",
@@ -316,6 +350,7 @@ const cities = [
         sdgs: [8],
         effects: { env: -2, eco: +2, soc: 0 },
         resources: { funds: -3, energy: +2 },
+        typePoints: { industry: +1 }
       },
       {
         text: "🚲 自転車専用道路を拡充（🔹）",
@@ -323,6 +358,7 @@ const cities = [
         sdgs: [3, 11],
         effects: { env: +2, eco: +1, soc: +2 },
         resources: { funds: -2, energy: 0 },
+        typePoints: { social: +1, eco: +0.5 }
       },
     ],
   },
@@ -336,6 +372,7 @@ const cities = [
         sdgs: [13, 15],
         effects: { env: +4, eco: 0, soc: +1 },
         resources: { funds: -6, labor: -1 },
+        typePoints: { eco: +1, agriculture: +0.5 }
       },
       {
         text: "🏗 インフラ耐災害化（🔸）",
@@ -343,6 +380,7 @@ const cities = [
         sdgs: [9, 11],
         effects: { env: +1, eco: +2, soc: +2 },
         resources: { funds: -6 },
+        typePoints: { infra: +1, governance: +0.3 }
       },
       {
         text: "🧯 市民防災訓練を強化（🔹）",
@@ -350,6 +388,7 @@ const cities = [
         sdgs: [11, 13],
         effects: { env: +1, eco: 0, soc: +2 },
         resources: { funds: -2 },
+        typePoints: { social: +1, governance: +0.3 }
       },
     ],
   },
@@ -363,6 +402,7 @@ const cities = [
         sdgs: [7, 9],
         effects: { env: +3, eco: +2, soc: +1 },
         resources: { funds: -6, tech: +2 },
+        typePoints: { eco: +1, smart: +0.5 }
       },
       {
         text: "⚙️ 産業ロボット開発支援（🔸）",
@@ -370,6 +410,7 @@ const cities = [
         sdgs: [8, 9],
         effects: { env: -1, eco: +4, soc: 0 },
         resources: { funds: -6, tech: +3 },
+        typePoints: { industry: +1, smart: +0.3 }
       },
       {
         text: "👩‍🔬 教育・基礎研究に投資（🔹）",
@@ -377,6 +418,7 @@ const cities = [
         sdgs: [4, 9],
         effects: { env: +1, eco: +1, soc: +2 },
         resources: { funds: -3, tech: +1 },
+        typePoints: { education: +1, social: +0.5 }
       },
     ],
   },
@@ -390,6 +432,7 @@ const cities = [
         sdgs: [11],
         effects: { env: +1, eco: +1, soc: +3 },
         resources: { funds: -4 },
+        typePoints: { culture: +1, social: +0.3 }
       },
       {
         text: "🏙 文化施設を再開発エリアに統合（🔸）",
@@ -397,6 +440,7 @@ const cities = [
         sdgs: [8, 11],
         effects: { env: -1, eco: +3, soc: +1 },
         resources: { funds: -5 },
+        typePoints: { industry: +1, culture: +0.3 }
       },
       {
         text: "🎨 市民ボランティアで保存活動（🔹）",
@@ -404,6 +448,7 @@ const cities = [
         sdgs: [10, 11],
         effects: { env: +1, eco: 0, soc: +2 },
         resources: { funds: -1, labor: +1 },
+        typePoints: { social: +1, culture: +0.5 }
       },
     ],
   },
@@ -417,6 +462,7 @@ const cities = [
         sdgs: [3, 10],
         effects: { env: 0, eco: +1, soc: +4 },
         resources: { funds: -8, labor: -1 },
+        typePoints: { social: +1, governance: +0.5 }
       },
       {
         text: "💊 予防医療・健康教育に注力（🔸）",
@@ -424,6 +470,7 @@ const cities = [
         sdgs: [3, 4],
         effects: { env: +1, eco: 0, soc: +3 },
         resources: { funds: -5 },
+        typePoints: { education: +1, social: +0.3 }
       },
       {
         text: "💸 医療費補助を削減（🔹）",
@@ -431,6 +478,7 @@ const cities = [
         sdgs: [8],
         effects: { env: 0, eco: +2, soc: -2 },
         resources: { funds: +3 },
+        typePoints: { industry: +1 }
       },
     ],
   },
@@ -444,6 +492,7 @@ const cities = [
         sdgs: [10, 11],
         effects: { env: -1, eco: +2, soc: +3 },
         resources: { funds: -6 },
+        typePoints: { social: +1, infra: +0.5 }
       },
       {
         text: "🏢 都心部集中開発で効率化（🔸）",
@@ -451,6 +500,7 @@ const cities = [
         sdgs: [8, 9],
         effects: { env: -2, eco: +4, soc: -1 },
         resources: { funds: -6, energy: -2 },
+        typePoints: { industry: +1, infra: +0.5 }
       },
       {
         text: "🤝 コミュニティ再生プログラム（🔹）",
@@ -458,6 +508,7 @@ const cities = [
         sdgs: [11, 16],
         effects: { env: +1, eco: +1, soc: +2 },
         resources: { funds: -2 },
+        typePoints: { social: +1, governance: +0.3 }
       },
     ],
   },
@@ -471,6 +522,7 @@ const cities = [
         sdgs: [9, 13],
         effects: { env: +3, eco: +3, soc: +1 },
         resources: { funds: -6, tech: +2 },
+        typePoints: { eco: +1, industry: +1 }
       },
       {
         text: "🏭 重工業を維持して雇用確保（🔸）",
@@ -478,6 +530,7 @@ const cities = [
         sdgs: [8, 9],
         effects: { env: -3, eco: +4, soc: +1 },
         resources: { funds: -5, energy: -2 },
+        typePoints: { industry: +1, infra: +0.3 }
       },
       {
         text: "🚀 新産業創出プロジェクトを公募（🔹）",
@@ -485,6 +538,7 @@ const cities = [
         sdgs: [9],
         effects: { env: +1, eco: +2, soc: +2 },
         resources: { funds: -4, tech: +2 },
+        typePoints: { smart: +1, industry: +0.5 }
       },
     ],
   },
@@ -498,6 +552,7 @@ const cities = [
         sdgs: [16],
         effects: { env: -1, eco: +2, soc: +2 },
         resources: { funds: -6, tech: +1 },
+        typePoints: { governance: +1, smart: +0.3 }
       },
       {
         text: "🕊 平和教育・外交対話に注力（🔹）",
@@ -505,6 +560,7 @@ const cities = [
         sdgs: [16, 17],
         effects: { env: +1, eco: 0, soc: +3 },
         resources: { funds: -2 },
+        typePoints: { social: +1, education: +0.3 }
       },
       {
         text: "💰 軍需産業を育成（🔺）",
@@ -512,6 +568,7 @@ const cities = [
         sdgs: [8, 9],
         effects: { env: -3, eco: +4, soc: -1 },
         resources: { funds: -8, energy: -2 },
+        typePoints: { industry: +1, infra: +0.3 }
       },
     ],
   },
@@ -525,6 +582,7 @@ const cities = [
         sdgs: [13, 15],
         effects: { env: +5, eco: -1, soc: +2 },
         resources: { funds: -5, energy: -1 },
+        typePoints: { eco: +1, social: +0.5 }
       },
       {
         text: "🏭 経済成長を維持し雇用を安定化（🔸）",
@@ -532,6 +590,7 @@ const cities = [
         sdgs: [8, 9],
         effects: { env: -3, eco: +5, soc: +1 },
         resources: { funds: -5, energy: -2 },
+        typePoints: { industry: +1, infra: +0.5 }
       },
       {
         text: "🤝 格差をなくし幸福度を重視（🔹）",
@@ -539,7 +598,9 @@ const cities = [
         sdgs: [10, 11, 16],
         effects: { env: +1, eco: +1, soc: +4 },
         resources: { funds: -4 },
+        typePoints: { social: +1, governance: +0.5 }
       },
     ],
   },
 ];
+
